@@ -99,10 +99,50 @@ tickets) but **deeply asymmetric** in product surface.
 ### 3.1 Seeker
 
 - One human. One resume. One job search.
-- No engineering team. No developer to wire webhooks. No API key in v0.
-- Engages exclusively through conversational channels.
+- No engineering team. No developer to wire webhooks. No seeker API key in v0.
+- Engages through conversational channels (Telegram, email, web chat) — or,
+  for technical seekers in v1, through their own personal agent acting as a
+  smart channel.
 - Spyglass owns the seeker's experience end to end.
-- Their agent is hosted by Spyglass. **No BYO seeker agents in any planning horizon.**
+- The Spyglass-hosted seeker-agent is always the advocate doing the
+  negotiation. **There is no path where an external agent replaces the
+  Spyglass seeker-agent in the negotiation itself.** See §3.3 for the BYO
+  agent posture.
+
+### 3.3 BYO seeker agent — Mode 1 only (v1 roadmap)
+
+Some technical seekers will already have a personal agent (e.g., OpenClaw or
+similar) and will want it to handle their job search alongside everything
+else it does for them. Spyglass supports this in **Mode 1 only**:
+
+- **Mode 1 (mediator).** The seeker's external agent connects to Spyglass
+  via A2A and acts as a smart channel — it talks to *our* hosted
+  seeker-agent on the seeker's behalf, the same way Telegram or email do,
+  but with persistence and judgment. The Spyglass seeker-agent is still the
+  advocate that negotiates with employer agents. We remain the AEDT
+  operator. The privacy filter, rubric, and audit trail remain ours.
+- **Mode 2 (replacement) is explicitly not on the Spyglass roadmap.** We
+  will not support an external agent acting *as* the seeker-side advocate
+  in the negotiation itself. Someone else can build that product on top of
+  our A2A surface; we will not.
+
+Mode 1 is **v1, not v0.** v0 channels are Telegram + email + web chat. The
+A2A `seeker-delegate` agent card and OAuth/API-key auth flow ship after v0
+launch.
+
+### 3.4 Product philosophy — deliberately not SaaS
+
+Spyglass resists the slippery slope to a full SaaS web surface for seekers.
+The seeker's product is the conversation, not a dashboard. Specifically:
+
+- **No seeker dashboard, no ticket list UI, no analytics views, no
+  recommended-jobs grid.** Anything a seeker needs to know or decide
+  surfaces through the conversational channel, on the agent's initiative.
+- **Account management is Clerk-only** — landing page, signup/login,
+  profile (resume, preferences, threshold, channel links, pause/resume).
+  That is the entire web surface a seeker ever sees.
+- **Adding a dashboard is the slippery slope toward becoming LinkedIn.**
+  Hold the line.
 
 ### 3.2 Employer
 
@@ -241,15 +281,22 @@ Compliance posture and user experience are aligned, not in tension.
 ## 5. Architecture Overview
 
 ```
-                    ┌──────────────────────────────────────────┐
-   Seeker channels  │  Telegram bot · email · web chat         │
-                    └──────────────────┬───────────────────────┘
-                                       │
-   Employer surfaces  ┌────────────────┴────────────────┐
-                      │  Admin console · REST + webhooks │
-                      │  Google A2A (forward-looking)    │
-                      └────────────────┬─────────────────┘
-                                       │
+   Seeker web surface  ┌──────────────────────────────────────────┐
+   (account only,      │  Landing page · /agents.md · /llms.txt   │
+    not the product)   │  Clerk signup/login · Clerk profile      │
+                       │  A2A agent cards (well-known paths)      │
+                       └──────────────────────────────────────────┘
+
+   Seeker channels    ┌──────────────────────────────────────────┐
+   (the product)      │  Telegram · email · web chat             │
+                      │  BYO agent via A2A (v1, Mode 1 only)     │
+                      └──────────────────┬───────────────────────┘
+                                         │
+   Employer surfaces  ┌──────────────────┴──────────────────┐
+                      │  Admin console · REST + webhooks    │
+                      │  Google A2A (forward-looking, v1+)  │
+                      └──────────────────┬──────────────────┘
+                                         │
    ┌───────────────────────────────────▼────────────────────────────┐
    │                     Spyglass Core                              │
    │                                                                │
@@ -317,10 +364,24 @@ v0 channel scope:
 
 - **Telegram** — primary seeker conversational channel
 - **Email** — fallback / async-friendly seeker channel
-- **Minimal web chat** — first-touch from marketing site
+- **Web chat** — first-touch from marketing site (Clerk-authenticated)
 - **Admin console** — employer-side
 - **REST + webhooks** — employer integration
 - **A2A endpoints** — exposed for future use; not depended on for v0 customer flow
+
+v0 web surface scope (seeker side, account management only — **not a product
+dashboard**):
+
+- **Landing page** with marketing content for humans **and**
+  agent-readable instructions (`agents.md` / `llms.txt`) describing what
+  Spyglass is, how to onboard, and where the A2A agent cards live.
+- **Clerk-hosted signup/login**.
+- **Clerk-hosted user profile** for resume upload, preferences, threshold
+  tuning, channel links/verification, pause/resume, A2A delegate
+  registration (when Mode 1 ships in v1).
+- **A2A agent cards** at standard well-known paths.
+
+There is no seeker dashboard, ticket list, or analytics UI. See §3.4.
 
 ---
 
@@ -333,16 +394,24 @@ v0 channel scope:
 
 ### 6.1 Must ship
 
-**Seeker side:**
+**Seeker side (channels — the product):**
 - Conversational onboarding (Telegram + email + web chat)
 - Resume import + conversational profile completion
 - Threshold tuning conversation
 - Match notifications via channel (when threshold clears)
 - Match dossier review via channel
-- Pause / resume / withdraw
+- Pause / resume / withdraw via channel
 - Aggregate insight reports ("N evaluations this week, top score X.X")
 - Optional opt-in for demographic data collection (segregated storage)
 - Work-jurisdiction attestation at signup
+
+**Seeker side (web — account management only, not the product):**
+- Landing page with marketing content + `agents.md` / `llms.txt` for agents
+- Clerk signup/login
+- Clerk profile (resume, preferences, threshold, channel verification,
+  pause/resume)
+- A2A agent cards published at well-known paths
+- **No** dashboard, ticket list, analytics, or recommended-jobs UI
 
 **Employer side:**
 - Admin console: company profile, req creation, threshold setting, candidate inbox
@@ -375,6 +444,7 @@ v0 channel scope:
 ### 6.2 Explicitly out of scope for v0
 
 - WhatsApp channel (v1)
+- BYO seeker agent via A2A — Mode 1 is **v1**, not v0
 - BYO employer agent via A2A (v1+)
 - ATS push connectors (Greenhouse / Lever / etc.) — webhooks only at v0;
   customers wire the rest themselves
@@ -388,6 +458,16 @@ v0 channel scope:
   recruiter tools)
 - Public seeker profile pages (LinkedIn analog) — we are not LinkedIn
 - Job board / browse UX — there is none
+- **Seeker dashboard, ticket list UI, recommended-jobs UI, or any
+  product-shaped web surface for seekers.** See §3.4.
+
+### 6.2.1 Explicitly out of scope — *forever*, not just v0
+
+- **Mode 2 BYO seeker agent** (external agent acting as the seeker's
+  negotiation advocate, replacing the Spyglass seeker-agent). Someone else
+  can build that on top of our A2A surface; we will not. See §3.3.
+- **A SaaS-shaped seeker product surface.** Spyglass is a conversational
+  product, not a dashboard product. See §3.4.
 
 ### 6.3 v0 labor segment
 
