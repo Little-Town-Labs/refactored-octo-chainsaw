@@ -69,13 +69,14 @@ export default tseslint.config(
         },
       ],
 
-      // FR-25: no deep imports across package boundaries
+      // FR-25: no deep imports ACROSS package boundaries.
+      // Same-package relative imports (e.g., "../index.js") are allowed;
+      // cross-package deep paths into another @spyglass/* package's
+      // dist/ or src/ are not.
       "import/no-internal-modules": [
         "error",
         {
-          // Allow imports of @spyglass/<pkg> and @spyglass/<pkg>/<subpath>
-          // Block deep paths like @spyglass/<pkg>/dist/internal/...
-          forbid: ["**/dist/**", "**/src/**"],
+          forbid: ["@spyglass/*/dist/**", "@spyglass/*/src/**"],
         },
       ],
     },

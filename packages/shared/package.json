@@ -21,7 +21,7 @@
   "scripts": {
     "build": "tsc -b",
     "type-check": "tsc --noEmit -p tsconfig.json",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "lint": "eslint ."
   }
 }

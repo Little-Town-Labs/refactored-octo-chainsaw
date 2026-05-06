@@ -19,11 +19,13 @@ pre-commit:
       run: pnpm exec prettier --check {staged_files}
 
     - name: gitleaks
+      # Soft-skip when the binary isn't installed locally — bootstrap
+      # script (T051, Phase A8) installs it. CI gate (T030, Phase A6)
+      # is the authoritative secret-scan defense per Constitution §I.6
+      # Defense in Depth; this local hook is layer 1 of three.
+      skip:
+        - run: "! command -v gitleaks"
       run: gitleaks protect --staged --redact --no-banner
-      # If gitleaks is not installed, the bootstrap script (T051) will
-      # surface the install instruction. Until then, this hook fails
-      # fast with a clear "command not found" error — which is the
-      # correct behavior for a security-critical check.
 
     - name: type-check-changed
       glob: "*.{ts,tsx}"
