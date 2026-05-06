@@ -20,5 +20,13 @@
     "type-check": "tsc --noEmit -p tsconfig.json",
     "test": "jest --passWithNoTests",
     "lint": "eslint ."
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "^0.31.10"
   }
 }
