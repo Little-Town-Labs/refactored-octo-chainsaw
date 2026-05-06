@@ -2,6 +2,7 @@
   "name": "spyglass",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "description": "Project Spyglass — two-sided AI hiring platform for the agentic era",
   "license": "UNLICENSED",
   "packageManager": "pnpm@9.15.0",
@@ -19,7 +20,18 @@
     "gen:env-example": "tsx scripts/gen-env-example.ts"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.5.3",
+    "@commitlint/config-conventional": "^20.5.3",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.3.0",
+    "eslint-config-next": "^16.2.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-boundaries": "^6.0.2",
+    "eslint-plugin-import": "^2.32.0",
+    "lefthook": "^2.1.6",
+    "prettier": "^3.8.3",
     "turbo": "^2.3.0",
-    "typescript": "^5.9.0"
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.59.2"
   }
 }

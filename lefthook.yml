@@ -1,0 +1,35 @@
+# Spyglass git hooks (Lefthook).
+# Hooks are best-effort defenses on the developer side; CI is the
+# authoritative gate (Constitution §I.6 Defense in Depth).
+#
+# Bypass policy: `--no-verify` is acceptable on feature branches for
+# in-progress WIP commits; never on main / release branches. See
+# CONTRIBUTING.md.
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: eslint
+      glob: "*.{js,jsx,ts,tsx,mjs,cjs}"
+      run: pnpm exec eslint {staged_files} --max-warnings=0
+      stage_fixed: true
+
+    - name: prettier
+      glob: "*.{js,jsx,ts,tsx,mjs,cjs,json,md,yml,yaml,css}"
+      run: pnpm exec prettier --check {staged_files}
+
+    - name: gitleaks
+      run: gitleaks protect --staged --redact --no-banner
+      # If gitleaks is not installed, the bootstrap script (T051) will
+      # surface the install instruction. Until then, this hook fails
+      # fast with a clear "command not found" error — which is the
+      # correct behavior for a security-critical check.
+
+    - name: type-check-changed
+      glob: "*.{ts,tsx}"
+      run: pnpm exec turbo run type-check --filter='[HEAD]'
+
+commit-msg:
+  jobs:
+    - name: commitlint
+      run: pnpm exec commitlint --edit {1}

@@ -1,0 +1,25 @@
+node_modules
+dist
+.next
+.turbo
+coverage
+pnpm-lock.yaml
+*.tsbuildinfo
+next-env.d.ts
+
+# Local-only / per-checkout config (gitignored)
+.claude/settings.local.json
+
+# Governance & spec-kit artifacts — authored as prose, prettier mangles
+# Markdown semantics (e.g., "+ Prettier" gets read as a list item).
+# These docs live by their own conventions.
+.specify/**
+PRD.md
+docs/**
+README.md
+CONTRIBUTING.md
+SECURITY.md
+
+# Per-package READMEs — also prose
+packages/**/README.md
+apps/**/README.md
