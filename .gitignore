@@ -16,6 +16,7 @@ build/
 dist/
 .turbo/
 .vercel/
+!.vercel/project.json
 .swc/
 *.tsbuildinfo
 next-env.d.ts
