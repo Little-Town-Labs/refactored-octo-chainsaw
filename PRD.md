@@ -30,6 +30,27 @@ The platform is built on top of [**Parley**](https://github.com/Little-Town-Labs
 the agent-negotiation harness specification — which Spyglass is the first
 consuming product of.
 
+### 1.1 Foundational tenets
+
+These two tenets are load-bearing for every design and engineering decision
+that follows. If a proposed feature, surface, or contract violates either, it
+is wrong by default and needs explicit justification to proceed.
+
+- **Spyglass is an Agent-Native application.** Agents are first-class
+  principals, not bolted-on assistants. The system is designed so that the
+  primary actors mediating both sides of the marketplace are autonomous
+  agents — seekers' advocates and employers' advocates — with humans
+  supervising thresholds, rubrics, and escalations. APIs, data contracts,
+  identity, audit, and lifecycle are all designed for agents first; human UIs
+  are the secondary surface, not the reference implementation.
+- **Humans need clear UI; agents need clear semantics.** Every surface has
+  two audiences with different needs. Humans get legible, low-chrome UI that
+  shows only what they must decide or know. Agents get unambiguous,
+  versioned, machine-readable semantics — typed schemas, stable identifiers,
+  explicit state transitions, deterministic error shapes, and documented
+  capabilities. A surface that is pretty for humans but ambiguous for agents
+  (or vice versa) is incomplete.
+
 ---
 
 ## 2. Problem & Positioning

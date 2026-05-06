@@ -1,0 +1,673 @@
+# Project Spyglass — Implementation Roadmap
+
+**Version:** 1.1.0
+**Created:** 2026-05-06
+**Last Amended:** 2026-05-06
+**Owner:** Gary
+**PRD source:** `PRD.md` (Draft v0.1, 2026-05-05)
+**Constitution:** `.specify/memory/constitution.md` (v1.1.0)
+**Compliance posture:** `docs/COMPLIANCE_ARCHITECTURE.md`
+**Parley spec:** `/mnt/f/parley/SPEC.md`; design rationale in `/mnt/f/parley/PARLEY_ADAPTATIONS.md`
+
+---
+
+## Executive Summary
+
+| | |
+|---|---|
+| **Product vision** | Two-sided AI hiring platform where seeker and employer advocates negotiate via Parley, each scoring fit against its own versioned rubric. Mutual threshold clearance escalates to a human introduction. |
+| **Target launch** | v0 ≡ Phase 1 (3–5 US states, no AEDT-specific law). Phase 0 private alpha precedes v0 and runs the same code under "informational only / no production hiring decisions" posture. |
+| **Total features** | 27 |
+| **Implementation phases** | 8 |
+| **Estimated timeline** | ~20 weeks to Phase 0 alpha; Phase 1 launch follows counsel review and bias audit completion |
+| **Critical path** | F01 → F02 → F04 → F05 → F08 → F13/F14 → F20 → F25 |
+| **Parallelizable** | Channel adapters (F17–F19); seeker vs. employer surfaces; privacy filter (F09) parallel with Parley runner (F08); F08.5 tool dispatcher parallel with F08 runner |
+
+This roadmap converts `PRD.md` §6 ("v0 Scope") and §10 ("Open Questions") into
+a sequenced feature list, refined against Parley's normative spec
+(`/mnt/f/parley/SPEC.md` §4–§18). Every feature is tied to a constitutional
+article; foundational-article work is gated by `/security-review` and threat
+modeling per `.specify/memory/constitution.md` §V.3.
+
+---
+
+## Feature Inventory
+
+Each feature gets a numeric ID (`F##` or `F##x`) and a slug suitable for
+`/speckit-specify F##-slug`. Priorities:
+
+- **P0 — Critical.** Required for Phase 0 alpha; blocks downstream features.
+- **P1 — High.** Required for v0 / Phase 1 launch.
+- **P2 — Medium.** Required before Phase 2 (NYC) or for production-readiness.
+- **P3 — Low.** Deferred beyond v0 unless promoted.
+
+Complexity: **S** (1–2w), **M** (2–4w), **L** (4–8w), **XL** (8w+).
+
+---
+
+### Phase A — Foundation
+
+| ID | Feature | Slug | Priority | Complexity | Constitution refs |
+|----|---------|------|----------|------------|-------------------|
+| F01 | Monorepo scaffold + tech-stack baseline | `01-monorepo-scaffold` | P0 | M | I.C (SBOM, signed deps, SLSA L3); IV (SoC) |
+| F02 | Identity & Auth (Clerk + AAA primitives) | `02-identity-auth-aaa` | P0 | M | I.5 (AAA); I.6 (DiD); II (agent identity) |
+| F03 | Database schema + Drizzle migrations | `03-db-schema-migrations` | P0 | S | I.2 (integrity); I.4 (data classes for retention) |
+
+**Phase A goal.** Establish the repo, deploy pipeline, auth foundation, and
+data layer — nothing in this phase is product-visible, but everything else
+depends on these three.
+
+**Notes:**
+- F01 includes pnpm/Turborepo, Vercel project linking, Neon provisioning,
+  Inngest setup, Vercel AI Gateway wiring, CI with SBOM generation
+  (CycloneDX), Sigstore-signed releases, and SLSA Level 3 build provenance
+  per Constitution §I.C.2.
+- F02 establishes scoped/short-lived agent credentials, MFA for
+  operator/employer-admin surfaces (NIST 800-63B AAL2), and the
+  verifiable-principal pattern Article II demands.
+- F03 must declare retention horizons per data class per Article I.4.2,
+  even if specific durations are TBD pending counsel.
+
+---
+
+### Phase B — Ticket Spine
+
+| ID | Feature | Slug | Priority | Complexity | Constitution refs |
+|----|---------|------|----------|------------|-------------------|
+| F04 | Ticket store + state machines (seeker / employer-req / match) | `04-ticket-store-state-machines` | P0 | L | I.2; II (canonical data spine for agents) |
+| F05 | Hash-chained audit log + canonical transcript store + redaction-by-tombstone | `05-audit-log-tombstone` | P0 | L | I.2; I.4.3 (tombstone); I.D (forensic readiness); Parley §13 |
+
+**Phase B goal.** The data spine the PRD calls "first spec" in §11.5.
+Everything from Parley onward writes through these.
+
+**F05 scope (expanded per Parley §13).** Three co-deployed stores:
+1. **Hash-chained audit log** of state transitions and events.
+2. **Canonical transcript store** of negotiation turns, with stricter
+   access controls than the dossier (Parley §13 explicitly separates
+   these — the dossier is the consumer-facing artifact; the transcript
+   store is the source-of-truth).
+3. **Redaction-by-tombstone procedure** (Constitution §I.4.3) covering
+   both stores, with the tombstone itself being an audited event.
+
+The tombstone procedure ships in code; operational use requires counsel
+sign-off before Phase 2 per Constitution §V.4.
+
+---
+
+### Phase C — Compliance Spine
+
+| ID | Feature | Slug | Priority | Complexity | Constitution refs |
+|----|---------|------|----------|------------|-------------------|
+| F06 | Jurisdiction tagging + policy gates + geographic kill switches | `06-jurisdiction-policy-gates` | P0 | M | I.A (Parley primitives 1, 2, 5); I.B |
+| F07a | Agent Contract Registry | `07a-agent-contract-registry` | P0 | M | III.3 (immutable versioned contracts); II; Parley §4.1.2, §5 |
+| F07b | Rubric Registry + bias-test dispatch gate | `07b-rubric-registry-bias-gate` | P0 | L | I.A (primitive 3); I.A.1 (NIST AI RMF); I.A.2 (audit cadence); Parley §5.4, §17.1, §18.2 |
+
+**Phase C goal.** The compliance harness lives at this layer. Parley
+separates Agent Contracts from Rubrics — they are co-deployed but
+independently versioned, so each gets its own feature.
+
+**F07a — Agent Contract Registry.** Pins `(contract_id, version)` to a
+prompt-template ref, rubric ref, tool-surface ref, model selection, and
+runtime settings. Immutable for all time. Every dossier records the exact
+`(contract_id, version)` that produced it. Contract version updates do not
+invalidate in-flight runs — runs complete under their dispatch-time
+contract (Parley §7.4, §14.3).
+
+**F07b — Rubric Registry + bias-test dispatch gate.** This is sharper
+than "rubric registry":
+- `(rubric_id, version)` immutable for all time (Parley §5.1).
+- **Prompt templates MUST NOT embed dimension weights or scoring
+  guidance.** Rubric resolution and prompt rendering are separate paths
+  (Parley §5.4, §12.2).
+- **Harness computes weighted totals deterministically.** Any holistic
+  score the model produces is **ignored AND audited** as a regression
+  signal (Parley §10.4, §17.5 — CI-gated).
+- Each rubric version MUST carry a `bias_test_ref`.
+- **Production posture refuses to dispatch a run whose rubric lacks a
+  bias-test artifact** (Parley §5.4, §17.1, §18.2 — CI-gated). This is
+  the strongest expression of Constitution §I.A primitive 3.
+- Bias-test methodology is policy artifact referenced from the registry,
+  not encoded in the harness (Parley `PARLEY_ADAPTATIONS.md` open item).
+
+**F06 notes.** Includes the per-jurisdiction config store, gate-evaluation
+engine, structured failure-dossier shape (never silent skip), and an ops
+surface for flipping kill switches without a deploy. Fail-safe default per
+Constitution §I.6: missing or unknown jurisdiction = deny.
+
+---
+
+### Phase D — Parley Harness
+
+| ID | Feature | Slug | Priority | Complexity | Constitution refs |
+|----|---------|------|----------|------------|-------------------|
+| F08 | Parley runner (six Inngest functions, run-to-completion) | `08-parley-runner` | P0 | L | II (agent-first runtime); Parley §7, §8, §10.5 |
+| F08.5 | Tool Surface & Dispatcher (versioned catalog, type-level enforcement) | `08-5-tool-surface-dispatcher` | P0 | M | I.5.2 (least privilege); I.6 (DiD); Parley §4.1.2, §5.5, §10.3, §17.5 |
+| F09 | Privacy filter module (no-model, sentinel-wrapped, CI-gated) | `09-privacy-filter` | P0 | L | I.1; I.6; PRD §4.4, §9; Parley §9, §15.1, §15.2, §17.4–17.6 |
+| F10 | Dossier builder + signer + per-audience projections + verifier | `10-dossier-builder-signer` | P0 | L | I.2; I.C.1; I.A; Parley §4.1.8, §15.4 |
+| F11 | Candidate notification artifact system | `11-candidate-notifications` | P0 | M | I.A (primitive 4); I.A.1 (EU AI Act Art. 86); Parley §13.7 |
+
+**Phase D goal.** The negotiation engine. F08, F08.5, F09, F10 are
+co-dependent but parallelizable in isolation: F09 and F08.5 can be built
+and tested standalone before F08 integration.
+
+**F08 scope (expanded per Parley §7–§10).**
+- **Six Inngest functions** corresponding to Parley §8: dispatch,
+  coordination, per-side runs (×2), privacy filtering, dossier production,
+  run invalidation. No polling.
+- **Run-to-completion contract.** Agents MUST NOT pause for human input
+  mid-negotiation (Parley §7, §10.5). Inability to score surfaces as an
+  `inconclusive` dossier with flags, never a paused run.
+- **Tool-catalog scan** (Parley §17.5) ensures the harness advertises no
+  tool whose semantics include "ask the principal" or "wait for human
+  confirmation."
+- **Round cap** default = 3 (Parley §6.4). Contracts MAY specify a lower
+  `round_cap_contribution`; effective cap = minimum across both sides.
+- **No filesystem workspaces.** `NegotiationContext` is in-memory per
+  side, per run (Parley §4.1.5, §9). Durability comes from the audit log
+  and dossier persistence.
+- **No hot-reload of policy files** (Parley §6.2). Harness config is
+  frozen per deployment; runs complete under their dispatch-time config.
+  Aligns with Constitution §I.C.2 (prompts/rubrics/configs are release
+  events, not edits).
+- **Five isolation invariants** (Parley §9), three of which are CI-gated
+  (per-run isolation; per-side isolation; counterparty-access type-level
+  prohibition) — see F09 for filter-side enforcement.
+
+**F08.5 scope (new — extracted from F08 per Parley §5.5, §10.3).**
+- **Versioned tool catalog.** Each tool descriptor:
+  `(name, version, input_schema, output_schema, disclosure_class)`.
+- **`disclosure_class ∈ {principal_self, counterparty_filtered,
+  platform_open}`** routes tool outputs through the privacy filter when
+  appropriate.
+- **Per-contract advertisement.** Contracts pin tool versions; new tools
+  added to the catalog do NOT break older active runs.
+- **Type-level enforcement.** The harness tool dispatcher is the **only**
+  path that invokes tools; direct tRPC/SDK calls from side-runner code are
+  rejected at type-check (Parley §10.3, §17.5 — CI-gated).
+- **Unsupported tool calls return `tool_unsupported`** and the turn
+  continues (Parley §10.3) — graceful degradation per Symphony's
+  tool-extension model.
+- **Disclosure-class enforcement for `counterparty_filtered` outputs is
+  CI-gated** (Parley §17.5, §18.2).
+
+**F09 scope (sharpened per Parley §9, §15).**
+- **No model invocation** in the privacy filter (Parley §15.2). The
+  filter's call graph cannot reach the AI Gateway client — enforced by a
+  CI-gated **no-gateway-reachability test** (Parley §17.6, §18.2).
+- **Untrusted-input sentinels.** Every untrusted free-text field is
+  wrapped at prompt-construction time with sentinels containing a
+  per-run nonce (Parley §12.4) so a malicious payload cannot forge a
+  closing sentinel. Untrusted inputs are explicitly enumerated:
+  seeker resume text, employer JD/req text, ATS-imported content,
+  tool-returned text, A2A-received content (Parley §15.1).
+- **Sentinel-injection attack test** in the production CI gate
+  (Parley §17.6).
+- **Counterparty access only via filter.** Side runners read counterparty
+  data only through `counterparty_view` or `counterparty_filtered` tool
+  results (Parley §9.4, §10.3 — CI-gated).
+- **Disclosure stages** on the privacy ruleset (Parley §4.1.7); active
+  stage recorded on every projection. Progression triggers
+  (round-counted vs. signal-driven vs. hybrid) are
+  implementation-defined per ruleset version — open question, see §10.
+- **Fail-closed mandatory** on filter errors (Parley §15.2).
+- F09 has its own isolated test suite per PRD §9 risk row ("Privacy
+  filter leaks negotiating posture") — co-equal with the production CI
+  gates above.
+
+**F10 scope (expanded per Parley §4.1.8, §15.4).**
+- **Per-audience transcript projections pre-computed and stored** on the
+  dossier — projections for seeker, employer, auditor, A2A receiver. Not
+  derived at delivery time. Each projection is the result of applying
+  the privacy ruleset at the corresponding audience's disclosure stage.
+- **Per-side, per-dimension rubric breakdowns** with deterministic
+  weighted totals (computed by the harness, not the model — see F07b).
+- **Per-side one-paragraph rationale** in the agent's voice.
+- **Reconciled flags** from both sides for human attention.
+- **Version metadata.** Contract refs `(contract_id, version)`, ruleset
+  ref, harness version, model invocations.
+- **Signing.** `dossier.signing_enabled` defaults to true in production
+  (Parley §6.4). Signature covers all dossier fields except the signature
+  object itself, using deterministic canonical serialization
+  (Parley §15.4).
+- **Verification helper** is a required deliverable, not just signing.
+- **Inconclusive dossiers** carry flags describing what would resolve
+  them (Parley §4.1.8, §16.6) — the failure mode for run-to-completion.
+- **Best-effort inconclusive dossier even on `timed_out` / `tool_failure`**
+  before terminating (Parley §7.1, §14.2).
+
+**F11 notes.** Notifications consume `dossier.produced` events
+(Parley §13.7). Reinforces the existing scope.
+
+---
+
+### Phase E — Agents
+
+| ID | Feature | Slug | Priority | Complexity | Constitution refs |
+|----|---------|------|----------|------------|-------------------|
+| F12 | AI infrastructure (Gateway client, prompt registry, model/prompt versioning) | `12-ai-infrastructure` | P0 | M | I.C.2 (AI supply chain); II |
+| F13 | Seeker advocate agent | `13-seeker-advocate` | P0 | L | II; I.4.1 (purpose limitation on seeker data) |
+| F14 | Employer advocate agent | `14-employer-advocate` | P0 | L | II; I.A (rubric is the regulated surface) |
+| F15 | Re-negotiation loop logic (fresh `run_id`, no state inheritance) | `15-renegotiation-loop` | P1 | S | I.A.1 (OWASP LLM Top 10 — cost/abuse); PRD §4.7; Parley §7.2, §9 invariant 5 |
+
+**F15 scope (sharpened per Parley §7.2, §9 invariant 5).**
+- **Re-negotiation is a fresh `run_id`**, never a transparent retry.
+- **Triggered by an explicit `match_ticket.renegotiation_requested`
+  event**, not by run-level retry logic.
+- **No state inheritance** across re-negotiations (Parley §9 isolation
+  invariant 5).
+- **Round cap is the minimum across both sides' contracts**; default 3
+  (Parley §6.4). Empirical validation of `3` is open per
+  `PARLEY_ADAPTATIONS.md` — Phase 0 alpha is where this is validated.
+- **Per-match cost ceiling** with alarms on threshold breach.
+
+**Phase E notes.**
+- F12 treats prompts/models/rubrics as **supply chain** (Constitution
+  §I.C.2): every prompt change is a release, signed and SBOM-equivalent.
+  No "edit prompt in admin UI" path. Reinforced by Parley's no-hot-reload
+  posture.
+- F13/F14 are scored against an eval harness (PRD §9 mitigation for
+  agent-credibility risk).
+
+---
+
+### Phase F — Seeker Channels (the product)
+
+| ID | Feature | Slug | Priority | Complexity | Constitution refs |
+|----|---------|------|----------|------------|-------------------|
+| F16 | Channel adapter framework + `ChannelMessage` interface | `16-channels-core` | P0 | M | III.2 (semantic clarity for adapters); IV (SoC) |
+| F17 | Telegram channel adapter | `17-telegram-channel` | P0 | M | III.1 (human surface) |
+| F18 | Email channel adapter (inbound/outbound + threading) | `18-email-channel` | P0 | M | III.1 |
+| F19 | Web-chat channel adapter (Clerk-authed) | `19-web-chat-channel` | P1 | S | III.1; III.4 (WCAG 2.2 AA) |
+| F20 | Conversational onboarding & seeker product flows | `20-seeker-conversational-flows` | P0 | XL | I.4.1 (data minimization); III.1; PRD §6.1 |
+
+**Phase F goal.** The seeker product surface. F20 carries every
+conversational flow: resume import, profile completion, threshold tuning,
+match notifications, dossier review, pause/resume/withdraw, aggregate
+insight reports, and the demographic opt-in flow with segregated storage.
+
+**Notes:**
+- F17–F19 can run in parallel after F16 lands.
+- F20's demographic opt-in is **counsel-gated UX** (Constitution §V.4).
+- F18's inbound parsing strategy is PRD Open Question #7 — must resolve
+  during `/speckit-clarify`.
+- The seeker conversational surface is **explicitly NOT subject to
+  run-to-completion** (Parley `PARLEY_ADAPTATIONS.md` §5). Only the
+  agent-to-agent negotiation run is autonomous; a seeker chatting with
+  their own agent is normal interactive UX.
+
+---
+
+### Phase G — Web Surface & Employer Side
+
+| ID | Feature | Slug | Priority | Complexity | Constitution refs |
+|----|---------|------|----------|------------|-------------------|
+| F21 | Seeker web surface (landing + Clerk profile + agents.md/llms.txt + A2A cards) | `21-seeker-web-surface` | P0 | M | III (dual-audience landing page); II (A2A agent cards) |
+| F22 | Employer admin console | `22-employer-admin-console` | P0 | L | III.1; III.4 (WCAG); I.5.1 (MFA for admin seats) |
+| F23 | Employer REST API + signed-webhook delivery | `23-employer-api-webhooks` | P0 | M | II; III.2 (OpenAPI 3.1 contracts); III.3 (deprecation policy); I.C.1 (webhook signing) |
+
+**Phase G goal.** Account-management + employer-side surfaces. F21
+enforces PRD §3.4 — **no seeker dashboard, ticket list, or analytics UI
+ever.**
+
+**Notes:**
+- F23 publishes OpenAPI 3.1 contracts and adopts the N-2 backwards-compat
+  policy from Constitution §III.3 (`Deprecation` / `Sunset` headers per
+  RFC 8594/9745).
+- A2A agent cards in F21 are **published, not depended on** for v0
+  customer flow per PRD §5.3.
+- A2A receiver dossier-projection rules (Parley `PARLEY_ADAPTATIONS.md`
+  open item) are deferred to v1 when the actual A2A protocol stabilizes.
+
+---
+
+### Phase H — Operations, Hardening & Phase 0 Posture
+
+| ID | Feature | Slug | Priority | Complexity | Constitution refs |
+|----|---------|------|----------|------------|-------------------|
+| F24 | Incident response capability + breach notification + monitoring | `24-incident-response` | P0 | M | I.D (NIST 800-61); I.D.2 (GDPR Art. 33/34) |
+| F25 | Phase 0 alpha posture infrastructure | `25-phase-0-alpha-posture` | P0 | S | I.B.1 (no production hiring decisions); V.2 (counsel-review evidence) |
+
+**Phase H goal.** Operational readiness for Phase 0 launch. F24 is the
+foundational IR capability the constitution demands; F25 is the thin
+wrapper that locks the platform into "informational only" mode for the
+private alpha.
+
+**Notes:**
+- F24 includes detection (audit-log anomalies, privacy-filter bypass
+  attempts, auth anomalies), runbooks for sev-1/2/3,
+  evidence-preservation procedures, and the GDPR 72-hour notification
+  workflow.
+- F25 ships consent banners ("alpha — informational only"), per-seeker
+  / per-employer alpha-consent flow, the human-review gate before any
+  escalation, and the constitutional change-log entry the Phase 0→1
+  transition requires.
+- Parley's optional operator API (§13.8) is auth-required and OPTIONAL —
+  consider as a sub-deliverable inside F24 if internal ops needs visibility
+  beyond the audit log.
+
+---
+
+## Dependency Graph
+
+```
+F01  Monorepo scaffold
+ │
+ ├─▶ F02  Identity & Auth (AAA)
+ │    │
+ │    ├─▶ F16 Channels framework ─┬─▶ F17 Telegram
+ │    │                            ├─▶ F18 Email
+ │    │                            └─▶ F19 Web chat
+ │    │                                        │
+ │    │                                        └─▶ F20 Seeker flows
+ │    ├─▶ F21 Seeker web surface
+ │    └─▶ F22 Employer admin console
+ │
+ └─▶ F03  DB schema
+      │
+      └─▶ F04  Ticket store ──┬─▶ F05 Audit log + transcript store + tombstone
+                              │
+                              ├─▶ F06 Jurisdiction gates / kill switches
+                              │
+                              ├─▶ F07a Agent Contract Registry ──┐
+                              │                                   │
+                              └─▶ F07b Rubric Registry + gate ───┤
+                                                                  │
+                              F05 + F06 + F07a + F07b ────────────▼
+                                                                  │
+                              F12 AI infra ──┬─▶ F13 Seeker advocate
+                                             └─▶ F14 Employer advocate
+                                                                  │
+                              F08.5 Tool Surface & Dispatcher ◀───┤
+                              F09 Privacy filter ◀────────────────┤
+                              F08 Parley runner ◀─────────────────┤
+                              F10 Dossier signer ◀────────────────┤
+                              F11 Notification artifacts ◀────────┘
+                                             │
+                                             └─▶ F15 Re-negotiation
+                                                         │
+                              F20 + F22 + F23 + F15 ─────▼
+                                                         │
+                              F24 Incident Response ─────┤
+                                                         │
+                                                         ▼
+                                                   F25 Phase 0 posture
+                                                         │
+                                                         ▼
+                                                Phase 0 Alpha launch
+```
+
+Critical path: **F01 → F02 → F04 → F05 → F08 → F13/F14 → F20 → F25.**
+
+Parallelizable opportunities:
+- **F09** (privacy filter) has no upstream dependency on F08 — build and
+  test independently, integrate when F08 lands.
+- **F08.5** (tool surface) has no upstream dependency on F08 runner —
+  build and test the catalog + dispatcher type-checks independently.
+- **F22** (employer console) starts as soon as F02 + F04 are ready —
+  doesn't have to wait for the agent layer; until agents are ready, the
+  console operates against test fixtures.
+- **F07a** and **F07b** can run in parallel — distinct registries with
+  distinct schemas.
+
+---
+
+## Implementation Phases
+
+| Phase | Weeks | Features | Goal | Gate to next |
+|-------|-------|----------|------|--------------|
+| A — Foundation | 1–4 | F01, F02, F03 | Repo, auth, data layer | Auth + DB green; CI signed; SBOM published |
+| B — Ticket Spine | 4–7 | F04, F05 | Three ticket types + audit log + transcript store | All three state machines green; tombstone procedure tested in dev |
+| C — Compliance Spine | 6–10 | F06, F07a, F07b | Jurisdiction primitives + Agent Contract Registry + Rubric Registry with bias-test gate | At least one rubric version with completed bias-test artifact; dispatch refusal verified for missing `bias_test_ref` |
+| D — Parley Harness | 9–14 | F08, F08.5, F09, F10, F11 | Negotiation engine | End-to-end Parley run produces signed dossier with all four audience projections; privacy-filter test suite green; CI gates §17.4–17.6 green |
+| E — Agents | 12–15 | F12, F13, F14, F15 | Two advocates + re-negotiation | Eval harness baseline cleared on both advocates; cost ceiling enforced; re-negotiation produces fresh `run_id` |
+| F — Seeker Channels | 13–18 | F16, F17, F18, F19, F20 | Seeker product | Telegram + email + web chat working; full conversational onboarding flow; demographic opt-in counsel-reviewed |
+| G — Web + Employer | 15–19 | F21, F22, F23 | Account-mgmt web + employer surfaces | Employer can post req, receive signed-dossier webhook; seeker landing live with `agents.md` + `llms.txt`; WCAG 2.2 AA verified |
+| H — Hardening + Phase 0 | 19–21 | F24, F25 | Ops + alpha posture | IR runbooks tabletop-tested; alpha consent flow live; counsel sign-off filed |
+
+**Phase 0 Alpha launch** requires **counsel review evidence** filed per
+Constitution §V.2 in `.specify/memory/counsel-reviews/`.
+
+**Phase 1 (v0) launch** additionally requires:
+- Phase 0 → Phase 1 counsel review and constitutional change-log entry
+- Initial bias audit completed for shipped rubrics (Constitution §I.A.2)
+- Phase 1 jurisdiction set decided (PRD Open Question #9)
+- Round-cap = 3 empirically validated against Phase 0 negotiation data
+
+**Phase 2 (NYC) launch** additionally requires:
+- Independent bias audit published
+- 10-business-day candidate notification flow live and tested
+- Tombstone-redaction procedure counsel-approved
+  (Constitution §I.4.3 / §V.4)
+
+---
+
+## Risk Assessment
+
+Per-feature risks. Severity uses PRD §9 scale.
+
+| Feature | Risk | Severity | Mitigation |
+|---------|------|----------|------------|
+| F02 | BYO seeker agent identity federation complexity (PRD §3.3 Mode 1) | High | Defer A2A `seeker-delegate` flow to v1; v0 ships hosted-agent only |
+| F05 | Tombstone procedure conflicts with audit-log integrity if implemented incorrectly | Critical | Counsel-reviewed before Phase 2; `/security-review` mandatory; threat model required (STRIDE + LINDDUN) |
+| F06 | Mis-tagged jurisdiction silently routes to wrong policy gate | Critical | Fail-safe default: missing jurisdiction = deny (Constitution §I.6); structured failure dossier never silent |
+| F07a | Contract version drift causes runs to use stale prompt + new rubric (or vice versa) | High | Contract pins all sub-refs; in-flight runs complete under dispatch-time contract (Parley §7.4) |
+| F07b | Rubric bias not caught pre-ship | Critical | Bias-test pipeline gates rubric activation; production refuses to dispatch without `bias_test_ref` (CI-gated, Parley §17.1) |
+| F08 | Run never terminates / agent loops indefinitely | High | Run-to-completion contract; round cap = min across sides; inconclusive dossier as terminal failure mode |
+| F08.5 | Side-runner code bypasses dispatcher with direct tool call | High | Type-level rejection + CI-gated test (Parley §17.5); enforced before any run can execute |
+| F09 | Privacy filter leaks negotiating posture (PRD §9) | High | Isolated test suite; defense-in-depth — privacy filter is one of multiple barriers; CI-gated no-gateway-reachability + sentinel-injection tests; threat model required |
+| F10 | Dossier signing key compromise | Critical | HSM-stored keys; rotation procedure; crypto-agility built in |
+| F10 | Per-audience projection leaks data across audiences | High | Pre-computed at dossier-build time, not at delivery; projections derived from privacy ruleset at the audience's disclosure stage |
+| F13/F14 | Agent quality below threshold (PRD §9) | High | Eval harness (PRD §9 mitigation); human-in-loop dossier review through Phase 0 |
+| F15 | Re-negotiation infinite loop or runaway cost (PRD §9) | Low | Hard 3-round cap; per-match cost ceiling; alarms on threshold breach; **fresh `run_id`** prevents transparent retry exploitation |
+| F20 | Demographic data leak or misuse (PRD §9) | Critical | Opt-in only; segregated storage (separate schema); access controls; counsel-reviewed consent UX (Constitution §V.4) |
+| F22 | Employer admin console accessibility violations (ADA/Section 508 exposure) | High | WCAG 2.2 AA conformance from day one (Constitution §III.1); axe/Lighthouse gates in CI |
+| F23 | Webhook delivery failure leaves employer in unknown state | Medium | Idempotent delivery; retry with exponential backoff; webhook receipts in audit log |
+| F24 | Detection gap delays sev-1 awareness past GDPR 72-hour clock | Critical | Synthetic alerts tested at least quarterly; on-call rotation documented |
+| F25 | Phase 0 → Phase 1 transition happens without counsel review | Critical | Constitutional gate; `/speckit-analyze` blocks; counsel-review memo required in `.specify/memory/counsel-reviews/` |
+
+---
+
+## Constitutional Compliance Validation
+
+Reading `.specify/memory/constitution.md` v1.1.0:
+
+| Article | Roadmap coverage |
+|---------|------------------|
+| **I.1 Confidentiality** | F09 (privacy filter), F20 (demographic data segregation), F08.5 (`disclosure_class` routing) |
+| **I.2 Integrity** | F05 (hash-chained log + transcript store), F07a/b (versioned contracts/rubrics), F10 (dossier signing) |
+| **I.3 Availability** | F06 (kill switches no-deploy), F08 (Inngest durable runs, run-to-completion), F24 (recovery procedures) |
+| **I.4 Privacy** | F03 (retention horizons declared), F05 (tombstone procedure), F20 (data minimization in onboarding) |
+| **I.5 AAA** | F02 (Clerk + MFA + scoped tokens), F08.5 (least-privilege tool dispatcher with type-level enforcement), F23 (signed webhooks) |
+| **I.6 Defense in Depth & Secure-by-Default** | F09 (one of multiple barriers, no-model-invocation, sentinel wrapping), F06 (fail-safe default = deny), F08.5 (dispatcher as only path), every feature ships with secure defaults |
+| **I.A Parley primitives 1–5** | F06 (1, 2, 5), F07b (3 — strengthened with dispatch-time gate), F11 (4) |
+| **I.A.1 AI standards** | F07b (NIST AI RMF Measure 2.11), F12 (model/prompt versioning per ISO/IEC 42001), F09 (OWASP LLM Top 10 — prompt injection via sentinel pattern), F15 (cost/abuse) |
+| **I.A.2 Bias-audit cadence** | F07b (bias-test pipeline runs at every rubric/material change; dispatch refusal on missing `bias_test_ref`) |
+| **I.B Phased posture** | F25 (Phase 0 posture); F06 (jurisdiction set management); Phase transitions require counsel review per V.2 |
+| **I.C Cryptographic & Supply-Chain** | F01 (SBOM, Sigstore-signed deps, SLSA L3), F10 (FIPS-approved signing, HSM keys, crypto-agility), F12 (AI supply chain — signed prompts/models, no hot-reload) |
+| **I.D Incident Response** | F24 (full IR capability); cross-side leakage as named sev-1 |
+| **II Agent-Native** | F13/F14 (agents as principals), F23 (REST API as primary contract), F21 (A2A cards as first-class), F12 (machine-readable manifests), F07a (versioned agent contracts), F08.5 (declared tool capabilities) |
+| **III.1 Human UI** | F19/F20/F21/F22 — all with WCAG 2.2 AA; PRD §3.4 enforced (no seeker dashboard) |
+| **III.2 Agent semantics** | F23 (OpenAPI 3.1), F16 (typed `ChannelMessage` interface), F12 (agent capability manifests), F07a (contract schemas), F08.5 (tool descriptors with input/output schemas) |
+| **III.3 Contract evolution** | F23 (semver, N-2 backwards-compat, RFC 8594/9745 deprecation headers); F07a (immutable `(contract_id, version)`); F07b (immutable `(rubric_id, version)`) |
+| **III.4 Completeness rule** | Every feature with a UI component must also have its agent semantics — enforced at `/speckit-analyze` |
+| **IV Engineering Discipline** | Advisory; per-PR exceptions allowed |
+| **V Governance & Amendments** | F25 (counsel-review-evidence retention); roadmap itself follows MAJOR/MINOR/PATCH |
+
+**Status:** ✅ Roadmap conforms to all foundational articles.
+
+**Open compliance gates** (must close before the indicated phase per
+Constitution §V.4):
+
+- Demographic data consent UX & storage segregation → before Phase 2
+- DPA templates & joint controllership → before any EU engagement
+- Audit cadence beyond Constitution §I.A.2 floor → before Phase 2
+- Candidate appeal / human-review sufficiency → before EU phase
+- Cross-border data flow mechanism → before any cross-border ticket
+- Tombstone-redaction procedure detailed spec & counsel sign-off → before Phase 2
+
+These are **not** roadmap features — they are governance gates tracked
+in the constitution itself.
+
+---
+
+## Open Questions Surfaced by Parley
+
+Items the Parley spec defers, that Spyglass must resolve at spec or Phase 0
+time. These extend PRD §10:
+
+1. **Round-cap empirical validation.** Parley pins `default_round_cap = 3`
+   (§6.4) but flags it as needing empirical validation against real
+   negotiations (`PARLEY_ADAPTATIONS.md`). **Phase 0 alpha is where this
+   gets validated**; promote to Phase 1 only if data supports it.
+2. **Disclosure-stage progression triggers.** Parley defines disclosure
+   stages on the privacy ruleset (§4.1.7) and records the active stage on
+   every projection. Whether progression is round-counted, signal-driven,
+   or hybrid is **implementation-defined per ruleset version** — must
+   resolve during F09 `/speckit-clarify`.
+3. **A2A receiver projection rules.** The dossier carries an
+   `a2a_receiver` transcript projection (§4.1.8). The actual A2A protocol
+   Spyglass speaks to external negotiation peers stabilizes in v1; until
+   then the projection rules are placeholders. Affects F10 and F21.
+4. **Audit retention durations per regulatory class.** Parley defers
+   concrete durations (§6.4 `audit.retention_class`); Constitution §I.4.2
+   says "tracked in data-lifecycle spec, never indefinite." Must be
+   locked per regulatory class before Phase 2.
+5. **Calibration across users.** Parley spec records per-dimension scores
+   deterministically; whether scores get normalized against a population
+   baseline before threshold checks is a **downstream consumer concern**,
+   not a harness concern. PRD §4.5 already takes the "no platform-wide
+   absolute calibration" stance; reaffirm during F13/F14 spec.
+
+---
+
+## Execution Checklist
+
+### Pre-implementation
+- [x] PRD reviewed (`PRD.md` v0.1)
+- [x] Constitution ratified (`.specify/memory/constitution.md` v1.1.0)
+- [x] Compliance architecture documented (`docs/COMPLIANCE_ARCHITECTURE.md`)
+- [x] Parley spec referenced (`/mnt/f/parley/SPEC.md`,
+      `PARLEY_ADAPTATIONS.md`)
+- [x] All 27 features identified and numbered
+- [x] Dependencies mapped
+- [x] Priorities assigned
+- [x] Complexity estimated
+- [x] 8 phases defined with gates
+- [x] Constitutional compliance verified
+- [ ] Counsel of record engaged for Phase 0 review
+- [ ] Phase 1 jurisdiction set decided (PRD Open Question #9)
+- [ ] Spec-kit `.specify/specs/` directory ready
+
+### Per-feature workflow
+
+For every feature `F##`, run the full SDD pipeline:
+
+```
+/speckit-specify F##-slug
+/speckit-clarify
+/speckit-plan
+/speckit-tasks
+/speckit-analyze        # MUST pass — foundational article violations block
+/speckit-implement      # TDD-enforced
+/code-review
+/security-review        # MANDATORY for F02, F05, F06, F07a, F07b, F08,
+                        #              F08.5, F09, F10, F11, F20, F23, F24
+```
+
+Threat modeling (STRIDE for security, LINDDUN for privacy) is required at
+`/speckit-plan` for any feature touching Articles I or II — i.e., almost
+all of them. Skip-list: F01, F19, F21 (web-only surface).
+
+### Phase A checklist
+- [ ] **F01** Monorepo scaffold + tech-stack baseline
+- [ ] **F02** Identity & Auth (Clerk + AAA)
+- [ ] **F03** Database schema + Drizzle migrations
+- [ ] **Phase A gate:** CI green, SBOM published, signed releases, MFA working for admin
+
+### Phase B checklist
+- [ ] **F04** Ticket store + state machines
+- [ ] **F05** Hash-chained audit log + transcript store + tombstone procedure
+- [ ] **Phase B gate:** State transitions exhaustively tested; tombstone procedure tested in dev (counsel sign-off deferred to pre-Phase-2); transcript-store access controls distinct from dossier
+
+### Phase C checklist
+- [ ] **F06** Jurisdiction tagging + policy gates + kill switches
+- [ ] **F07a** Agent Contract Registry
+- [ ] **F07b** Rubric Registry + bias-test dispatch gate
+- [ ] **Phase C gate:** At least one rubric version with completed bias-test artifact; CI verifies dispatch refusal when `bias_test_ref` is missing; kill switches flippable in staging; `(contract_id, version)` and `(rubric_id, version)` immutability enforced at the storage layer
+
+### Phase D checklist
+- [ ] **F08** Parley runner (six Inngest functions)
+- [ ] **F08.5** Tool Surface & Dispatcher
+- [ ] **F09** Privacy filter (no-model-invocation, sentinel-wrapped)
+- [ ] **F10** Dossier builder + signer + per-audience projections + verifier
+- [ ] **F11** Candidate notification artifacts
+- [ ] **Phase D gate:**
+  - End-to-end synthetic match produces signed, valid dossier with all
+    four audience projections
+  - Privacy-filter test suite green; no-gateway-reachability test green;
+    sentinel-injection test green
+  - Tool dispatcher type-level enforcement verified; direct tool calls
+    from side-runner code rejected at type-check
+  - Five Parley §9 isolation invariants enforced; three CI-gated
+  - Run-to-completion verified — no path produces a paused run;
+    inconclusive dossier on failure
+
+### Phase E checklist
+- [ ] **F12** AI infrastructure
+- [ ] **F13** Seeker advocate agent
+- [ ] **F14** Employer advocate agent
+- [ ] **F15** Re-negotiation loop
+- [ ] **Phase E gate:** Eval harness baseline cleared; cost ceiling enforced; re-negotiation produces a fresh `run_id` with no state inheritance
+
+### Phase F checklist
+- [ ] **F16** Channel adapter framework
+- [ ] **F17** Telegram channel adapter
+- [ ] **F18** Email channel adapter
+- [ ] **F19** Web-chat channel adapter
+- [ ] **F20** Conversational onboarding & flows
+- [ ] **Phase F gate:** Seeker can complete onboarding end-to-end via Telegram and email; demographic opt-in counsel-reviewed
+
+### Phase G checklist
+- [ ] **F21** Seeker web surface
+- [ ] **F22** Employer admin console
+- [ ] **F23** Employer REST API + signed webhooks
+- [ ] **Phase G gate:** Employer can post req, receive signed-dossier webhook; seeker landing live with `agents.md` and `llms.txt`; WCAG 2.2 AA verified
+
+### Phase H checklist
+- [ ] **F24** Incident response + monitoring
+- [ ] **F25** Phase 0 alpha posture
+- [ ] **Phase H gate / Phase 0 launch gate:**
+  - [ ] IR runbooks tested via tabletop
+  - [ ] Alpha consent flow live for both seeker and employer
+  - [ ] "Informational only" banner on every dossier
+  - [ ] Counsel review memo filed in `.specify/memory/counsel-reviews/`
+  - [ ] Constitutional change-log entry recorded
+
+---
+
+## Next Steps
+
+1. **Engage counsel of record** for Phase 0 / Phase 1 review.
+   Constitutional §V.2 requires this before any phase-transition merge.
+2. **Resolve PRD Open Question #9** — Phase 1 jurisdiction set.
+3. **Begin F01 specification:**
+   ```
+   /speckit-specify 01-monorepo-scaffold
+   ```
+4. **Phase-by-phase execution** is preferred. Specify all of Phase A
+   before implementation begins, then run A end-to-end before specifying
+   Phase B. This avoids spec drift as foundational decisions land.
+5. **Read Parley `SPEC.md` end-to-end** before specifying F08, F08.5,
+   F09, F10. PRD §11.3 calls out the agent-contract,
+   run-state-machine, privacy-filter, audit-log, and rubric-versioning
+   sections specifically; the Phase D features depend on every one of
+   them.
+
+---
+
+## Change Log
+
+| Version | Date       | Change |
+|---------|------------|--------|
+| 1.0.0   | 2026-05-06 | Initial roadmap. 25 features across 8 phases extracted from PRD v0.1; aligned to Constitution v1.1.0. |
+| 1.1.0   | 2026-05-06 | Refined against `/mnt/f/parley/SPEC.md` and `PARLEY_ADAPTATIONS.md`. Split F07 into F07a (Agent Contract Registry) + F07b (Rubric Registry + bias-test dispatch gate). Added F08.5 (Tool Surface & Dispatcher). Expanded F05 to cover canonical transcript store per Parley §13. Added sub-deliverables to F08 (six Inngest functions, run-to-completion, no hot-reload, in-memory NegotiationContext, round-cap min-across-sides), F09 (no-model-invocation CI gate, sentinel wrapping, sentinel-injection test, fail-closed), F10 (per-audience projections pre-computed, deterministic canonical signing, verification helper, inconclusive-dossier failure mode), F15 (fresh `run_id`, explicit event trigger, no state inheritance). Added Open Questions Surfaced by Parley section. Total features 25 → 27. MINOR — additions and strengthenings only. |
