@@ -21,7 +21,7 @@ Node 24 LTS + pnpm 9.x via Corepack) are likewise treated as decided.
 | D1 | Monorepo orchestrator | **Turborepo** (PRD-committed) | Nx, Bazel | I.C.2 (cacheable, deterministic builds) |
 | D2 | Package manager | **pnpm 9.x via Corepack** (spec-resolved) | npm, yarn | — |
 | D3 | Test runner | **Jest** + `next/jest` + `@swc/jest` (spec-resolved) | Vitest, node:test | — |
-| D4 | Lint + format | **Biome** (spec-resolved) | ESLint+Prettier | I.6 |
+| D4 | Lint + format | **ESLint + Prettier** (spec-resolved, revised 2026-05-06) | Biome (original pick), ESLint-only | III.2 (NFR-10 enforcement); IV |
 | D5 | SBOM generator | **`@cyclonedx/cyclonedx-npm`** (workspace-aware) | Syft, Trivy SBOM | I.C.2; EO 14028 §4(e) |
 | D6 | Artifact signing | **Sigstore `cosign`** (keyless via OIDC) | GPG, in-toto | I.C.1, I.C.2 |
 | D7 | SLSA build provenance | **`slsa-framework/slsa-github-generator`** at L3 | Manual attestation | I.C.2; SLSA spec |
@@ -33,9 +33,44 @@ Node 24 LTS + pnpm 9.x via Corepack) are likewise treated as decided.
 | D13 | CI host | **GitHub Actions** | Vercel-only CI, CircleCI | I.C.2 (provenance generator native) |
 | D14 | Commit-message lint | **commitlint + conventional-commits** | None, gitlint | III.3 (semver requires conventional commits) |
 | D15 | Release tooling (deferred to F02+) | **`changesets`** for package versioning | semantic-release, release-please | III.3 |
-| D16 | Boundary enforcement | **Biome `noPrivateImports` + `package.json#exports` + `publint`** | dependency-cruiser, Knip | IV (SoC) |
+| D16 | Boundary enforcement | **`eslint-plugin-boundaries` + `eslint-plugin-import` + `package.json#exports` + `publint`** (revised 2026-05-06) | dependency-cruiser | IV (SoC) |
 | D17 | Env-var manifest format | **TypeScript-typed Zod schema in `packages/shared/env.ts`** consumed via `vercel env pull` | Plain `.env.example`, dotenv-vault | I.6 (fail-safe), III.2 (typed) |
 | D18 | Repo settings (branch protection, required checks) | **Codified in repo `.github/` config** + GitHub branch protection rules | Manual settings only | V.3 (conformance gates) |
+
+---
+
+## D4 — Lint + format toolchain: ESLint + Prettier (revised 2026-05-06)
+
+**Original choice (spec v1.2):** Biome.
+
+**Revised choice (spec v1.3 / `/speckit-analyze` Finding 2):** ESLint
++ Prettier with `eslint-config-next`, `@typescript-eslint/*`,
+`eslint-plugin-import`, `eslint-plugin-boundaries`.
+
+**Reasons for revision:**
+1. ESLint's `max-lines` rule directly enforces NFR-10 (file size ≤
+   800 lines). Biome v1.x has no equivalent rule and Biome's plugin
+   API was preview at the time of this decision.
+2. Prettier as the formatter aligns with the global
+   `~/.claude/settings.json` PostToolUse Prettier hook — no
+   reconciliation required.
+3. The plugin ecosystem (`eslint-plugin-boundaries`,
+   `eslint-plugin-import`, `eslint-plugin-jsx-a11y`,
+   `eslint-plugin-security`) covers concerns Spyglass will need
+   downstream (boundary enforcement, accessibility per Constitution
+   §III.1, security lint per §I.6) without writing custom checks.
+
+**Tradeoffs accepted:**
+- Two tools instead of one — more config surface and slower CI per
+  pass. Mitigated by Turborepo caching keeping warm-cache CI under
+  NFR-3 (≤ 4 min).
+- More plugins to keep up to date. Dependabot covers; the cost is
+  PR review time, not engineering time.
+- Loss of Biome's speed advantage. Acceptable at our repo size.
+
+**Why we considered Biome originally:** smaller operational surface
+and faster CI. Both still true; ESLint's `max-lines` rule and
+Prettier-hook alignment are the deciding factors here.
 
 ---
 
@@ -304,10 +339,11 @@ something publishable.
 
 ---
 
-## D16 — Package boundary enforcement
+## D16 — Package boundary enforcement (revised 2026-05-06)
 
 **Options:**
-1. **Biome's import restrictions** + **`package.json#exports`** +
+1. **ESLint plugins** (`eslint-plugin-boundaries` +
+   `eslint-plugin-import/no-internal-modules`) + **`package.json#exports`** +
    **`publint`** in CI — three independent layers.
 2. **dependency-cruiser** — comprehensive; another tool to learn.
 3. **Knip** — primarily for unused-export detection; useful
@@ -319,8 +355,13 @@ for unused-export hygiene.
 **Rationale:** Defense-in-depth on FR-25 (boundary enforcement).
 Three independent mechanisms catch different failure modes:
 - `exports` field — runtime + bundler-level enforcement.
-- Biome import restrictions — lint-time visibility.
+- ESLint plugins — lint-time visibility, configurable per-package.
 - `publint` — validates `exports` is correctly declared.
+
+**Revision note:** Originally chose Biome's `noPrivateImports`. Swapped
+to ESLint plugins as part of the D4 lint-toolchain revision. The
+boundary primitives are equivalent in capability; the ESLint plugins
+are more configurable for monorepo per-package rules.
 
 ---
 

@@ -1,9 +1,10 @@
 # Project Spyglass — Constitution
 
-**Version:** 1.1.0
-**Status:** Draft (pending counsel review before Phase 1)
+**Version:** 2.0.0
+**Status:** Draft (pending Austin's reviewer sign-off on v2.0.0
+amendment to §I.C.2; pending counsel review before Phase 1)
 **Ratified:** 2026-05-06
-**Last Amended:** 2026-05-06
+**Last Amended:** 2026-05-06 (v2.0.0)
 **Owner:** Gary
 **Reviewers:** Austin
 
@@ -319,12 +320,26 @@ set is a constitutional violation, not a release-management decision.
 
 ### I.C.2 Supply-chain integrity
 
-- **Signed dependencies** for all production code (Sigstore / cosign or
-  equivalent; NIST SSDF SP 800-218 PS.3).
 - **SBOM generation** for every release (CycloneDX or SPDX; EO 14028
   §4(e); NTIA minimum SBOM elements).
-- **SLSA build provenance** at level 3 or higher for production
-  artifacts (slsa.dev).
+- **Dependency vulnerability auditing** of production dependencies
+  (NIST SSDF SP 800-218 PS.3) against two independent advisory
+  databases (e.g., npm Advisory + OSV).
+- **Dependency signature verification where upstream provides it.**
+  npm provenance attestations (npm CLI 10.5+) are verified at
+  install/CI time. Packages without published provenance are recorded
+  in `.specify/exceptions/dependency-signatures.md` with rationale and
+  reviewed at each MINOR release of this constitution. *Universal
+  dependency signing was a foundational requirement in v1.1.0 and was
+  relaxed in v2.0.0 pending ecosystem maturity (see Change Log).
+  Restoration to a foundational requirement is a MINOR amendment when
+  ecosystem coverage is sufficient.*
+- **SLSA build provenance** at level 3 or higher for
+  Spyglass-produced artifacts (slsa.dev). **Unchanged from v1.1.0** —
+  we cryptographically attest what we ship, regardless of how the
+  upstream ecosystem evolves.
+- **Signed Spyglass-produced artifacts** via Sigstore (cosign or
+  equivalent). Unchanged from v1.1.0.
 - **AI supply chain** — prompts, rubrics, fine-tuned models, and any
   model artifacts are versioned, signed, and SBOM-equivalent (model
   cards per Mitchell et al. 2019; data cards where applicable).
@@ -549,3 +564,4 @@ MUST be resolved before the relevant phase transition:
 |---------|------------|----------------------------------------------------------------------------------------------------------------------------------------|
 | 1.0.0   | 2026-05-06 | Initial ratification. Articles I (CIA), I.A (Parley primitives), I.B (Phased jurisdictional posture), II–V.                            |
 | 1.1.0   | 2026-05-06 | Added I.4 Privacy (incl. tombstone-redaction procedure), I.5 AAA, I.6 Defense-in-Depth, I.A.1 AI standards, I.A.2 bias-audit cadence, I.C Cryptographic & Supply-Chain Standards, I.D Incident Response. Expanded III.1 (WCAG 2.2 AA), III.3 (contract evolution). Tightened V.2 (counsel-review evidence retention) and V.3 (mandatory `/security-review`, mandatory threat modeling). Inline standards citations throughout. MINOR — additions and strengthenings only, no removals. |
+| 2.0.0   | 2026-05-06 | **MAJOR** amendment to §I.C.2: relaxed "signed dependencies for all production code" from a foundational requirement to "verify dependency signatures where upstream provides them (npm provenance, npm CLI 10.5+); record packages without provenance in a committed exceptions register." Rationale: as of 2026, npm provenance attestations exist but ecosystem coverage is partial; pnpm has no first-party equivalent. Universal coverage is not enforceable today, and pretending otherwise weakens the rest of the supply-chain posture. The relaxation is bounded — SBOM generation, two-DB vulnerability auditing, SLSA L3 for Spyglass-produced artifacts, and Sigstore signing of our own artifacts all remain unchanged. Restoration to universal-signing is a MINOR amendment once ecosystem coverage is sufficient (e.g., when a future pnpm version ships native provenance verification and major dep clusters publish provenance). **Reviewer sign-off:** Austin — pending. The amendment lands as a draft with this change-log entry; reviewer sign-off is recorded in the PR review and the next PATCH bump confirms it. |

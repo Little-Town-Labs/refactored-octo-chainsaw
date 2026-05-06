@@ -35,7 +35,7 @@ ships first.
 
 | ID | Title | Effort | Blocks | Blocked by | Story | Refs |
 |----|-------|--------|--------|------------|-------|------|
-| T001 | Initialize pnpm workspace and root package.json | S | T002–T060 | — | 1 | FR-1, FR-4 |
+| T001 | Initialize pnpm workspace and root package.json (incl. `.gitignore` for `.env*`) | S | T002–T060 | — | 1, 5 | FR-1, FR-4, FR-21, EC-8 |
 | T002 | Pin Node 24 LTS and pnpm 9.x via Corepack | XS | T003+ | T001 | 1 | Spec Clar. 3, FR-1 |
 | T003 | Add `tsconfig.base.json` with strict TypeScript baseline | S | T004, T011 | T001 | 4 | FR-25, NFR-10 |
 | T004 | Create empty `packages/*` stubs with package.json + tsconfig + README | M | T006+, T011+ | T003 | 4, 7 | FR-3, FR-4, FR-25, FR-32 |
@@ -53,10 +53,19 @@ ships first.
 shared dev-dependency placeholder, and scripts entry points (`build`,
 `test`, `lint`, `type-check`).
 
+Create root `.gitignore` covering at minimum: `node_modules/`,
+`.next/`, `dist/`, `coverage/`, `.turbo/`, `.vercel/.env*`,
+`.env`, `.env.*`, `!.env.example`, `*.log`. The `.env*` pattern
+satisfies FR-21 / EC-8 (no live env files committed); the
+`!.env.example` exception preserves the committed manifest.
+
 **Acceptance.**
 - `pnpm-workspace.yaml` exists with both globs.
 - Root `package.json` declares `"private": true`, `"name": "spyglass"`.
+- Root `.gitignore` exists with the patterns above.
 - `pnpm install` exits 0 in an empty repo.
+- `git status` after creating a `.env.local` with placeholder content
+  shows it as ignored.
 
 ---
 
@@ -155,7 +164,7 @@ hashing per task; outputs whitelisted (`dist/**`, `.next/**`).
 
 | ID | Title | Effort | Blocks | Blocked by | Story | Refs |
 |----|-------|--------|--------|------------|-------|------|
-| T007 | Install + configure Biome (biome.json) | M | T028 | T001 | 4, 6 | Spec Clar. 2, FR-25 |
+| T007 | Install + configure ESLint + Prettier + plugins | M | T028 | T001 | 4, 6 | Spec Clar. 2 (revised), FR-25, NFR-10 |
 | T008 | Install Lefthook + lefthook.yml (pre-commit + commit-msg) | S | T010, T012 | T007 | 5, 6 | FR-22 |
 | T009 | Install commitlint + conventional config | XS | T008 | T001 | — | FR-26, Research D14 |
 | T010 | Install + configure Gitleaks; create `.gitleaks.toml` | S | T028 | T008 | 5 | FR-22, FR-23 |
@@ -167,24 +176,43 @@ rejected.
 
 ---
 
-### T007 — Install + configure Biome
+### T007 — Install + configure ESLint + Prettier + plugins
 
-**Description.** `pnpm add -D -w @biomejs/biome`. Create `biome.json`:
-- Lint: `"recommended": true` plus explicit rules for
-  `noPrivateImports` (boundary enforcement, Research D16).
-- Format: align with global Prettier output where possible (2-space
-  indent, single quotes, semicolons, trailing comma `all`).
-- Config note (FR-NFR-12 inline): record decision on whether to
-  override the global Prettier PostToolUse hook for this repo or
-  align Biome to Prettier output. Default is align; overriding the
-  hook locally is acceptable if alignment proves brittle.
+**Description.**
+Install:
+```
+pnpm add -D -w eslint @typescript-eslint/eslint-plugin
+  @typescript-eslint/parser eslint-config-next prettier
+  eslint-plugin-import eslint-plugin-boundaries
+```
+
+Create `eslint.config.js` (flat config) at root:
+- Extends ESLint `recommended` + `@typescript-eslint/recommended-type-checked`
+- `apps/web/` overlay extends `eslint-config-next`
+- `packages/*` rules use `eslint-plugin-boundaries` to enforce that
+  `apps/*` packages don't import from each other (per plan §2.1
+  FR-5) and `packages/*` consume only their declared dependencies
+- `eslint-plugin-import/no-internal-modules` rejects deep imports
+  (Research D16, FR-25)
+- `max-lines: ["error", { "max": 800, "skipBlankLines": true,
+  "skipComments": true }]` directly enforces NFR-10 — no custom CI
+  script needed
+
+Create `prettier.config.js` aligned with the global
+`~/.claude/settings.json` PostToolUse Prettier hook output (2-space
+indent, single quotes, semicolons, trailing commas `all`,
+`printWidth: 100`).
 
 **Acceptance.**
-- `pnpm exec biome check .` runs and reports clean on the empty
-  scaffold.
-- `pnpm exec biome format --write .` is idempotent.
+- `pnpm exec eslint .` runs and reports clean on the empty scaffold.
+- `pnpm exec prettier --check .` is idempotent (no diff after
+  `--write`).
+- A test file with > 800 lines triggers an ESLint error
+  (`max-lines`).
+- A deep import path violation triggers an ESLint error
+  (`no-internal-modules`).
 
-**Refs.** Spec Clarification 2, FR-25, Research D16.
+**Refs.** Spec Clarification 2 (revised), FR-25, NFR-10, Research D4, D16.
 
 ---
 
@@ -192,7 +220,8 @@ rejected.
 
 **Description.** `pnpm add -D -w lefthook`. Create `lefthook.yml`:
 - `pre-commit` (parallel):
-  - `biome` — `pnpm exec biome check --staged --no-errors-on-unmatched`
+  - `eslint` — `pnpm exec eslint {staged_files} --max-warnings=0`
+  - `prettier` — `pnpm exec prettier --check {staged_files}`
   - `gitleaks` — `gitleaks protect --staged --redact`
   - `type-check` — `pnpm exec turbo run type-check --filter='[HEAD]'`
 - `commit-msg`:
@@ -200,7 +229,8 @@ rejected.
 
 **Acceptance.**
 - `lefthook install` succeeds.
-- A commit with a Biome violation is rejected.
+- A commit with an ESLint violation is rejected.
+- A commit with a Prettier diff is rejected.
 - A commit with a fake-secret is rejected.
 - A commit with non-conventional message is rejected.
 
@@ -478,6 +508,7 @@ migration file that's then deleted).
 | T034 | Write `scripts/verify-artifact.sh` | M | — | T033 | 2 | FR-13 |
 | T035 | Add `pnpm audit` step (high/critical fail) | S | T036 | T030 | 3 | FR-29, EC-4 |
 | T036 | Add `osv-scanner` step | S | — | T035 | 3 | FR-29 |
+| T036b | Add `npm audit signatures` shim + exceptions-register check | S | — | T030 | 3 | FR-14 (revised), EC-4, EC-4b, Constitution v2.0.0 §I.C.2 |
 | T037 | Add `license-checker-rseidelsohn` step + allowlist | S | — | T030 | 3 | Research D11 |
 | T038 | Add `publint` step (per-package) | S | — | T030, T004 | 4 | FR-25, EC-7 |
 | T039 | Add Knip (CI warning, not gate) | XS | — | T030 | 4 | Research D16 |
@@ -486,6 +517,7 @@ migration file that's then deleted).
 | T042 | Configure CI artifact retention ≥ 7 years | XS | — | T030 | 2 | FR-31 |
 | T043 | Add `.nvmrc` ↔ `engines.node` consistency check | XS | — | T002 | 6 | FR-NFR consistency |
 | T044 | CI bootstrap-idempotency check (run twice) | S | — | T030, T045 | 1 | NFR-2 |
+| T044b | Add CI guard rejecting any tracked `.env*` file (other than `.env.example`) | XS | — | T030 | 5 | FR-21, EC-8 |
 
 **Sub-phase A6 gate:** Open a draft PR; all CI gates pass; runtime
 ≤ 10 min cold cache, ≤ 4 min warm; tag a `v0.0.0-rc.1` and
@@ -554,6 +586,66 @@ signature in CI smoke test.
 - Missing SBOM: exits non-zero.
 
 **Refs.** FR-13, EC-6, Scenarios 6, 7.
+
+---
+
+### T036b — Dependency-signature verification + exceptions register
+
+**Description.** Implements FR-14 as revised under Constitution
+v2.0.0 §I.C.2.
+
+CI step that:
+1. Runs `npm audit signatures` (npm CLI 10.5+) against the
+   pnpm-installed dependency tree (use `pnpm install
+   --shamefully-hoist=false` plus a small shim that walks the lockfile,
+   or call `npm audit signatures` against an npm-style view via
+   `pnpm install --lockfile-only && npm install --package-lock-only`
+   bridge — finalize the bridge approach in implementation; the
+   contract is "verify what npm provenance is published for our
+   deps").
+2. Parses output. **Signature mismatch** = build fails immediately,
+   never allowlisted (EC-4 — real attack signal).
+3. **No-signature-available** packages are matched against
+   `.specify/exceptions/dependency-signatures.md` (a markdown table
+   with columns: package, version range, rationale, date-added,
+   reviewer). Any unsigned dep not on the list fails the build
+   (EC-4b — ecosystem gap).
+4. The exceptions register is a committed artifact. Adding a new
+   exception requires a one-line rationale and a reviewer name.
+
+**Acceptance.**
+- `.specify/exceptions/dependency-signatures.md` exists with the
+  table schema documented and an initial pass populating exceptions
+  for the F01 dep tree (any deps without provenance at install
+  time).
+- CI step fails on simulated signature mismatch.
+- CI step fails on a fresh unsigned dep not in the exceptions
+  register.
+- CI step passes when all unsigned deps are accounted for.
+
+**Refs.** FR-14 (revised), EC-4, EC-4b, Constitution v2.0.0 §I.C.2.
+
+---
+
+### T044b — CI guard against tracked `.env*` files
+
+**Description.** A CI step that lists tracked files matching
+`^\.env(\..+)?$` and fails if any match other than `.env.example`.
+Belt-and-suspenders alongside `.gitignore` (T001) and Gitleaks
+(T010): `.gitignore` covers untracked files, Gitleaks covers
+content, this guard covers tracked filenames.
+
+```bash
+git ls-files | grep -E '^\.env(\..+)?$' | grep -v '^\.env\.example$'
+test -z "$(git ls-files | grep -E '^\.env(\..+)?$' | grep -v '^\.env\.example$')"
+```
+
+**Acceptance.**
+- Empty output → CI passes.
+- A `.env` (or `.env.local` etc.) tracked → CI fails with a clear
+  remediation message (`git rm --cached .env && commit`).
+
+**Refs.** FR-21, EC-8.
 
 ---
 
@@ -812,3 +904,4 @@ mark `blocked` and address the failure.
 | Version | Date | Change |
 |---------|------|--------|
 | 1.0 | 2026-05-06 | Initial task breakdown. 63 tasks across 10 sub-phases (A1–A10) with explicit dependencies, story tags, effort estimates, and acceptance criteria. |
+| 1.1 | 2026-05-06 | Post-`/speckit-analyze` revisions: T007 rewritten for ESLint+Prettier (was Biome) — now also enforces NFR-10 via ESLint `max-lines`. T008 hook commands updated. T001 acceptance expanded to include `.gitignore` for `.env*`. New T036b for FR-14 (revised) — `npm audit signatures` shim + `.specify/exceptions/dependency-signatures.md` register. New T044b CI guard for tracked `.env*` files. Total tasks 63 → 65. |

@@ -3,10 +3,11 @@
 **Spec:** `.specify/specs/01-monorepo-scaffold/spec.md` v1.2
 **Research:** `.specify/specs/01-monorepo-scaffold/research.md` v1.0
 **Branch:** `01-monorepo-scaffold`
-**Plan version:** 1.0
+**Plan version:** 1.1
 **Date:** 2026-05-06
 **Owner:** Gary
-**Constitution refs:** v1.1.0 §I.C, §I.6, §I.5, §II, §III.3, §IV, §V.3
+**Constitution refs:** v2.0.0 §I.C (amended at v2.0.0), §I.6, §I.5,
+§II, §III.3, §IV, §V.3
 **Estimated effort:** 60–80 engineer-hours (≈ 2–3 weeks at ~30 h/wk)
 
 ---
@@ -115,8 +116,9 @@ runs concurrent.
 ```
   Developer machine
    ├── Lefthook pre-commit hook  ─┐
-   │     ├── Biome (lint + format)│  Layer 1: developer-side
-   │     ├── Gitleaks scan        │  (best-effort, can be bypassed)
+   │     ├── ESLint (lint)        │  Layer 1: developer-side
+   │     ├── Prettier (format)    │  (best-effort, can be bypassed)
+   │     ├── Gitleaks scan        │
    │     └── commitlint           │
    │
    └── git push ──▶ GitHub
@@ -157,7 +159,8 @@ Three independent layers per Constitution §I.6 (Defense in Depth).
 | LLM access | Vercel AI Gateway + AI SDK v6 | PRD §7 |
 | Object storage | Vercel Blob | PRD §7 (configured in F10) |
 | Test runner | Jest + `next/jest` + `@swc/jest` | Spec Clarification 1 |
-| Lint + format | Biome | Spec Clarification 2 |
+| Lint | ESLint + `eslint-config-next` + `@typescript-eslint/*` + `eslint-plugin-import` + `eslint-plugin-boundaries` | Spec Clarification 2 (revised) |
+| Format | Prettier | Spec Clarification 2 (revised) |
 | SBOM | `@cyclonedx/cyclonedx-npm` | Research D5 |
 | Signing | Sigstore `cosign` (keyless via OIDC) | Research D6 |
 | Provenance | SLSA L3 via `slsa-github-generator` | Research D7 |
@@ -169,7 +172,7 @@ Three independent layers per Constitution §I.6 (Defense in Depth).
 | CI | GitHub Actions | Research D13 |
 | Commit linting | commitlint + conventional-commits | Research D14 |
 | Versioning | `changesets` (config only in F01) | Research D15 |
-| Boundary enforcement | Biome import rules + `package.json#exports` + `publint` | Research D16 |
+| Boundary enforcement | `eslint-plugin-boundaries` + `eslint-plugin-import/no-internal-modules` + `package.json#exports` + `publint` | Research D16 |
 | Env validation | Zod schema in `packages/shared/env.ts` | Research D17 |
 | Repo settings | `.github/` codified | Research D18 |
 
@@ -205,22 +208,33 @@ exits 0 against empty packages.
 ### Phase A2 — Linting, formatting, hooks (≈ 6h)
 
 **Tasks:**
-1. `pnpm add -D -w @biomejs/biome`; init `biome.json` with:
-   - Lint: recommended + `noPrivateImports` (Research D16)
-   - Format: aligned with existing global Prettier defaults to
-     minimize PostToolUse-hook friction (note for `/speckit-tasks`:
-     either align Biome to Prettier output, or override the hook
-     locally — implementer's call).
-2. `pnpm add -D -w lefthook` and create `lefthook.yml` with:
-   - `pre-commit`: parallel — biome, gitleaks, type-check on changed
+1. `pnpm add -D -w eslint @typescript-eslint/eslint-plugin
+   @typescript-eslint/parser eslint-config-next eslint-plugin-import
+   eslint-plugin-boundaries prettier`. Init `eslint.config.js`
+   (flat config) with:
+   - `recommended` + `@typescript-eslint/recommended-type-checked`
+   - `eslint-config-next` for `apps/web/`
+   - `eslint-plugin-boundaries` configured to enforce
+     `packages/*` ↔ `apps/*` rules
+   - `eslint-plugin-import/no-internal-modules` to reject deep
+     imports (FR-25, Research D16)
+   - `max-lines: ["error", { "max": 800, "skipBlankLines": true,
+     "skipComments": true }]` (NFR-10)
+2. `prettier.config.js` aligned with global
+   `~/.claude/settings.json` PostToolUse Prettier hook output —
+   the Biome reconciliation question from spec v1.2 no longer
+   applies.
+3. `pnpm add -D -w lefthook` and create `lefthook.yml` with:
+   - `pre-commit`: parallel — eslint on staged files, prettier
+     check on staged files, gitleaks, type-check on changed
      packages (via `tsc --noEmit -p`)
    - `commit-msg`: commitlint
-3. `pnpm add -D -w @commitlint/cli @commitlint/config-conventional`;
+4. `pnpm add -D -w @commitlint/cli @commitlint/config-conventional`;
    add `commitlint.config.js`.
-4. `pnpm add -D -w gitleaks` (or document brew/binary install in
+5. `pnpm add -D -w gitleaks` (or document brew/binary install in
    bootstrap); create `.gitleaks.toml` from default with project
    tweaks (e.g., allow false positives in `__fixtures__`).
-5. Document hook bypass policy: never `--no-verify` on protected
+6. Document hook bypass policy: never `--no-verify` on protected
    branches; pre-commit failure is investigated, not bypassed
    (per Constitution §I.6 fail-safe defaults; per
    `~/.claude/rules/debugging.md`).
@@ -497,7 +511,7 @@ plumbing, not product.
 | Risk | Severity | Mitigation |
 |---|---|---|
 | SLSA L3 reusable workflow churn breaks the pipeline | Medium | Pin actions to SHAs; revisit at quarterly review (Research D7) |
-| Biome config diverges from global Prettier hook output | Low | Resolve in tasks-phase: align Biome config or override hook locally |
+| ESLint plugin churn (multiple plugins to keep current) | Low | Dependabot auto-PRs; weekly cadence; group major-version bumps |
 | `cosign` keyless verification requires Fulcio/Rekor connectivity | Low | Document; add KMS-backed signing path before Phase 2 |
 | Lefthook unfamiliar to contributors | Low | Bootstrap installs + docs explain |
 | Coverage threshold not enforced creates false confidence | Medium | Explicit non-blocking warning until F03 promotes; surfaced in CI summary |
@@ -516,7 +530,7 @@ plumbing, not product.
 | **§I.5.2 Least privilege** | `GITHUB_TOKEN` scoped per workflow; no admin tokens in CI |
 | **§I.6 Defense in Depth + Secure-by-Default** | Three secret-scan layers; three boundary-enforcement layers; Zod env fail-safe; pre-commit + CI + GitHub-native |
 | **§I.C.1 Cryptographic standards** | Sigstore (NIST-aligned); crypto-agility via signing tool boundary |
-| **§I.C.2 Supply-chain** | CycloneDX SBOM, cosign signing, SLSA L3 provenance, two-DB vuln scanning, license allowlist |
+| **§I.C.2 Supply-chain (v2.0.0 amendment)** | CycloneDX SBOM, cosign signing of Spyglass artifacts, SLSA L3 provenance, two-DB vuln scanning, license allowlist, **upstream-provenance verification where available + exceptions register at `.specify/exceptions/dependency-signatures.md`** (per Constitution v2.0.0 §I.C.2; satisfies revised FR-14) |
 | **§II Agent-Native** | Machine-readable manifests via `package.json#exports`; `agents.md`/`llms.txt` paths reserved |
 | **§III.3 Contract evolution** | Conventional commits + changesets configured; semver enforced via package boundaries |
 | **§III.4 Completeness** | Dual-audience doc surface (README for humans; agents.md path for agents) |
@@ -591,3 +605,4 @@ Critical path: A1 → A4 → A5 → A8 (≈ 22h). The rest parallelizes.
 | Version | Date | Change |
 |---------|------|--------|
 | 1.0 | 2026-05-06 | Initial plan. Maps F01 spec v1.2 to a sub-phased implementation across 9 sub-phases with 18 tooling decisions resolved in research.md. |
+| 1.1 | 2026-05-06 | Post-`/speckit-analyze` revisions: lint+format swapped from Biome to ESLint+Prettier (NFR-10 enforced via `max-lines`; Prettier-hook reconciliation removed); §I.C.2 row updated to reflect Constitution v2.0.0 amendment (upstream-provenance verification + exceptions register). Constitution reference bumped to v2.0.0. |

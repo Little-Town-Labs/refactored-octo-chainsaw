@@ -6,11 +6,12 @@
 **Phase:** A — Foundation
 **Priority:** P0 (Critical)
 **Complexity:** M (2–4 weeks)
-**Status:** Draft v1.0
+**Status:** Draft v1.3
 **Created:** 2026-05-06
 **Owner:** Gary
-**Constitution refs:** §I.C (Cryptographic & Supply-Chain Standards),
-§I.6 (Secure-by-Default), §IV (SoC), §III.3 (Contract evolution)
+**Constitution refs:** v2.0.0 §I.C (Cryptographic & Supply-Chain
+Standards, amended at v2.0.0), §I.6 (Secure-by-Default), §IV (SoC),
+§III.3 (Contract evolution)
 **Roadmap:** `.specify/roadmap.md` v1.1.0
 **PRD:** `PRD.md` §7 (committed tech stack), §11 (next steps)
 
@@ -292,9 +293,16 @@ traceability.
 - **FR-13.** A documented verification command verifies signature +
   provenance + SBOM integrity in a single pass and fails closed on
   any broken link.
-- **FR-14.** Production dependencies must have verifiable signatures
-  or an explicit, documented exception recorded in
-  `.specify/exceptions/`.
+- **FR-14.** Production dependencies are tracked via SBOM (FR-10) and
+  audited for known vulnerabilities (FR-29). Where the npm/pnpm
+  ecosystem provides upstream provenance attestations (npm CLI 10.5+),
+  CI verifies them; **signature mismatches fail the build and are
+  never allowlisted.** Packages without published provenance are
+  recorded in `.specify/exceptions/dependency-signatures.md` with a
+  one-line rationale and reviewed at each release. Universal
+  dependency signing was relaxed from a foundational requirement in
+  Constitution v2.0.0 pending ecosystem maturity; the exceptions
+  register is the audit-readable record of current coverage.
 
 ### 4.4 Cryptographic baseline (Constitution §I.C.1)
 
@@ -419,7 +427,8 @@ traceability.
 | EC-1 | Contributor runs bootstrap without `vercel` CLI installed | Bootstrap detects, instructs install, exits non-zero with single-line guidance |
 | EC-2 | `vercel env pull` fails (auth expired, network) | Bootstrap fails fast with actionable error; partial env files are not written |
 | EC-3 | Pre-commit hook detects a secret-shaped string in staged content | Commit is rejected; hook output names the file/line and the matched pattern; instruction to use `git rm --cached` if file was already tracked |
-| EC-4 | Dependency added without a verifiable signature | CI fails with a clear "unsigned dependency" message; PR cannot merge until either the dependency is signed upstream, an alternative is found, or an exception is recorded in `.specify/exceptions/` with rationale |
+| EC-4 | Dependency added with a *mismatched* upstream signature (real attack signal) | CI fails with a clear "signature mismatch" message; the dep is rejected; mismatches are **never** allowlisted |
+| EC-4b | Dependency added without an upstream signature available (ecosystem gap, not attack) | CI fails until the dep is added to `.specify/exceptions/dependency-signatures.md` with a one-line rationale; the exceptions list is reviewed at each release |
 | EC-5 | SBOM generation fails on a release build | Release pipeline aborts; no artifact is published; failure is paged to operator (channel TBD in F24) |
 | EC-6 | Sigstore signature verification fails on consumption | Verification command exits non-zero; calling pipeline halts; no artifact is deployed |
 | EC-7 | Two packages develop a circular dependency | Type-check fails; CI fails; PR cannot merge until cycle is resolved |
@@ -504,25 +513,40 @@ when the test surface is larger.
 
 ---
 
-### Clarification 2 — Lint + format toolchain — RESOLVED
+### Clarification 2 — Lint + format toolchain — REVISED
 
-**Decision (2026-05-06):** **Biome** as the single tool for lint and
-format.
+**Original decision (2026-05-06, spec v1.2):** Biome as a single tool
+for lint and format.
 
-**Rationale:** Smaller operational surface, faster CI, fewer moving
-parts. Aligns with Constitution §I.6 (Secure-by-Default — opinionated
-defaults reduce mis-configuration risk).
+**Revised decision (2026-05-06, spec v1.3, post-`/speckit-analyze`):**
+**ESLint + Prettier**, with `eslint-config-next` for Next.js,
+`@typescript-eslint/*` for TypeScript, `eslint-plugin-import` and
+`eslint-plugin-boundaries` for monorepo boundary enforcement.
 
-**Implementation notes (informational, for `/speckit-plan`):**
-- The pre-existing global `~/.claude/settings.json` PostToolUse hook
-  runs Prettier on edited files. Either (a) configure Biome's
-  formatter to match Prettier's output for this project so the hook is
-  effectively a no-op, or (b) add a project-local `.claude/settings`
-  override that swaps Prettier for `biome format --write`. Decide in
-  `/speckit-plan`.
-- Biome's lint rule set should be reviewed against the project's
-  conventions; record any rule-level deviations in
-  `.specify/exceptions/` per FR-14 pattern.
+**Why revised:**
+1. ESLint's built-in `max-lines` rule directly satisfies NFR-10
+   (file size ≤ 800 lines) without a custom CI script —
+   `/speckit-analyze` Finding 2.
+2. Prettier as the formatter aligns naturally with the global
+   `~/.claude/settings.json` PostToolUse Prettier hook — the
+   reconciliation question raised by the Biome path goes away.
+3. The plugin ecosystem (boundaries, import, security, custom rules)
+   is a better fit for a 27-feature monorepo than Biome's speed
+   advantage at small repo size.
+
+**Tradeoffs accepted:** two tools instead of one; more config; more
+plugin-version maintenance. Mitigated by Turborepo caching keeping
+warm-cache CI inside NFR-3.
+
+**Implementation notes (informational, for `/speckit-plan` and
+`/speckit-tasks` revision):**
+- Lefthook hook commands change from `biome check` to
+  `eslint --fix-dry-run` + `prettier --check` on staged files.
+- The original Biome-vs-Prettier reconciliation note (and its
+  follow-up task) are no longer applicable.
+- Boundary enforcement is now `eslint-plugin-boundaries` +
+  `eslint-plugin-import/no-internal-modules` instead of Biome's
+  `noPrivateImports`.
 
 ---
 
@@ -586,11 +610,13 @@ F01's outputs:
 All three clarifications resolved 2026-05-06:
 - **Clarification 1 — Test framework:** Jest (with `next/jest` +
   `@swc/jest`).
-- **Clarification 2 — Lint + format:** Biome.
+- **Clarification 2 — Lint + format:** ESLint + Prettier (revised
+  from Biome on 2026-05-06 per `/speckit-analyze` Finding 2; see
+  Clarification 2 above for revised rationale).
 - **Clarification 3 — Node + pnpm:** Node 24 LTS + pnpm 9.x via
   Corepack.
 
-Spec is ready for `/speckit-plan`.
+Spec is ready for plan/tasks re-validation and `/speckit-implement`.
 
 ---
 
@@ -601,3 +627,4 @@ Spec is ready for `/speckit-plan`.
 | 1.0     | 2026-05-06 | Initial draft for `/speckit-clarify`. |
 | 1.1     | 2026-05-06 | Resolved Clarification 1 — test framework = Jest (with `next/jest` + `@swc/jest`). Two clarifications remain. |
 | 1.2     | 2026-05-06 | Resolved Clarifications 2 (lint+format = Biome) and 3 (Node 24 LTS + pnpm 9.x via Corepack). All clarifications closed; spec ready for `/speckit-plan`. |
+| 1.3     | 2026-05-06 | Post-`/speckit-analyze` revisions: (a) FR-14 + EC-4 softened — universal dep signing relaxed to "verify upstream provenance where available; record exceptions"; constitutional basis is Constitution v2.0.0 amendment to §I.C.2. (b) Clarification 2 revised — Biome → ESLint+Prettier (gains `max-lines` for NFR-10; aligns with global Prettier hook). (c) Constitution reference bumped to v2.0.0. |
