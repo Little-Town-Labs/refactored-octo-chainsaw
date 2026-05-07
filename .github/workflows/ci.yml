@@ -230,3 +230,31 @@ jobs:
             echo "in Vercel env (production / preview / development scopes)."
             exit 1
           fi
+
+  # T044: bootstrap script must be idempotent and second-run must be
+  # fast (NFR-2). Only runs on PRs that touch bootstrap.sh or its
+  # immediate inputs — avoids paying ~2 min on every PR.
+  bootstrap-idempotency:
+    name: bootstrap-idempotency (paths-filtered)
+    runs-on: ubuntu-24.04
+    if: |
+      contains(github.event.pull_request.changed_files, 'scripts/bootstrap.sh')
+      || contains(github.event.pull_request.changed_files, 'package.json')
+      || contains(github.event.pull_request.changed_files, 'pnpm-workspace.yaml')
+      || contains(github.event.pull_request.changed_files, 'turbo.json')
+      || github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v5
+      - name: first run (full setup)
+        run: bash scripts/bootstrap.sh
+      - name: second run (must be fast — NFR-2 ≤ 2 min)
+        run: |
+          start=$(date +%s)
+          bash scripts/bootstrap.sh
+          end=$(date +%s)
+          elapsed=$((end - start))
+          echo "Warm bootstrap took ${elapsed}s"
+          if [ "$elapsed" -gt 120 ]; then
+            echo "::error::Warm bootstrap exceeded NFR-2 (≤ 2 min). Took ${elapsed}s."
+            exit 1
+          fi
