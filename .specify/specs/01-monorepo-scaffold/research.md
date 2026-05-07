@@ -22,7 +22,7 @@ Node 24 LTS + pnpm 9.x via Corepack) are likewise treated as decided.
 | D2 | Package manager | **pnpm 9.x via Corepack** (spec-resolved) | npm, yarn | — |
 | D3 | Test runner | **Jest** + `next/jest` + `@swc/jest` (spec-resolved) | Vitest, node:test | — |
 | D4 | Lint + format | **ESLint + Prettier** (spec-resolved, revised 2026-05-06) | Biome (original pick), ESLint-only | III.2 (NFR-10 enforcement); IV |
-| D5 | SBOM generator | **`@cyclonedx/cyclonedx-npm`** (workspace-aware) | Syft, Trivy SBOM | I.C.2; EO 14028 §4(e) |
+| D5 | SBOM generator | **`@cyclonedx/cdxgen`** (pnpm-aware; revised 2026-05-06 from cyclonedx-npm) | cyclonedx-npm (incompatible with pnpm), Syft, Trivy SBOM | I.C.2; EO 14028 §4(e) |
 | D6 | Artifact signing | **Sigstore `cosign`** (keyless via OIDC) | GPG, in-toto | I.C.1, I.C.2 |
 | D7 | SLSA build provenance | **`slsa-framework/slsa-github-generator`** at L3 | Manual attestation | I.C.2; SLSA spec |
 | D8 | Secret scanner | **Gitleaks** (pre-commit + CI) + GitHub native secret scanning | TruffleHog, detect-secrets | I.4, I.6 |
@@ -87,26 +87,30 @@ PRD §7 commits Turborepo. Recording for traceability:
 
 ---
 
-## D5 — SBOM: CycloneDX via `@cyclonedx/cyclonedx-npm`
+## D5 — SBOM: CycloneDX via `@cyclonedx/cdxgen` (revised 2026-05-06)
 
-**Options:**
-1. **`@cyclonedx/cyclonedx-npm`** — official CycloneDX generator for
-   npm/pnpm/yarn workspaces. Outputs CycloneDX 1.5 JSON.
-2. **Syft (Anchore)** — language-agnostic, runs against the artifact
-   or filesystem. Heavier dependency for our pure-TS tree.
-3. **Trivy SBOM** — bundled with vuln scanner; one tool, less
-   focused.
+**Original choice:** `@cyclonedx/cyclonedx-npm`.
 
-**Chosen:** Option 1.
+**Revised choice (2026-05-06, during F01 Phase A6 implementation):**
+`@cyclonedx/cdxgen` invoked with `-t pnpm`.
 
-**Rationale:** Workspace-aware out of the box; outputs CycloneDX which
-is the format Constitution §I.C.2 names; runs entirely from Node, no
-extra binary in CI. NTIA minimum SBOM elements satisfied by default.
+**Reason for revision:** `cyclonedx-npm` invokes `npm ls` internally
+to enumerate the dependency tree. `npm ls` fails on pnpm workspaces
+(`missing: xo@^0.24.0, required by p-try@2.2.0` and similar resolution
+errors), so SBOM generation aborts. cdxgen is multi-package-manager
+and pnpm-native; produces CycloneDX 1.7 JSON cleanly against our
+tree (818 components on the F01 baseline).
 
-**Tradeoffs:** If we ever introduce non-Node components (Rust, Python),
-revisit and add Syft for those subtrees. Constitution §I.C.2 requires
-crypto-agility-equivalent flexibility for the SBOM toolchain — Syft
-can be added without removing CycloneDX-npm.
+**Options reconsidered:**
+1. **`@cyclonedx/cdxgen`** — chosen.
+2. **`@cyclonedx/cyclonedx-npm`** — rejected (npm-only).
+3. **Syft (Anchore)** — language-agnostic, requires shipping a Go
+   binary into CI runners. Acceptable but heavier.
+4. **Trivy SBOM** — bundled with vuln scanner.
+
+**Tradeoffs accepted:** cdxgen has a broader feature surface than
+cyclonedx-npm and depends on more transitive packages. CI runtime
+remains within NFR-3 budget.
 
 ---
 

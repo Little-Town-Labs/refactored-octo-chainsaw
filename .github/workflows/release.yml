@@ -1,0 +1,124 @@
+# Release pipeline — produces a signed, attested artifact on every
+# v*.*.* tag.
+#
+# Per Constitution v2.0.0 §I.C.2: every release artifact carries a
+# CycloneDX SBOM, a Sigstore signature, and SLSA Build Level 3
+# provenance. The verifier (`scripts/verify-artifact.sh`) checks all
+# three before any deployment trusts the artifact.
+
+name: release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write # write release assets
+  id-token: write # cosign keyless signing via GitHub OIDC
+  attestations: write # SLSA provenance attestation
+
+jobs:
+  build:
+    name: build + sbom
+    runs-on: ubuntu-24.04
+    outputs:
+      artifact-digest: ${{ steps.digest.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: build all packages + apps/web
+        run: pnpm -r run build
+
+      - name: package release bundle
+        # F01 packages apps/web's standalone Next build. Future features
+        # may extend the bundle (e.g., when telegram-bot lands in F17).
+        run: |
+          mkdir -p release
+          cp -r apps/web/.next/standalone release/web
+          tar -czf release/spyglass-${{ github.ref_name }}.tar.gz -C release web
+          rm -rf release/web
+
+      - name: generate CycloneDX SBOM (pnpm-aware via cdxgen)
+        run: |
+          pnpm dlx @cyclonedx/cdxgen -t pnpm \
+            -o release/spyglass-${{ github.ref_name }}.cdx.json
+
+      - name: compute artifact digest
+        id: digest
+        run: |
+          digest=$(sha256sum release/spyglass-${{ github.ref_name }}.tar.gz | cut -d' ' -f1)
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+          echo "Artifact sha256: $digest"
+
+      - name: upload artifact + SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ github.ref_name }}
+          path: release/
+          # FR-31: AEDT-relevant artifacts retained ≥ 7 years (2555
+          # days). GitHub Actions caps at 90 days; long-term retention
+          # is achieved by uploading to GitHub Releases (below) and to
+          # off-platform durable storage (TODO before Phase 1 launch).
+          retention-days: 90
+
+  sign:
+    name: sign (Sigstore cosign keyless)
+    runs-on: ubuntu-24.04
+    needs: build
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-${{ github.ref_name }}
+          path: release/
+      - uses: sigstore/cosign-installer@v3
+      - name: cosign sign blob (keyless via OIDC)
+        run: |
+          cosign sign-blob --yes \
+            --bundle release/spyglass-${{ github.ref_name }}.cosign.bundle \
+            release/spyglass-${{ github.ref_name }}.tar.gz
+      - name: upload signed bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: signature-${{ github.ref_name }}
+          path: release/spyglass-${{ github.ref_name }}.cosign.bundle
+          retention-days: 90
+
+  provenance:
+    name: SLSA L3 provenance
+    needs: build
+    permissions:
+      id-token: write
+      contents: write
+      actions: read
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
+    with:
+      base64-subjects: ${{ needs.build.outputs.artifact-digest }}
+
+  github-release:
+    name: github release
+    runs-on: ubuntu-24.04
+    needs: [build, sign, provenance]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets/
+      - name: create release with attached assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-assets/**/*
+          generate_release_notes: true

@@ -161,7 +161,7 @@ Three independent layers per Constitution §I.6 (Defense in Depth).
 | Test runner | Jest + `next/jest` + `@swc/jest` | Spec Clarification 1 |
 | Lint | ESLint + `eslint-config-next` + `@typescript-eslint/*` + `eslint-plugin-import` + `eslint-plugin-boundaries` | Spec Clarification 2 (revised) |
 | Format | Prettier | Spec Clarification 2 (revised) |
-| SBOM | `@cyclonedx/cyclonedx-npm` | Research D5 |
+| SBOM | `@cyclonedx/cdxgen` | Research D5 |
 | Signing | Sigstore `cosign` (keyless via OIDC) | Research D6 |
 | Provenance | SLSA L3 via `slsa-github-generator` | Research D7 |
 | Secret scan | Gitleaks + GitHub native | Research D8 |
@@ -323,7 +323,7 @@ errors; Inngest dev server runs (no functions registered).
 2. `.github/workflows/release.yml`:
    - Triggered on `v*.*.*` tags.
    - Build artifact (Next.js standalone build for `apps/web/`).
-   - Generate CycloneDX SBOM via `@cyclonedx/cyclonedx-npm` (root +
+   - Generate CycloneDX SBOM via `@cyclonedx/cdxgen` (root +
      per-package).
    - Sign via cosign (keyless OIDC).
    - Call `slsa.yml` reusable workflow for L3 provenance.

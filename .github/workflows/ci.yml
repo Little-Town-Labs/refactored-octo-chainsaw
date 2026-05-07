@@ -1,0 +1,297 @@
+# Spyglass CI gate.
+#
+# Per Constitution v2.0.0 §V.3, every PR is checked against the
+# foundational articles. The job set below maps to the spec FRs/NFRs:
+#
+#   - lint, format, type-check, test          → FR-28, FR-29, NFR-3
+#   - audit, osv-scan, dep-signatures         → FR-29, FR-14, §I.C.2
+#   - sbom                                    → FR-10, §I.C.2
+#   - secret-scan                             → FR-22, FR-23, §I.6
+#   - license                                 → research D11
+#   - publint                                 → FR-25, FR-27 (boundary
+#                                                enforcement, layer 3)
+#   - env-drift                               → FR-20
+#   - nvmrc-consistency                       → FR-NFR consistency
+#   - guard-env-files                         → FR-21, EC-8
+#
+# TODO (T041): pin all third-party action references to specific
+# SHAs. Initial commit uses version tags so contributors can read the
+# workflow; Dependabot (T055) will flip these to SHAs on first
+# eligible PR.
+
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Cancel in-flight runs on PR force-push (NFR-3 budget).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  # ── Code quality ───────────────────────────────────────────────────
+
+  lint:
+    name: lint (eslint)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec eslint .
+
+  format:
+    name: format (prettier --check)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec prettier --check .
+
+  type-check:
+    name: type-check
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r run type-check
+
+  test:
+    name: test (jest, with coverage)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r run test -- --coverage --ci
+      - name: upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ github.sha }}
+          path: |
+            packages/*/coverage/lcov.info
+            packages/*/coverage/coverage-summary.json
+            apps/*/coverage/lcov.info
+            apps/*/coverage/coverage-summary.json
+          retention-days: 90
+
+  # ── Boundary enforcement (publint = layer 3) ───────────────────────
+
+  publint:
+    name: publint
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # publint validates that each package.json's `exports`, `main`,
+      # and `types` resolve to real files. Build first so the dist/
+      # outputs exist; otherwise stubs fail unconditionally.
+      - run: pnpm -r run build
+      - name: publint per package
+        run: |
+          for pkg in packages/*; do
+            [ -f "$pkg/package.json" ] || continue
+            echo "::group::publint $pkg"
+            pnpm dlx publint "$pkg"
+            echo "::endgroup::"
+          done
+
+  # ── Supply chain ───────────────────────────────────────────────────
+
+  audit:
+    name: audit (pnpm audit, high+critical fail)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: pnpm audit
+        run: pnpm audit --audit-level high --prod
+
+  osv-scan:
+    name: osv-scanner
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: google/osv-scanner-action/osv-scanner-action@v1.9.1
+        with:
+          scan-args: |-
+            --recursive
+            --skip-git
+            ./
+
+  dep-signatures:
+    name: dep-signatures (npm audit signatures + exceptions register)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: verify upstream provenance + check exceptions register
+        run: bash scripts/check-dep-signatures.sh
+
+  sbom:
+    name: sbom (cdxgen, pnpm-aware)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # cdxgen is multi-package-manager and pnpm-native;
+      # cyclonedx-npm uses `npm ls` which chokes on pnpm workspaces.
+      - name: generate workspace SBOM (CycloneDX)
+        run: pnpm dlx @cyclonedx/cdxgen -t pnpm -o sbom.cdx.json
+      - name: upload SBOM
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ github.sha }}
+          path: sbom.cdx.json
+          # FR-31: AEDT-relevant artifacts retained ≥ 7 years.
+          # GitHub Actions caps free retention at 90 days; production
+          # SBOMs are uploaded to long-term storage by release.yml.
+          retention-days: 90
+
+  license:
+    name: license (allowlist)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: license-checker (production deps)
+        # Allowlist mirrors .specify/exceptions/license-allowlist.md.
+        # Drift between this list and the doc is its own bug; keep in sync.
+        # Our own workspace packages are UNLICENSED (proprietary) and
+        # excluded from the check — the allowlist applies to upstream
+        # deps only.
+        run: |
+          pnpm dlx license-checker-rseidelsohn \
+            --production \
+            --onlyAllow 'MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;Unlicense;CC0-1.0;BlueOak-1.0.0;CC-BY-4.0' \
+            --excludePackages 'spyglass@0.0.0;@spyglass/web@0.0.0;@spyglass/shared@0.0.0;@spyglass/parley@0.0.0;@spyglass/tickets@0.0.0;@spyglass/agents@0.0.0;@spyglass/db@0.0.0;@spyglass/api-contracts@0.0.0;@spyglass/a2a@0.0.0;@spyglass/channels-core@0.0.0;@spyglass/auth@0.0.0;@spyglass/ai@0.0.0' \
+            --summary
+
+  # ── Secret scanning (layer 3 of three; layer 1 = lefthook, 2 = push protection) ─
+
+  secret-scan:
+    name: secret-scan (gitleaks)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # full history for diff scan
+      - uses: gitleaks/gitleaks-action@v2
+
+  # ── Drift / consistency gates ──────────────────────────────────────
+
+  env-drift:
+    name: env-drift (.env.example vs schema)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm gen:env-example
+      - name: detect drift
+        run: |
+          if ! git diff --exit-code .env.example; then
+            echo "::error::.env.example is out of sync with packages/shared/src/env.ts."
+            echo "Run 'pnpm gen:env-example' locally and commit the result."
+            exit 1
+          fi
+
+  nvmrc-consistency:
+    name: .nvmrc ↔ engines.node consistency
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: verify versions agree
+        run: bash scripts/check-nvmrc-engines.sh
+
+  guard-env-files:
+    name: guard tracked .env files
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: reject any tracked .env* (other than .env.example)
+        run: |
+          violations=$(git ls-files | grep -E '^\.env(\..+)?$' | grep -v '^\.env\.example$' || true)
+          if [ -n "$violations" ]; then
+            echo "::error::Tracked .env file(s) found in source control:"
+            echo "$violations"
+            echo "Run 'git rm --cached <file>' and commit. .env files belong"
+            echo "in Vercel env (production / preview / development scopes)."
+            exit 1
+          fi
