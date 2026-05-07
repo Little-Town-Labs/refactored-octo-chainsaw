@@ -242,6 +242,32 @@ jobs:
             exit 1
           fi
 
+  # ── F02 §I.5 AAA gates ──────────────────────────────────────────────
+
+  principal-coverage:
+    # F02 T011a / T012 — NFR-11, M-1.
+    # Asserts every Spyglass route handler / server action / Inngest
+    # function passes through @spyglass/auth's `withPrincipal` (or the
+    # explicit `withAnonymous` opt-out via *.anonymous.ts naming). On
+    # the B1 surface no handlers exist yet; the gate exits 0 cleanly.
+    name: principal-coverage (NFR-11)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: scan handlers for guard coverage
+        run: bash scripts/check-principal-coverage.sh
+
+  no-credentials-in-logs:
+    # F02 T011b / T012 — NFR-6.
+    # Structural scan for credential values being passed to console.*
+    # or logger.* calls. Fails closed on any match.
+    name: no-credentials-in-logs (NFR-6)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: scan for credential-shaped values in log calls
+        run: bash scripts/check-no-credentials-in-logs.sh
+
 # T044 (bootstrap-idempotency) lives in its own workflow file
 # .github/workflows/bootstrap.yml so that workflow-level `paths:`
 # filtering can do what `if:` could not — `github.event.pull_request.
