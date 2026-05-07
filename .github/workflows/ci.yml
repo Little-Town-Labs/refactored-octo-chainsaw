@@ -76,7 +76,7 @@ jobs:
       - run: pnpm -r run test -- --coverage --ci
       - name: upload coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-${{ github.sha }}
           path: |
@@ -151,7 +151,7 @@ jobs:
         run: pnpm dlx @cyclonedx/cdxgen -t pnpm -o sbom.cdx.json
       - name: upload SBOM
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sbom-${{ github.sha }}
           path: sbom.cdx.json
