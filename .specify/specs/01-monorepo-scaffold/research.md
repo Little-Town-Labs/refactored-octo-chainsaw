@@ -1,16 +1,17 @@
 # F01 — Technology Research & Decisions
 
-**Spec:** `.specify/specs/01-monorepo-scaffold/spec.md` v1.2
-**Plan:** `.specify/specs/01-monorepo-scaffold/plan.md` v1.0
-**Date:** 2026-05-06
+**Spec:** `.specify/specs/01-monorepo-scaffold/spec.md` v1.3
+**Plan:** `.specify/specs/01-monorepo-scaffold/plan.md` v1.1
+**Date:** 2026-05-06 (updated post-implementation; D5 revised mid-A6 from cyclonedx-npm to cdxgen)
 
 This document records the **non-PRD-committed** technology and tooling
 choices for F01, with options considered, the chosen approach, and
 tradeoffs accepted.
 
 PRD §7-committed choices are not re-litigated here — they are
-constraints, not decisions. Spec-resolved clarifications (Jest, Biome,
-Node 24 LTS + pnpm 9.x via Corepack) are likewise treated as decided.
+constraints, not decisions. Spec-resolved clarifications (Jest,
+ESLint+Prettier — revised from Biome 2026-05-06, Node 24 LTS + pnpm
+9.x via Corepack) are likewise treated as decided.
 
 ---
 

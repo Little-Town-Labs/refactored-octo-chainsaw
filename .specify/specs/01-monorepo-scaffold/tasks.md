@@ -171,8 +171,8 @@ hashing per task; outputs whitelisted (`dist/**`, `.next/**`).
 | T011 | Document the no-bypass policy in CONTRIBUTING.md draft | XS | — | — | 7 | NFR-12 |
 
 **Sub-phase A2 gate:** `lefthook install` registers hooks; sample
-commit triggers Biome + Gitleaks + commitlint; bad-message commit is
-rejected.
+commit triggers ESLint + Prettier + Gitleaks + commitlint;
+bad-message commit is rejected.
 
 ---
 
@@ -706,9 +706,9 @@ command is the *only* required step for fresh-clone setup.
 
 **Description.** Sections: Branch naming (`<feature-id>-<slug>`),
 Conventional commits, SDD workflow (link to Plan/Tasks workflow),
-Constitutional gates, Code style (link to Biome + global rules),
-No-bypass policy (per T011), How to add a dependency, How to add
-an env var.
+Constitutional gates, Code style (link to ESLint+Prettier configs +
+global rules), No-bypass policy (per T011), How to add a dependency,
+How to add an env var.
 
 **Acceptance.** Coverage of every PR-time concern a new contributor
 needs.

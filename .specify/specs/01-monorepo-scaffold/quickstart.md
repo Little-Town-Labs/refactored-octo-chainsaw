@@ -164,7 +164,7 @@ import { internalThing } from '@spyglass/shared/dist/internal/private'
 **Expected:**
 - `pnpm type-check` fails — the deep path is not in the
   `@spyglass/shared` `exports` map.
-- Biome lint also flags the violation.
+- ESLint also flags the violation via `import/no-internal-modules`.
 - `publint` flags any package whose `exports` are mis-declared.
 
 ---
