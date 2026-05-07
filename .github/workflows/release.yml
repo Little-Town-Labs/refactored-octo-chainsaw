@@ -140,7 +140,7 @@ jobs:
           echo "subjects=$subjects_b64" >> "$GITHUB_OUTPUT"
 
       - name: upload artifact + SBOM
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-${{ github.ref_name }}
           path: release/
@@ -171,7 +171,7 @@ jobs:
             --bundle release/spyglass-${{ github.ref_name }}.cosign.bundle \
             release/spyglass-${{ github.ref_name }}.tar.gz
       - name: upload signed bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: signature-${{ github.ref_name }}
           path: release/spyglass-${{ github.ref_name }}.cosign.bundle
