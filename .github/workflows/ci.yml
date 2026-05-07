@@ -127,7 +127,6 @@ jobs:
         with:
           scan-args: |-
             --recursive
-            --skip-git
             ./
 
   dep-signatures:
