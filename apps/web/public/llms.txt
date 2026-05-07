@@ -1,0 +1,13 @@
+# llms.txt — placeholder
+
+This file is reserved for LLM-readable site instructions per the
+emerging llms.txt convention (https://llmstxt.org). It will be
+populated in F21 (Seeker web surface) per F01 spec FR-33.
+
+For now: nothing here. Spyglass is in private development;
+unauthorized scraping or model-training use is not permitted.
+
+When populated, expect a brief site overview, key navigation
+pointers, and a description of what the public surface offers
+(landing, signup, Clerk-hosted profile — no product dashboard;
+the seeker product is the conversation, not a webpage).
