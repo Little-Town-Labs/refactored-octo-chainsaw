@@ -188,7 +188,19 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0 # full history for diff scan
-      - uses: gitleaks/gitleaks-action@v2
+      # gitleaks/gitleaks-action@v2 requires a paid license for
+      # organization-owned repos. We run the upstream binary directly
+      # — same scanner, no license constraint. The binary is MIT-
+      # licensed open source.
+      - name: install gitleaks binary
+        run: |
+          VERSION=8.21.4
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz" \
+            | tar -xz -C /tmp gitleaks
+          sudo install /tmp/gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+      - name: gitleaks detect
+        run: gitleaks detect --redact --no-banner --verbose
 
   # ── Drift / consistency gates ──────────────────────────────────────
 
@@ -231,30 +243,7 @@ jobs:
             exit 1
           fi
 
-  # T044: bootstrap script must be idempotent and second-run must be
-  # fast (NFR-2). Only runs on PRs that touch bootstrap.sh or its
-  # immediate inputs — avoids paying ~2 min on every PR.
-  bootstrap-idempotency:
-    name: bootstrap-idempotency (paths-filtered)
-    runs-on: ubuntu-24.04
-    if: |
-      contains(github.event.pull_request.changed_files, 'scripts/bootstrap.sh')
-      || contains(github.event.pull_request.changed_files, 'package.json')
-      || contains(github.event.pull_request.changed_files, 'pnpm-workspace.yaml')
-      || contains(github.event.pull_request.changed_files, 'turbo.json')
-      || github.event_name == 'push'
-    steps:
-      - uses: actions/checkout@v5
-      - name: first run (full setup)
-        run: bash scripts/bootstrap.sh
-      - name: second run (must be fast — NFR-2 ≤ 2 min)
-        run: |
-          start=$(date +%s)
-          bash scripts/bootstrap.sh
-          end=$(date +%s)
-          elapsed=$((end - start))
-          echo "Warm bootstrap took ${elapsed}s"
-          if [ "$elapsed" -gt 120 ]; then
-            echo "::error::Warm bootstrap exceeded NFR-2 (≤ 2 min). Took ${elapsed}s."
-            exit 1
-          fi
+# T044 (bootstrap-idempotency) lives in its own workflow file
+# .github/workflows/bootstrap.yml so that workflow-level `paths:`
+# filtering can do what `if:` could not — `github.event.pull_request.
+# changed_files` is not a real GitHub Actions context attribute.

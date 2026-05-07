@@ -1,0 +1,24 @@
+# OSV-Scanner config for Spyglass.
+#
+# Policy (Research D10): production-dep CVE failures fire on high or
+# critical severity only. Moderate findings are tracked but don't block
+# CI — Dependabot bumps and gradual hardening close them over time.
+#
+# OSV-Scanner doesn't have a `--min-severity` flag; we express the
+# same policy via per-CVE ignore entries. Each entry:
+#   - cites the upstream advisory
+#   - records the rationale (severity, dep type, source)
+#   - sets `ignoreUntil` so the exception expires and forces a re-look
+#
+# When a CVE in this list is patched upstream and Dependabot lands
+# the bump, **delete the entry**. Don't leave stale ignores.
+
+[[IgnoredVulns]]
+id = "GHSA-qx2v-qp2m-jg93"
+ignoreUntil = "2027-01-01"
+reason = "postcss 8.4.31 — XSS via unescaped </style>. CVSS 6.1 (moderate). Transitive via Next 16. Below Spyglass severity threshold (high+critical only per Research D10). Patched in postcss ≥ 8.5.10; Dependabot will bump."
+
+[[IgnoredVulns]]
+id = "GHSA-67mh-4wv8-2f99"
+ignoreUntil = "2027-01-01"
+reason = "esbuild 0.18.20. CVSS 5.3 (moderate). Transitive via drizzle-kit (dev-only — does not ship to production). Below severity threshold per Research D10."
