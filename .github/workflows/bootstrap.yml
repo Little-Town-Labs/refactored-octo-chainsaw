@@ -1,0 +1,54 @@
+# T044 — bootstrap script idempotency gate.
+#
+# Runs scripts/bootstrap.sh twice and asserts the second pass is fast
+# (NFR-2: ≤ 2 min). Only triggers on PRs / pushes that touch files
+# whose changes plausibly affect bootstrap behavior. Typical PRs do
+# not pay this cost.
+#
+# This is a separate workflow file (rather than a job in ci.yml) so
+# that workflow-level `paths:` filtering does the gating.
+# `github.event.pull_request.changed_files` is not a real Actions
+# context attribute, so an `if:` expression cannot achieve this.
+
+name: bootstrap-idempotency
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/bootstrap.sh"
+      - "package.json"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - ".nvmrc"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/bootstrap.sh"
+      - "package.json"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - ".nvmrc"
+
+permissions:
+  contents: read
+
+jobs:
+  idempotency:
+    name: bootstrap twice; warm pass ≤ 120 s
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: first run (full setup)
+        run: bash scripts/bootstrap.sh
+      - name: second run (must be fast — NFR-2 ≤ 2 min)
+        run: |
+          start=$(date +%s)
+          bash scripts/bootstrap.sh
+          end=$(date +%s)
+          elapsed=$((end - start))
+          echo "Warm bootstrap took ${elapsed}s"
+          if [ "$elapsed" -gt 120 ]; then
+            echo "::error::Warm bootstrap exceeded NFR-2 (≤ 2 min). Took ${elapsed}s."
+            exit 1
+          fi

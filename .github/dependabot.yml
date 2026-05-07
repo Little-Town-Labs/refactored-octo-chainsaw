@@ -57,6 +57,20 @@ updates:
         patterns:
           - "drizzle-orm"
           - "drizzle-kit"
+    # Hold majors that would cross our committed runtime / tooling
+    # baselines. These get explicit-bump PRs only when we choose to
+    # cross the boundary; minor + patch bumps still propose freely.
+    ignore:
+      # TypeScript 6.0 — F01 deliberately committed to TS 5.x per
+      # research D12; revisit at end of F03 or first time a 5.x
+      # blocker surfaces.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      # @types/node tracks the Node major; we're on Node 24 LTS via
+      # .nvmrc + engines.node. Bumping @types/node major implies a
+      # Node major upgrade, which is a separate decision.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   # ── GitHub Actions (workflow + composite-action SHAs) ─────────────
   - package-ecosystem: github-actions

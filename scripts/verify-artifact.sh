@@ -87,21 +87,30 @@ slsa-verifier verify-artifact "$TARBALL" \
 echo "  SLSA L3: OK"
 
 # 3. SBOM digest cross-check.
+#
+# Per Constitution §I.6 fail-safe defaults and the script header
+# ("There is no 'soft pass' mode"), a missing SHA-256 hash on the
+# SBOM's primary component fails the verification — it does NOT
+# pass with a warning. Per /security-review M-2, the previous
+# behavior contradicted §I.6. If `cdxgen` ever omits this hash, the
+# fix is to inject it at release-build time, not to soft-pass.
 echo
 echo "[3/3] SBOM digest cross-check..."
 SBOM_FOUND=$(jq -r '.metadata.component.hashes // [] | .[] | select(.alg == "SHA-256") | .content' "$SBOM" 2>/dev/null || echo "")
 if [ -z "$SBOM_FOUND" ]; then
-  echo "::warning::SBOM does not declare a SHA-256 hash for the primary component."
-  echo "  Skipping cross-check; future SBOM generation should embed it."
-else
-  if [ "$SBOM_FOUND" != "$DIGEST" ]; then
-    echo "::error::SBOM digest does not match tarball:"
-    echo "  expected: $DIGEST"
-    echo "  in SBOM:  $SBOM_FOUND"
-    exit 1
-  fi
-  echo "  SBOM digest: matches"
+  echo "::error::SBOM does not declare a SHA-256 hash for the primary component."
+  echo "  Cannot cross-check artifact integrity. Fail-closed per Constitution §I.6."
+  echo "  Fix: ensure release.yml's SBOM generation step embeds the primary-component hash,"
+  echo "       or compute it post-build and inject before signing."
+  exit 1
 fi
+if [ "$SBOM_FOUND" != "$DIGEST" ]; then
+  echo "::error::SBOM digest does not match tarball:"
+  echo "  expected: $DIGEST"
+  echo "  in SBOM:  $SBOM_FOUND"
+  exit 1
+fi
+echo "  SBOM digest: matches"
 
 echo
 echo "All verification checks passed."

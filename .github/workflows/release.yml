@@ -5,6 +5,13 @@
 # CycloneDX SBOM, a Sigstore signature, and SLSA Build Level 3
 # provenance. The verifier (`scripts/verify-artifact.sh`) checks all
 # three before any deployment trusts the artifact.
+#
+# Security gates run at tag time (not just at PR time) so that a
+# release artifact is only ever produced from a commit that passes
+# the same checks ci.yml runs on PRs. Without this, a maintainer
+# could tag a commit that bypassed ci.yml (e.g., direct push, hotfix
+# tag) and we'd cryptographically attest a release that was never
+# policy-checked. Per /security-review finding I-2.
 
 name: release
 
@@ -13,28 +20,95 @@ on:
     tags:
       - "v*.*.*"
 
-permissions:
-  contents: write # write release assets
-  id-token: write # cosign keyless signing via GitHub OIDC
-  attestations: write # SLSA provenance attestation
+# Default-deny at workflow level; each job declares the minimum it
+# needs (S-2). The build / sbom job is read-only; only sign + slsa +
+# github-release need write/id-token.
+permissions: {}
 
 jobs:
+  # ── Pre-release gates (mirrors ci.yml's security-relevant subset) ──
+
+  test:
+    name: test (jest)
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+      - run: pnpm -r run test
+
+  type-check:
+    name: type-check
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+      - run: pnpm -r run type-check
+
+  audit:
+    name: audit (pnpm + osv)
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+      - run: pnpm audit --audit-level high --prod
+      - uses: google/osv-scanner-action/osv-scanner-action@v1.9.1
+        with:
+          scan-args: |-
+            --recursive
+            --skip-git
+            ./
+
+  dep-signatures:
+    name: dep-signatures (provenance + register)
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+      - run: bash scripts/check-dep-signatures.sh
+
+  secret-scan:
+    name: secret-scan (gitleaks)
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: install gitleaks binary
+        run: |
+          VERSION=8.21.4
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz" \
+            | tar -xz -C /tmp gitleaks
+          sudo install /tmp/gitleaks /usr/local/bin/gitleaks
+      - run: gitleaks detect --redact --no-banner --verbose
+
+  # ── Build + SBOM (depends on all gates) ────────────────────────────
+
   build:
     name: build + sbom
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    needs: [test, type-check, audit, dep-signatures, secret-scan]
     outputs:
-      artifact-digest: ${{ steps.digest.outputs.digest }}
+      # `subjects` is a base64-encoded "<sha256>  <relative-filename>"
+      # line as required by the SLSA generator's `base64-subjects`
+      # input. Per /security-review I-1, the previous code passed the
+      # raw hex digest which would either fail the generator or emit
+      # provenance that doesn't bind to any real artifact.
+      subjects: ${{ steps.digest.outputs.subjects }}
     steps:
       - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9.15.0
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup
 
       - name: build all packages + apps/web
         run: pnpm -r run build
@@ -53,12 +127,17 @@ jobs:
           pnpm dlx @cyclonedx/cdxgen -t pnpm \
             -o release/spyglass-${{ github.ref_name }}.cdx.json
 
-      - name: compute artifact digest
+      - name: compute artifact subject (base64 for SLSA generator)
         id: digest
+        # cd matters — the SLSA generator records the filename
+        # literally; an absolute or "release/"-prefixed path would
+        # break verifier matching.
+        working-directory: release
         run: |
-          digest=$(sha256sum release/spyglass-${{ github.ref_name }}.tar.gz | cut -d' ' -f1)
-          echo "digest=$digest" >> "$GITHUB_OUTPUT"
-          echo "Artifact sha256: $digest"
+          digest_line=$(sha256sum spyglass-${{ github.ref_name }}.tar.gz)
+          echo "Subject line (raw): $digest_line"
+          subjects_b64=$(echo -n "$digest_line" | base64 -w0)
+          echo "subjects=$subjects_b64" >> "$GITHUB_OUTPUT"
 
       - name: upload artifact + SBOM
         uses: actions/upload-artifact@v4
@@ -71,13 +150,15 @@ jobs:
           # off-platform durable storage (TODO before Phase 1 launch).
           retention-days: 90
 
+  # ── Sign + attest ──────────────────────────────────────────────────
+
   sign:
     name: sign (Sigstore cosign keyless)
     runs-on: ubuntu-24.04
     needs: build
     permissions:
-      contents: write
-      id-token: write
+      contents: write # upload signature bundle to artifacts
+      id-token: write # cosign keyless OIDC
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -100,12 +181,12 @@ jobs:
     name: SLSA L3 provenance
     needs: build
     permissions:
-      id-token: write
-      contents: write
-      actions: read
+      id-token: write # SLSA generator OIDC
+      contents: write # attach attestation to the release
+      actions: read # required by the SLSA generator
     uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
     with:
-      base64-subjects: ${{ needs.build.outputs.artifact-digest }}
+      base64-subjects: ${{ needs.build.outputs.subjects }}
 
   github-release:
     name: github release
