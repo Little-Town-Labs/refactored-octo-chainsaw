@@ -1,0 +1,84 @@
+# Dependabot — automated dependency updates.
+#
+# Per Constitution v2.0.0 §I.C.2, supply-chain hygiene is a
+# foundational requirement; Dependabot is the routine maintenance
+# arm of that posture. CI gates (audit, osv-scan, license,
+# dep-signatures) catch issues; Dependabot keeps the tree fresh
+# enough that the gates rarely fire.
+#
+# Dependabot also handles SHA pinning (T041 deferred from A6) — its
+# first PR per action will pin the SHA corresponding to whatever
+# version tag we initially used in `.github/workflows/*.yml`.
+
+version: 2
+
+updates:
+  # ── npm (workspace-aware) ─────────────────────────────────────────
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Chicago
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - npm
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      # Group major bumps so review batches one ecosystem at a time
+      # rather than 5 PRs the same morning.
+      typescript-eslint:
+        patterns:
+          - "@typescript-eslint/*"
+          - "typescript-eslint"
+      eslint-ecosystem:
+        patterns:
+          - "eslint"
+          - "eslint-*"
+          - "@eslint/*"
+      jest-ecosystem:
+        patterns:
+          - "jest"
+          - "@types/jest"
+          - "jest-*"
+          - "@swc/jest"
+      next-react:
+        patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      drizzle:
+        patterns:
+          - "drizzle-orm"
+          - "drizzle-kit"
+
+  # ── GitHub Actions (workflow + composite-action SHAs) ─────────────
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Chicago
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: ci
+
+  # ── Composite action (separately tracked) ─────────────────────────
+  - package-ecosystem: github-actions
+    directory: "/.github/actions/setup"
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+      - github-actions

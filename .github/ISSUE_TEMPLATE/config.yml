@@ -1,0 +1,14 @@
+# Issue template config.
+#
+# Disabling blank issues forces every issue through one of our
+# templates — keeps the tracker meaningful.
+
+blank_issues_enabled: false
+
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/Little-Town-Labs/refactored-octo-chainsaw/security/advisories/new
+    about: Report security issues privately. See SECURITY.md.
+  - name: Spec-driven feature workflow
+    url: https://github.com/Little-Town-Labs/refactored-octo-chainsaw/blob/main/CONTRIBUTING.md
+    about: Non-trivial features go through the spec-kit workflow, not the issue tracker. See CONTRIBUTING.md.

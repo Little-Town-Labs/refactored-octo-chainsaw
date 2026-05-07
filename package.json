@@ -1,0 +1,46 @@
+{
+  "name": "spyglass",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Project Spyglass — two-sided AI hiring platform for the agentic era",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=24.0.0 <25",
+    "pnpm": ">=9.0.0 <10"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "gen:env-example": "tsx scripts/gen-env-example.ts",
+    "changeset": "changeset",
+    "version-packages": "changeset version"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.31.0",
+    "@commitlint/cli": "^20.5.3",
+    "@commitlint/config-conventional": "^20.5.3",
+    "@eslint/js": "^10.0.1",
+    "@swc/core": "^1.15.33",
+    "@swc/jest": "^0.2.39",
+    "@types/jest": "^30.0.0",
+    "eslint": "^10.3.0",
+    "eslint-config-next": "^16.2.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-boundaries": "^6.0.2",
+    "eslint-plugin-import": "^2.32.0",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
+    "lefthook": "^2.1.6",
+    "prettier": "^3.8.3",
+    "tsx": "^4.21.0",
+    "turbo": "^2.3.0",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.59.2"
+  }
+}

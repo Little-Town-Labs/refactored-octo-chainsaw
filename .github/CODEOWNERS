@@ -1,0 +1,55 @@
+# Spyglass code ownership.
+#
+# CODEOWNERS routes review requests automatically. Branch protection
+# on `main` (T053) requires at least one CODEOWNER approval before
+# merge.
+#
+# **Status:** placeholder org/team handles. Replace with actual
+# GitHub team handles before flipping branch protection on (Phase 0
+# launch gate). Until then, this file is a routing hint, not an
+# enforcement gate.
+#
+# Reference: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-security/customizing-your-repository/about-code-owners
+
+# ── Default ─────────────────────────────────────────────────────────
+# At least one of these reviews every PR.
+
+*                                       @Little-Town-Labs/spyglass-core
+
+# ── Governance ──────────────────────────────────────────────────────
+# Constitution + roadmap touch the foundational articles every other
+# article rests on. Broader review than typical features.
+
+.specify/memory/constitution.md         @Little-Town-Labs/spyglass-core @Little-Town-Labs/governance
+.specify/roadmap.md                     @Little-Town-Labs/spyglass-core @Little-Town-Labs/governance
+PRD.md                                  @Little-Town-Labs/spyglass-core @Little-Town-Labs/governance
+
+# ── Compliance harness primitives ───────────────────────────────────
+# Per Constitution V.2, anything touching I.A or I.B requires counsel
+# review. The compliance team handle wires that in.
+
+docs/COMPLIANCE_ARCHITECTURE.md         @Little-Town-Labs/spyglass-core @Little-Town-Labs/compliance
+.specify/specs/06-*/**                  @Little-Town-Labs/spyglass-core @Little-Town-Labs/compliance
+.specify/specs/07*/**                   @Little-Town-Labs/spyglass-core @Little-Town-Labs/compliance
+.specify/exceptions/**                  @Little-Town-Labs/spyglass-core @Little-Town-Labs/compliance
+
+# ── Security-sensitive code paths ───────────────────────────────────
+# /security-review is MANDATORY for changes here per Constitution V.3.
+
+packages/auth/**                        @Little-Town-Labs/security
+packages/parley/**                      @Little-Town-Labs/security
+packages/db/**                          @Little-Town-Labs/security
+.github/workflows/**                    @Little-Town-Labs/security
+.github/actions/**                      @Little-Town-Labs/security
+scripts/verify-artifact.sh              @Little-Town-Labs/security
+scripts/check-dep-signatures.sh         @Little-Town-Labs/security
+scripts/bootstrap.sh                    @Little-Town-Labs/security
+
+# ── CI / build configuration ────────────────────────────────────────
+
+eslint.config.js                        @Little-Town-Labs/spyglass-core
+prettier.config.js                      @Little-Town-Labs/spyglass-core
+turbo.json                              @Little-Town-Labs/spyglass-core
+tsconfig.base.json                      @Little-Town-Labs/spyglass-core
+lefthook.yml                            @Little-Town-Labs/spyglass-core
+commitlint.config.js                    @Little-Town-Labs/spyglass-core

@@ -1,0 +1,29 @@
+# Gitleaks config for Spyglass.
+# Inherits the default rule set; project-specific tweaks below.
+#
+# Reference: https://github.com/gitleaks/gitleaks
+# Constitution refs: §I.4.1 (Confidentiality / no PII in source);
+# §I.6 (Defense in Depth — this is layer 1 of three; layer 2 is CI;
+# layer 3 is GitHub native push protection).
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Global allowlist for known false-positive paths"
+paths = [
+  '''(.*?)__fixtures__(.*?)''',
+  '''(.*?)\.test\.(ts|tsx|js|jsx)$''',
+  '''pnpm-lock\.yaml''',
+  '''package-lock\.json''',
+  '''\.specify/specs/.*?/contracts/.*?\.yaml''',
+]
+
+# Project-specific patterns can be added here as they emerge.
+# Example:
+#
+# [[rules]]
+# id = "spyglass-internal-api-key"
+# description = "Internal Spyglass-issued API keys"
+# regex = '''spyg_[A-Za-z0-9]{32,}'''
+# tags = ["secret", "spyglass"]
