@@ -28,7 +28,7 @@ const lines: string[] = [
 ];
 
 for (const key of keys) {
-  const description = envDescriptions[key as keyof typeof envDescriptions] ?? "(no description)";
+  const description = envDescriptions[key as keyof typeof envDescriptions];
   lines.push(`# ${description}`);
   lines.push(`${key}=`);
   lines.push("");

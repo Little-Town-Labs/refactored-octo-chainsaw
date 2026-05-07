@@ -61,9 +61,14 @@ done
 DIGEST=$(sha256sum "$TARBALL" | cut -d' ' -f1)
 echo "Tarball sha256: $DIGEST"
 
+# Repo identity is configurable so this script survives a repo rename.
+#   SPYGLASS_REPO         e.g. "Little-Town-Labs/refactored-octo-chainsaw"
+#   SPYGLASS_OIDC_ISSUER  e.g. "https://token.actions.githubusercontent.com"
+SPYGLASS_REPO="${SPYGLASS_REPO:-Little-Town-Labs/refactored-octo-chainsaw}"
+EXPECTED_ISSUER="${SPYGLASS_OIDC_ISSUER:-https://token.actions.githubusercontent.com}"
+EXPECTED_IDENTITY_REGEX="^https://github.com/${SPYGLASS_REPO}/\.github/workflows/release\.yml@refs/tags/v.+$"
+
 # 1. Cosign signature verification (keyless OIDC).
-EXPECTED_ISSUER="https://token.actions.githubusercontent.com"
-EXPECTED_IDENTITY_REGEX="^https://github.com/.+/refactored-octo-chainsaw/\.github/workflows/release\.yml@refs/tags/v.+$"
 echo
 echo "[1/3] cosign verify-blob..."
 cosign verify-blob \
@@ -78,7 +83,7 @@ echo
 echo "[2/3] slsa-verifier verify-artifact..."
 slsa-verifier verify-artifact "$TARBALL" \
   --provenance-path "$PROVENANCE" \
-  --source-uri "github.com/Little-Town-Labs/refactored-octo-chainsaw"
+  --source-uri "github.com/${SPYGLASS_REPO}"
 echo "  SLSA L3: OK"
 
 # 3. SBOM digest cross-check.

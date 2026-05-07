@@ -1,0 +1,22 @@
+# Composite "setup" action used by every ci.yml job. Bundles
+# checkout + pnpm + Node + frozen-lockfile install.
+#
+# When a version bumps (Node 24 → 26, pnpm 9 → 10, etc.), update this
+# file once instead of 13 places. Reduces drift; reduces diff noise on
+# version bumps.
+
+name: Spyglass setup
+description: Checkout, install pnpm + Node, run pnpm install --frozen-lockfile
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v5
+    - uses: pnpm/action-setup@v4
+      with:
+        version: 9.15.0
+    - uses: actions/setup-node@v4
+      with:
+        node-version-file: .nvmrc
+        cache: pnpm
+    - shell: bash
+      run: pnpm install --frozen-lockfile
