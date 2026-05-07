@@ -15,10 +15,10 @@
 
 [[IgnoredVulns]]
 id = "GHSA-qx2v-qp2m-jg93"
-ignoreUntil = "2027-01-01"
+ignoreUntil = 2027-01-01T00:00:00Z
 reason = "postcss 8.4.31 — XSS via unescaped </style>. CVSS 6.1 (moderate). Transitive via Next 16. Below Spyglass severity threshold (high+critical only per Research D10). Patched in postcss ≥ 8.5.10; Dependabot will bump."
 
 [[IgnoredVulns]]
 id = "GHSA-67mh-4wv8-2f99"
-ignoreUntil = "2027-01-01"
+ignoreUntil = 2027-01-01T00:00:00Z
 reason = "esbuild 0.18.20. CVSS 5.3 (moderate). Transitive via drizzle-kit (dev-only — does not ship to production). Below severity threshold per Research D10."
