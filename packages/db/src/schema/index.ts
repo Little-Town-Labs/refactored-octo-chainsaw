@@ -6,3 +6,10 @@
 
 export { organizations, type NewOrganizationRow, type OrganizationRow } from "./organizations.js";
 export { principals, type NewPrincipalRow, type PrincipalRow } from "./principals.js";
+export {
+  agentCredentials,
+  type AgentCredentialRow,
+  type NewAgentCredentialRow,
+} from "./agent-credentials.js";
+export { signingKeys, type NewSigningKeyRow, type SigningKeyRow } from "./signing-keys.js";
+export { revocations, type NewRevocationRow, type RevocationRow } from "./revocations.js";

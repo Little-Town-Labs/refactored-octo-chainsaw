@@ -98,6 +98,31 @@ export { eventToSnapshot } from "./webhook/snapshot.js";
 export type { ClerkSessionRevoker, ProcessDirectiveDeps } from "./webhook/processor.js";
 export { processClerkDirective } from "./webhook/processor.js";
 
+// --- Issuer / Verifier (B4) ----------------------------------------
+
+export type {
+  AgentCredentialPurpose,
+  AgentJwtClaims,
+  MintRequest,
+  MintResult,
+} from "./issuer/types.js";
+export { MAX_TTL_SECONDS } from "./issuer/types.js";
+export type { JwksProvider, SigningKeyMaterial } from "./issuer/key-source.js";
+export { generateEdDSAKeypair, type EdDSAKeypair } from "./issuer/keygen.js";
+export {
+  EmptyScopeSetError,
+  InvalidTtlError,
+  mintAgentCredential,
+  TtlExceededError,
+} from "./issuer/mint.js";
+
+export type {
+  RevocationChecker,
+  VerificationFailureReason,
+  VerifyOptions,
+} from "./verifier/verify.js";
+export { CredentialVerificationError, verifyAgentCredential } from "./verifier/verify.js";
+
 // --- Reconciliation (B2 / EC-2) ------------------------------------
 
 export type {

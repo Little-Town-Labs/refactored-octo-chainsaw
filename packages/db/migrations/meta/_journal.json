@@ -8,6 +8,13 @@
       "when": 1778190662383,
       "tag": "0000_f02_auth_principals_organizations",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778249837827,
+      "tag": "0001_f02_b4_agent_credentials_signing_keys_revocations",
+      "breakpoints": true
     }
   ]
 }
