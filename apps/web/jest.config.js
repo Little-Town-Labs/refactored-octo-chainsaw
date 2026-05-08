@@ -13,6 +13,10 @@ const customJestConfig = {
   displayName: "@spyglass/web",
   testEnvironment: "jsdom",
   testMatch: ["**/__tests__/**/*.test.{ts,tsx}", "**/?(*.)+(spec|test).{ts,tsx}"],
+  // NodeNext-style imports use ".js" suffix even for ".ts" sources.
+  moduleNameMapper: {
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+  },
   collectCoverageFrom: [
     "app/**/*.{ts,tsx}",
     "components/**/*.{ts,tsx}",

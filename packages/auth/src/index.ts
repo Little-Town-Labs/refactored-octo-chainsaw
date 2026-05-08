@@ -57,6 +57,14 @@ export {
   PrincipalSnapshotInvariantError,
 } from "./materialize/materialize.js";
 
+// --- Proxy / audience gate (B2) ------------------------------------
+
+export type { AudienceDecision, RouteAudience } from "./proxy/audience.js";
+export { audienceForPath, evaluateAudience, evaluateAudienceByTier } from "./proxy/audience.js";
+
+export type { ClerkSessionInput } from "./proxy/clerk-session.js";
+export { clerkSessionToTier } from "./proxy/clerk-session.js";
+
 // --- Clerk webhook surface (B2) ------------------------------------
 
 export type { ClerkWebhookEvent, ClerkWebhookEventType } from "./webhook/clerk-events.js";

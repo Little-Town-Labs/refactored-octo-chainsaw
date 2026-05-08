@@ -6,3 +6,6 @@
 export const __pkg = "@spyglass/db" as const;
 
 export * from "./schema/index.js";
+
+export type { Db, Schema } from "./connection.js";
+export { closeDb, getDb } from "./connection.js";

@@ -83,6 +83,9 @@ importers:
       '@spyglass/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      drizzle-orm:
+        specifier: ^0.45.2
+        version: 0.45.2(@types/pg@8.20.0)(pg@8.20.0)
       next:
         specifier: ^16.0.0
         version: 16.2.5(@babel/core@7.29.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
