@@ -1,8 +1,8 @@
 # Project Spyglass — Implementation Roadmap
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 **Created:** 2026-05-06
-**Last Amended:** 2026-05-06
+**Last Amended:** 2026-05-08
 **Owner:** Gary
 **PRD source:** `PRD.md` (Draft v0.1, 2026-05-05)
 **Constitution:** `.specify/memory/constitution.md` (v1.1.0)
@@ -28,6 +28,36 @@ a sequenced feature list, refined against Parley's normative spec
 (`/mnt/f/parley/SPEC.md` §4–§18). Every feature is tied to a constitutional
 article; foundational-article work is gated by `/security-review` and threat
 modeling per `.specify/memory/constitution.md` §V.3.
+
+---
+
+## Current Status (2026-05-08)
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| **F01** Monorepo scaffold | ✅ **Complete** (merged to `main`) | A1–A10 closed; CI green; SBOM published; signed releases; lefthook + lint/test/type-check; Neon verified |
+| **F02** Identity & Auth | 🟡 **In progress** (branch `02-identity-auth-aaa`) | B1–B5.2 complete (T001–T052, T055); B5.3 → B9 remaining |
+| F03–F25 | ⏳ Not started | F03 schema umbrella absorbs F02's migrations; downstream features begin after F02 closes |
+
+### F02 sub-slice progress (branch `02-identity-auth-aaa`)
+
+| Slice | Scope | Tasks | Status |
+|-------|-------|-------|--------|
+| **B1** | `packages/auth` skeleton + Principal model + CI gates | T001–T012 | ✅ |
+| **B2** | Clerk + materializer + webhook + revocation + reconciliation + Drizzle repo | T013–T026 | ✅ |
+| **B3** | AAL2 enforcement + role/scope guards + operator runbook | T027–T034 | ✅ |
+| **B4** | Agent-credential schema + EdDSA mint/verify + JWKS + bootstrap + issuance + revocation/listing/pruner | T034b–T048 | ✅ |
+| **B5.1** | `service_credentials` schema + migration | T049, T050 | ✅ |
+| **B5.2** | Bootstrap-exchange handler + rotation (FR-25, FR-26, FR-26a, NFR-5) | T051, T052, T055 | ✅ |
+| **B5.3** | Vercel-OIDC rejection guard at in-app service surfaces (FR-26b, FR-26c) | T053, T054 | ⏳ |
+| **B6** | Operator console UI for credential issuance/revocation | (TBD) | ⏳ |
+| **B7** | Runbooks (rotation, revocation, compromise drill) | (TBD) | ⏳ |
+| **B8** | `/security-review` pass + threat-model artifact | (TBD) | ⏳ |
+| **B9** | Final `/code-review` + `/simplify` + merge to `main` | — | ⏳ |
+
+Discipline: every slice runs `code-reviewer` + `code-simplifier` before
+commit. 186 tests green at HEAD (`f027488`); type-check + lint clean across
+the workspace.
 
 ---
 
@@ -579,9 +609,9 @@ Threat modeling (STRIDE for security, LINDDUN for privacy) is required at
 all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 ### Phase A checklist
-- [ ] **F01** Monorepo scaffold + tech-stack baseline
-- [ ] **F02** Identity & Auth (Clerk + AAA)
-- [ ] **F03** Database schema + Drizzle migrations
+- [x] **F01** Monorepo scaffold + tech-stack baseline _(merged to `main`; PR #1)_
+- [ ] **F02** Identity & Auth (Clerk + AAA) _(B1–B5.2 complete; B5.3 → B9 remaining on branch `02-identity-auth-aaa`)_
+- [ ] **F03** Database schema + Drizzle migrations _(F02 migrations land in F03's umbrella schema; standalone F03 spec pending)_
 - [ ] **Phase A gate:** CI green, SBOM published, signed releases, MFA working for admin
 
 ### Phase B checklist
@@ -671,3 +701,4 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 |---------|------------|--------|
 | 1.0.0   | 2026-05-06 | Initial roadmap. 25 features across 8 phases extracted from PRD v0.1; aligned to Constitution v1.1.0. |
 | 1.1.0   | 2026-05-06 | Refined against `/mnt/f/parley/SPEC.md` and `PARLEY_ADAPTATIONS.md`. Split F07 into F07a (Agent Contract Registry) + F07b (Rubric Registry + bias-test dispatch gate). Added F08.5 (Tool Surface & Dispatcher). Expanded F05 to cover canonical transcript store per Parley §13. Added sub-deliverables to F08 (six Inngest functions, run-to-completion, no hot-reload, in-memory NegotiationContext, round-cap min-across-sides), F09 (no-model-invocation CI gate, sentinel wrapping, sentinel-injection test, fail-closed), F10 (per-audience projections pre-computed, deterministic canonical signing, verification helper, inconclusive-dossier failure mode), F15 (fresh `run_id`, explicit event trigger, no state inheritance). Added Open Questions Surfaced by Parley section. Total features 25 → 27. MINOR — additions and strengthenings only. |
+| 1.2.0   | 2026-05-08 | Status update only — no scope changes. Added "Current Status" section recording F01 complete (merged to `main`), F02 in progress on branch `02-identity-auth-aaa` with B1–B5.2 closed (tasks T001–T052, T055) and B5.3 → B9 remaining. Ticked F01 in Phase A checklist; F02/F03 remain open. PATCH-style status amendment surfaced as MINOR for the new section. |
