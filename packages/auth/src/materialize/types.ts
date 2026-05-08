@@ -86,13 +86,27 @@ export interface PrincipalRepo {
 }
 
 /**
- * Sink for materialization audit events (NFR-10). Production wiring
- * delivers to F05's audit pipeline (via the buffer table for v0).
- * Tests inject a recording sink to assert events fired.
+ * Discriminator union for F02 audit event names. Extended per
+ * sub-phase as new event sources land. F05 will replace this with
+ * the canonical audit-pipeline registry; the names here are stable
+ * because the buffer-table writer ingests them unchanged.
+ */
+export type AuditEventName =
+  | "principal.materialized"
+  | "principal.disabled"
+  | "organization.materialized"
+  | "agent_credential.issued"
+  | "agent_credential.issue_denied"
+  | "agent_credential.revoked";
+
+/**
+ * Sink for F02 audit events (NFR-10). Production wiring delivers to
+ * F05's audit pipeline (via the buffer table for v0). Tests inject a
+ * recording sink to assert events fired.
  */
 export interface AuditEventSink {
   emit(event: {
-    name: "principal.materialized" | "principal.disabled" | "organization.materialized";
+    name: AuditEventName;
     principal_id?: string;
     correlation_id: string;
     payload: Readonly<Record<string, unknown>>;

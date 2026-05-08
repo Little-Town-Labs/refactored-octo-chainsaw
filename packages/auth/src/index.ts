@@ -55,6 +55,7 @@ export {
 // --- Materialization (B2) ------------------------------------------
 
 export type {
+  AuditEventName,
   AuditEventSink,
   MaterializationSource,
   OrganizationLookup,
@@ -115,6 +116,19 @@ export {
   mintAgentCredential,
   TtlExceededError,
 } from "./issuer/mint.js";
+export type {
+  AgentCredentialRepo,
+  AgentCredentialRow,
+  IssueAgentInput,
+  IssueAgentOutput,
+} from "./issuer/issuance.js";
+export {
+  AGENT_CREDENTIAL_ISSUE_SCOPE,
+  DEFAULT_TTL_SECONDS,
+  IssuanceConflictError,
+  issueAgentCredential,
+  UniqueViolationError,
+} from "./issuer/issuance.js";
 
 export type {
   RevocationChecker,
