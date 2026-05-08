@@ -50,7 +50,7 @@ describe("clerkSessionToTier", () => {
     ).toBe("employer_admin");
   });
 
-  it("returns 'employer_member' for non-admin roles", () => {
+  it("returns 'employer_member' for the 'org:member' role", () => {
     expect(
       clerkSessionToTier({
         userId: "user_1",
@@ -59,6 +59,28 @@ describe("clerkSessionToTier", () => {
         operatorClerkOrgIds: operatorIds,
       }),
     ).toBe("employer_member");
+  });
+
+  it("returns null for an unknown org role (fail-safe deny)", () => {
+    expect(
+      clerkSessionToTier({
+        userId: "user_1",
+        orgId: "org_acme",
+        orgRole: "org:billing_admin",
+        operatorClerkOrgIds: operatorIds,
+      }),
+    ).toBeNull();
+  });
+
+  it("returns null when orgRole is null on a non-operator org", () => {
+    expect(
+      clerkSessionToTier({
+        userId: "user_1",
+        orgId: "org_acme",
+        orgRole: null,
+        operatorClerkOrgIds: operatorIds,
+      }),
+    ).toBeNull();
   });
 });
 

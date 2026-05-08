@@ -36,24 +36,12 @@ export function evaluateAudience(
   audience: RouteAudience,
   principal: Principal | null,
 ): AudienceDecision {
-  if (audience === "operator") {
-    if (principal !== null && isHumanPrincipal(principal) && principal.tier === "operator") {
-      return ALLOW;
-    }
-    return NOT_FOUND;
+  if (principal === null) {
+    // Operator surface is hidden — null prefers 404 over 401.
+    return audience === "operator" ? NOT_FOUND : UNAUTHORIZED;
   }
-
-  if (principal === null) return UNAUTHORIZED;
   if (!isHumanPrincipal(principal)) return NOT_FOUND;
-
-  if (audience === "seeker") {
-    return principal.tier === "seeker" ? ALLOW : NOT_FOUND;
-  }
-
-  // audience === "employer"
-  return principal.tier === "employer_admin" || principal.tier === "employer_member"
-    ? ALLOW
-    : NOT_FOUND;
+  return evaluateAudienceByTier(audience, principal.tier);
 }
 
 /**

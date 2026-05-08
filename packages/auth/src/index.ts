@@ -43,14 +43,7 @@ export {
 
 // --- Authorization (B3) --------------------------------------------
 
-export {
-  requireAgentScope,
-  requireRole,
-  requireScope,
-  requireServiceScope,
-  RoleRequiredError,
-  ScopeRequiredError,
-} from "./authorize.js";
+export { requireRole, requireScope, RoleRequiredError, ScopeRequiredError } from "./authorize.js";
 
 export {
   OPERATOR_CREDENTIAL_ISSUER,
@@ -86,7 +79,7 @@ export type { AudienceDecision, RouteAudience } from "./proxy/audience.js";
 export { audienceForPath, evaluateAudience, evaluateAudienceByTier } from "./proxy/audience.js";
 
 export type { ClerkSessionInput } from "./proxy/clerk-session.js";
-export { clerkSessionToTier } from "./proxy/clerk-session.js";
+export { clerkSessionToTier, parseOperatorClerkOrgIds } from "./proxy/clerk-session.js";
 
 export type { RouteAccessInput, RouteDecision } from "./proxy/decide-access.js";
 export { decideRouteAccess } from "./proxy/decide-access.js";

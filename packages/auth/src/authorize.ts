@@ -11,11 +11,9 @@ import {
   isAgentPrincipal,
   isHumanPrincipal,
   isServicePrincipal,
-  type AgentPrincipal,
   type HumanPrincipal,
   type HumanTier,
   type Principal,
-  type ServicePrincipal,
 } from "./principal.js";
 
 export class RoleRequiredError extends Error {
@@ -84,23 +82,4 @@ export function requireScope<P extends Principal>(principal: P, required: Scope 
     throw new ScopeRequiredError(required, granted);
   }
   return principal;
-}
-
-/**
- * Type-narrowing variant for agent principals. Useful inside agent
- * code paths where the caller has already proven `kind === "agent"`
- * but wants to assert a specific scope as well.
- */
-export function requireAgentScope(
-  principal: AgentPrincipal,
-  required: Scope | string,
-): AgentPrincipal {
-  return requireScope(principal, required);
-}
-
-export function requireServiceScope(
-  principal: ServicePrincipal,
-  required: Scope | string,
-): ServicePrincipal {
-  return requireScope(principal, required);
 }

@@ -140,7 +140,7 @@ export function createDrizzlePrincipalRepo(db: Db): PrincipalRepo {
     async disablePrincipal(input) {
       const orgPredicate =
         input.org_id === null ? isNull(principals.org_id) : eq(principals.org_id, input.org_id);
-      await db
+      const rows = await db
         .update(principals)
         .set({
           disabled_at: sql`now()`,
@@ -154,7 +154,22 @@ export function createDrizzlePrincipalRepo(db: Db): PrincipalRepo {
             orgPredicate,
             isNull(principals.disabled_at),
           ),
+        )
+        .returning({ principal_id: principals.principal_id });
+      if (rows.length === 0) {
+        // Already disabled or never materialized. The session
+        // revocation upstream already succeeded, so this is not a
+        // security concern, but the reconciliation job (T024)
+        // should investigate sustained drift.
+        console.warn(
+          JSON.stringify({
+            kind: "audit_warn",
+            name: "principal.disable_noop",
+            external_id_hint: input.external_id.slice(0, 6),
+            org_id: input.org_id,
+          }),
         );
+      }
     },
   };
 }

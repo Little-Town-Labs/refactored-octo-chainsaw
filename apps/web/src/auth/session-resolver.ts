@@ -8,6 +8,7 @@
 import {
   clerkSessionToTier,
   materializePrincipal,
+  PrincipalSnapshotInvariantError,
   type AuditEventSink,
   type HumanPrincipal,
   type HumanTier,
@@ -55,7 +56,7 @@ export async function resolvePrincipalFromSession(
 function buildSnapshot(tier: HumanTier, userId: string, orgId: string | null): PrincipalSnapshot {
   if (tier === "seeker") return { external_id: userId, tier };
   if (orgId === null) {
-    throw new Error(`Internal: tier='${tier}' requires orgId from Clerk session.`);
+    throw new PrincipalSnapshotInvariantError(`tier='${tier}' requires orgId from Clerk session.`);
   }
   return {
     external_id: userId,

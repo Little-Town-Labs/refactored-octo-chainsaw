@@ -12,19 +12,9 @@
 
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { decideRouteAccess } from "@spyglass/auth";
+import { decideRouteAccess, parseOperatorClerkOrgIds } from "@spyglass/auth";
 
-function parseOperatorOrgIds(raw: string | undefined): ReadonlySet<string> {
-  if (!raw) return new Set();
-  return new Set(
-    raw
-      .split(",")
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0),
-  );
-}
-
-const operatorClerkOrgIds = parseOperatorOrgIds(process.env.SPYGLASS_OPERATOR_CLERK_ORG_IDS);
+const operatorClerkOrgIds = parseOperatorClerkOrgIds(process.env.SPYGLASS_OPERATOR_CLERK_ORG_IDS);
 
 export default clerkMiddleware(async (auth, req) => {
   const url = new URL(req.url);

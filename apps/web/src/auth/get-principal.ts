@@ -18,7 +18,11 @@ import { auth } from "@clerk/nextjs/server";
 import { cache } from "react";
 import { randomUUID } from "node:crypto";
 
-import { PrincipalRequiredError, type HumanPrincipal } from "@spyglass/auth";
+import {
+  parseOperatorClerkOrgIds,
+  PrincipalRequiredError,
+  type HumanPrincipal,
+} from "@spyglass/auth";
 import { getDb } from "@spyglass/db";
 
 import { createConsoleAuditSink } from "./audit-sink.js";
@@ -29,42 +33,15 @@ let cachedDeps: ResolveDeps | undefined;
 
 function getDeps(): ResolveDeps {
   if (cachedDeps) return cachedDeps;
-  const raw = process.env.SPYGLASS_OPERATOR_CLERK_ORG_IDS ?? "";
-  const operatorClerkOrgIds = new Set(
-    raw
-      .split(",")
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0),
-  );
   cachedDeps = {
     repo: createDrizzlePrincipalRepo(getDb()),
     sink: createConsoleAuditSink(),
-    operatorClerkOrgIds,
+    operatorClerkOrgIds: parseOperatorClerkOrgIds(process.env.SPYGLASS_OPERATOR_CLERK_ORG_IDS),
     now: () => Math.floor(Date.now() / 1000),
     correlationId: () => randomUUID(),
   };
   return cachedDeps;
 }
-
-/**
- * Memoized per-request principal accessor. Throws
- * `PrincipalRequiredError` when called from an unauthenticated
- * surface (the proxy.ts middleware should have rejected it earlier;
- * this is the fail-safe deny per Constitution §I.6).
- */
-export const getPrincipal = cache(async (): Promise<HumanPrincipal> => {
-  const session = await auth();
-  const principal = await resolvePrincipalFromSession(
-    {
-      userId: session.userId,
-      orgId: session.orgId ?? null,
-      orgRole: session.orgRole ?? null,
-    },
-    getDeps(),
-  );
-  if (principal === null) throw new PrincipalRequiredError();
-  return principal;
-});
 
 /**
  * Variant that returns `null` instead of throwing when there is no
@@ -81,4 +58,16 @@ export const tryGetPrincipal = cache(async (): Promise<HumanPrincipal | null> =>
     },
     getDeps(),
   );
+});
+
+/**
+ * Memoized per-request principal accessor. Throws
+ * `PrincipalRequiredError` when called from an unauthenticated
+ * surface (the proxy.ts middleware should have rejected it earlier;
+ * this is the fail-safe deny per Constitution §I.6).
+ */
+export const getPrincipal = cache(async (): Promise<HumanPrincipal> => {
+  const principal = await tryGetPrincipal();
+  if (principal === null) throw new PrincipalRequiredError();
+  return principal;
 });

@@ -40,8 +40,12 @@ export function decideRouteAccess(input: RouteAccessInput): RouteDecision {
     return { kind: "redirect_sign_in", audience };
   }
 
-  // audienceDecision.kind === "allow" — tier is non-null here.
-  if (tier === null) return { kind: "redirect_sign_in", audience };
+  // audienceDecision.kind === "allow" implies tier is non-null:
+  // - operator audience requires tier === "operator"
+  // - employer/seeker audiences route null tier to "unauthorized" above.
+  if (tier === null) {
+    throw new Error("Internal: audience 'allow' decision with null tier (proxy invariant).");
+  }
   const aalDecision = evaluateTierAal(tier, input.aal);
   if (aalDecision.kind === "step_up_required") {
     return { kind: "redirect_step_up", audience };
