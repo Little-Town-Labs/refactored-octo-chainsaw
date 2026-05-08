@@ -59,3 +59,39 @@ export interface MintResult {
 
 /** TTL ceiling enforced at the JWT layer (FR-20). */
 export const MAX_TTL_SECONDS = 7200;
+
+// --- Service credentials (FR-23..FR-26a) ----------------------------
+
+/**
+ * Custom claims for service-to-service JWTs (FR-23, FR-24, FR-26a).
+ * Distinct from `AgentJwtClaims` — service credentials carry no
+ * run/contract binding.
+ */
+export interface ServiceJwtClaims {
+  readonly jti: string;
+  readonly iss: string;
+  readonly aud: string;
+  /** Subject — service principal id (FR-2). */
+  readonly sub: string;
+  readonly iat: number;
+  readonly exp: number;
+  /** Scope set bound at issuance (FR-24). */
+  readonly scopes: ReadonlyArray<string>;
+  /** Rotation generation; old generations remain verifiable until exp (FR-25, NFR-5). */
+  readonly generation: number;
+}
+
+export interface ServiceMintRequest {
+  readonly principal_id: string;
+  readonly scopes: ReadonlyArray<string>;
+  readonly issuer: string;
+  readonly audience: string;
+  readonly ttlSeconds: number;
+  readonly generation: number;
+}
+
+export interface ServiceMintResult {
+  readonly token: string;
+  readonly claims: ServiceJwtClaims;
+  readonly kid: string;
+}
