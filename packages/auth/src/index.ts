@@ -131,6 +131,25 @@ export {
 } from "./issuer/issuance.js";
 
 export type {
+  ListRevokedDeps,
+  ListRevokedInput,
+  PruneRevocationsDeps,
+  RevocationListEntry,
+  RevocationListRepo,
+  RevocationReasonCode,
+  RevokeAgentInput,
+  RevokeAgentOutput,
+  RevokeRepo,
+} from "./issuer/revocation.js";
+export {
+  AGENT_CREDENTIAL_REVOKE_SCOPE,
+  listRevoked,
+  pruneExpiredRevocations,
+  REVOCATION_LIST_READ_SCOPE,
+  revokeAgentCredential,
+} from "./issuer/revocation.js";
+
+export type {
   RevocationChecker,
   VerificationFailureReason,
   VerifyOptions,
