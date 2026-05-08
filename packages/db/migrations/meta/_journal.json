@@ -15,6 +15,13 @@
       "when": 1778249837827,
       "tag": "0001_f02_b4_agent_credentials_signing_keys_revocations",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778260796729,
+      "tag": "0002_f02_b5_service_credentials",
+      "breakpoints": true
     }
   ]
 }

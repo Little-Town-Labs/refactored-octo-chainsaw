@@ -7,6 +7,13 @@
 // FR-19 / FR-20: scopes are bound at issuance and immutable; TTL is
 // capped at 2h. EC-8: re-issuance for the same (run_id, side,
 // contract_id, contract_version) tuple returns the existing row.
+//
+// Principal-kind invariant. `principal_id` must reference a
+// principal with `kind = 'agent'`. The plain FK cannot enforce
+// this; F02 issuance code is the sole writer and is responsible
+// for rejecting non-agent targets. (Generated-column composite FK
+// enforcement is a v1 defense-in-depth follow-up; same pattern
+// applies to `service_credentials` ↔ `kind='service'`.)
 
 import { sql } from "drizzle-orm";
 import {

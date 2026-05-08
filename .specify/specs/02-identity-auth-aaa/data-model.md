@@ -121,9 +121,21 @@ minus the run binding.
 | `expires_at` | `timestamptz` | NOT NULL |
 | `revoked_at` | `timestamptz` | NULL |
 | `revoked_by` | `uuid` | NULL, FK → `principals.principal_id` |
-| `rotation_generation` | `int` | NOT NULL | Increments on rotation; old generations remain verifiable until `expires_at` |
+| `revocation_reason` | `text` | NULL — free-form forensic note (sanitized at issuance code) |
+| `rotation_generation` | `int` | NOT NULL, default `1`, CHECK `>= 1`. Increments on rotation; old generations remain verifiable until `expires_at`. UNIQUE `(principal_id, rotation_generation)` — at most one credential per service per generation. |
 
-**Indexes.** `INDEX (principal_id, expires_at DESC)`; `INDEX (revoked_at) WHERE revoked_at IS NOT NULL`.
+**Indexes.**
+- `INDEX (principal_id, expires_at DESC)` — latest live credential lookup.
+- `INDEX (expires_at) WHERE revoked_at IS NULL` — active-credential hot path (parity with `agent_credentials`).
+- `INDEX (revoked_at, expires_at) WHERE revoked_at IS NOT NULL AND expires_at > now()` — live revocation list (verifier cross-process refresh).
+- `UNIQUE (principal_id, rotation_generation)` — see column.
+
+**Principal-kind invariant.** `principal_id` must reference a row
+with `kind = 'service'`. The plain FK cannot enforce this; F02
+issuance code is the sole writer and rejects non-service callers.
+Same invariant applies to `agent_credentials.principal_id`
+(`kind = 'agent'`). Tracked as a defense-in-depth follow-up
+(generated-column composite FK) for v1.
 
 ---
 
