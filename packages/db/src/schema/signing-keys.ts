@@ -21,7 +21,7 @@ export const signingKeys = pgTable(
   {
     kid: text("kid").primaryKey(),
     algorithm: text("algorithm").notNull().default("EdDSA"),
-    public_key_jwk: jsonb("public_key_jwk").notNull(),
+    public_key_jwk: jsonb("public_key_jwk").$type<Record<string, unknown>>().notNull(),
     purpose: text("purpose").notNull(),
     created_at: timestamp("created_at", { withTimezone: true })
       .notNull()

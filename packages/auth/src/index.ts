@@ -108,7 +108,7 @@ export type {
 } from "./issuer/types.js";
 export { MAX_TTL_SECONDS } from "./issuer/types.js";
 export type { JwksProvider, SigningKeyMaterial } from "./issuer/key-source.js";
-export { generateEdDSAKeypair, type EdDSAKeypair } from "./issuer/keygen.js";
+export { exportPrivateKeyPkcs8, generateEdDSAKeypair, type EdDSAKeypair } from "./issuer/keygen.js";
 export {
   EmptyScopeSetError,
   InvalidTtlError,
@@ -122,6 +122,10 @@ export type {
   VerifyOptions,
 } from "./verifier/verify.js";
 export { CredentialVerificationError, verifyAgentCredential } from "./verifier/verify.js";
+
+export type { Jwks, JwksKeyRow, JwksRepo } from "./jwks/types.js";
+export { isJwksVisible } from "./jwks/types.js";
+export { buildJwks } from "./jwks/build.js";
 
 // --- Reconciliation (B2 / EC-2) ------------------------------------
 

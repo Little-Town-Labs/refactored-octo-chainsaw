@@ -1,22 +1,53 @@
-// apps/web Jest config — uses next/jest for Next.js-aware transforms,
-// then merges Spyglass base settings.
+// apps/web Jest config — uses the Spyglass base SWC transform.
+//
+// Earlier we wrapped this in `next/jest` to inherit Next-specific
+// transforms, but next/jest's pnpm-aware `transformIgnorePatterns`
+// blocks ESM-only packages like jose v6. The base SWC transform
+// handles our test surface (no Next-specific imports here) and lets
+// us control which node_modules get transformed.
 
-import nextJest from "next/jest.js";
-
-const createJestConfig = nextJest({
-  // Path to load next.config and .env files in tests.
-  dir: "./",
-});
+import baseConfig from "../../jest.config.base.js";
 
 /** @type {import("jest").Config} */
-const customJestConfig = {
+export default {
+  ...baseConfig,
   displayName: "@spyglass/web",
   testEnvironment: "jsdom",
-  testMatch: ["**/__tests__/**/*.test.{ts,tsx}", "**/?(*.)+(spec|test).{ts,tsx}"],
-  // NodeNext-style imports use ".js" suffix even for ".ts" sources.
+  setupFiles: ["<rootDir>/jest.setup.js"],
+  // Override the base transform: route .js files through SWC's
+  // ecmascript parser (jose's ESM source) and .ts/.tsx through the
+  // typescript parser. The base config uses one entry that runs
+  // typescript on everything, which fails on jose's `export` syntax.
+  transform: {
+    "^.+\\.tsx?$": [
+      "@swc/jest",
+      {
+        jsc: {
+          parser: { syntax: "typescript", tsx: true, decorators: false },
+          target: "es2022",
+        },
+      },
+    ],
+    "^.+\\.jsx?$": [
+      "@swc/jest",
+      {
+        jsc: {
+          parser: { syntax: "ecmascript", jsx: true },
+          target: "es2022",
+        },
+        module: { type: "commonjs" },
+      },
+    ],
+  },
+  // jose ships ESM only; SWC transforms it. pnpm's nested layout means
+  // the path looks like `node_modules/.pnpm/jose@x.y.z/node_modules/jose/...`.
+  transformIgnorePatterns: ["node_modules/(?!(?:\\.pnpm/)?(?:jose|.*?/node_modules/jose))"],
+  // jose v6 ships dual exports based on conditional resolution.
+  // Force the webapi build (same one used in browsers and Node 20+).
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
+  testMatch: ["**/__tests__/**/*.test.{ts,tsx}", "**/?(*.)+(spec|test).{ts,tsx}"],
   collectCoverageFrom: [
     "app/**/*.{ts,tsx}",
     "components/**/*.{ts,tsx}",
@@ -24,11 +55,4 @@ const customJestConfig = {
     "!**/*.d.ts",
     "!**/__tests__/**",
   ],
-  coverageProvider: "v8",
-  coverageReporters: ["text-summary", "lcov", "json-summary"],
-  coverageDirectory: "coverage",
-  clearMocks: true,
-  restoreMocks: true,
 };
-
-export default createJestConfig(customJestConfig);

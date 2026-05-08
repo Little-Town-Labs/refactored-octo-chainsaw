@@ -6,7 +6,7 @@
 // and render the public JWK that lives in the DB / JWKS endpoint.
 
 import { generateKeyPair, type KeyObject } from "node:crypto";
-import { exportJWK, calculateJwkThumbprint } from "jose";
+import { exportJWK, exportPKCS8, calculateJwkThumbprint } from "jose";
 import { promisify } from "node:util";
 
 const generateKeyPairAsync = promisify(generateKeyPair);
@@ -28,4 +28,11 @@ export async function generateEdDSAKeypair(): Promise<EdDSAKeypair> {
     publicKey,
     publicJwk: { ...publicJwk, kid, alg: "EdDSA", use: "sig" },
   };
+}
+
+/** Export a private KeyObject as a PKCS8 PEM string. Re-exported so
+ *  the bootstrap script can serialize keys without depending on jose
+ *  through a brittle deep-import path. */
+export async function exportPrivateKeyPkcs8(key: KeyObject): Promise<string> {
+  return exportPKCS8(key);
 }
