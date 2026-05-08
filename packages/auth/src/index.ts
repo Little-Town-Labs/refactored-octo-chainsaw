@@ -75,3 +75,16 @@ export { verifyClerkWebhook, WebhookSignatureError } from "./webhook/verify.js";
 
 export type { SnapshotContext, SnapshotResult, TerminationDirective } from "./webhook/snapshot.js";
 export { eventToSnapshot } from "./webhook/snapshot.js";
+
+export type { ClerkSessionRevoker, ProcessDirectiveDeps } from "./webhook/processor.js";
+export { processClerkDirective } from "./webhook/processor.js";
+
+// --- Reconciliation (B2 / EC-2) ------------------------------------
+
+export type {
+  ClerkOrgIndex,
+  ClerkRosterEntry,
+  DbPrincipalEntry,
+  ReconciliationReport,
+} from "./reconciliation.js";
+export { reconcilePrincipals } from "./reconciliation.js";

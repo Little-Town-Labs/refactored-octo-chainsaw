@@ -56,6 +56,20 @@ function makeRepo(): { repo: PrincipalRepo; principals: PrincipalLookup[] } {
   return { repo, principals: ps };
 }
 
+interface RecordingSink extends AuditEventSink {
+  readonly events: Array<Parameters<AuditEventSink["emit"]>[0]>;
+}
+
+function makeSink(): RecordingSink {
+  const events: RecordingSink["events"] = [];
+  return {
+    events,
+    async emit(event) {
+      events.push(event);
+    },
+  };
+}
+
 const sink: AuditEventSink = { async emit() {} };
 
 const baseDeps = {
@@ -118,5 +132,46 @@ describe("resolvePrincipalFromSession", () => {
       { repo, ...baseDeps },
     );
     expect(ps).toHaveLength(1);
+  });
+
+  it("emits a 'lazy'-sourced audit event (EC-1 attribution)", async () => {
+    const { repo } = makeRepo();
+    const recording = makeSink();
+    await resolvePrincipalFromSession(
+      { userId: "user_d", orgId: null, orgRole: null },
+      { ...baseDeps, repo, sink: recording },
+    );
+    const materialized = recording.events.find((e) => e.name === "principal.materialized");
+    expect(materialized?.payload).toMatchObject({ materialization: "lazy" });
+  });
+
+  it("first-request materialization populates the seeker row idempotently across two requests", async () => {
+    // Quickstart Scenario 1: a brand-new seeker hits Spyglass before
+    // their Clerk webhook arrives. The first request lazy-materializes
+    // them; the second request finds the existing row and emits the
+    // audit event but does not insert again.
+    const { repo, principals: ps } = makeRepo();
+    const recording = makeSink();
+
+    const first = await resolvePrincipalFromSession(
+      { userId: "user_e", orgId: null, orgRole: null },
+      { ...baseDeps, repo, sink: recording },
+    );
+    const second = await resolvePrincipalFromSession(
+      { userId: "user_e", orgId: null, orgRole: null },
+      { ...baseDeps, repo, sink: recording },
+    );
+
+    expect(first?.principal_id).toBe(second?.principal_id);
+    expect(ps).toHaveLength(1);
+    const materializedEvents = recording.events.filter((e) => e.name === "principal.materialized");
+    expect(materializedEvents).toHaveLength(2);
+    expect(
+      materializedEvents.every(
+        (e) => (e.payload as { materialization: string }).materialization === "lazy",
+      ),
+    ).toBe(true);
+    expect((materializedEvents[0]?.payload as { first_seen: boolean }).first_seen).toBe(true);
+    expect((materializedEvents[1]?.payload as { first_seen: boolean }).first_seen).toBe(false);
   });
 });

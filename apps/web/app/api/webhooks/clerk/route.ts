@@ -18,16 +18,26 @@
 // §I.6 (no rolling our own crypto), §V.3 (mandatory
 // /security-review before merge).
 
+import { randomUUID } from "node:crypto";
+
 import {
   ClerkWebhookPayloadError,
   eventToSnapshot,
   parseClerkWebhookEvent,
+  processClerkDirective,
   verifyClerkWebhook,
   WebhookSignatureError,
+  type AuditEventSink,
+  type ClerkSessionRevoker,
   type ClerkWebhookHeaders,
+  type PrincipalRepo,
   type SnapshotContext,
 } from "@spyglass/auth";
+import { getDb } from "@spyglass/db";
 
+import { createConsoleAuditSink } from "../../../../src/auth/audit-sink.js";
+import { createClerkSessionRevoker } from "../../../../src/auth/clerk-session-revoker.js";
+import { createDrizzlePrincipalRepo } from "../../../../src/auth/principal-repo.js";
 import { withAnonymous } from "../../../../src/auth/with-anonymous.js";
 
 // Per the session-start Vercel knowledge update: Fluid Compute's
@@ -55,6 +65,9 @@ interface HandleArgs {
   readonly headers: ClerkWebhookHeaders;
   readonly signingSecret: string;
   readonly snapshotContext: SnapshotContext;
+  readonly repo: PrincipalRepo;
+  readonly sink: AuditEventSink;
+  readonly sessionRevoker: ClerkSessionRevoker;
 }
 
 /**
@@ -97,12 +110,13 @@ export async function handleClerkWebhook(args: HandleArgs): Promise<Response> {
 
   const directive = eventToSnapshot(event, args.snapshotContext);
 
-  // B2 scope: we have a verified event and a typed directive. Real
-  // Drizzle-backed materialization / disable lands in T019/T026's
-  // production wiring. The current implementation acknowledges
-  // receipt deterministically; the materializer logic is fully
-  // tested in `@spyglass/auth` against an in-memory repo (T021).
-  void directive;
+  await processClerkDirective(directive, {
+    repo: args.repo,
+    sink: args.sink,
+    sessionRevoker: args.sessionRevoker,
+    now: () => Math.floor(Date.now() / 1000),
+    correlationId: () => randomUUID(),
+  });
 
   return new Response(null, { status: 204 });
 }
@@ -118,7 +132,15 @@ async function postHandler(req: Request): Promise<Response> {
   const snapshotContext: SnapshotContext = {
     operatorClerkOrgIds: readOperatorOrgIds(process.env),
   };
-  return handleClerkWebhook({ rawBody, headers, signingSecret, snapshotContext });
+  return handleClerkWebhook({
+    rawBody,
+    headers,
+    signingSecret,
+    snapshotContext,
+    repo: createDrizzlePrincipalRepo(getDb()),
+    sink: createConsoleAuditSink(),
+    sessionRevoker: createClerkSessionRevoker(),
+  });
 }
 
 export const POST = withAnonymous(postHandler, {
