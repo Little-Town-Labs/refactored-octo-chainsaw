@@ -41,6 +41,24 @@ export {
   withPrincipal,
 } from "./guard.js";
 
+// --- Authorization (B3) --------------------------------------------
+
+export {
+  requireAgentScope,
+  requireRole,
+  requireScope,
+  requireServiceScope,
+  RoleRequiredError,
+  ScopeRequiredError,
+} from "./authorize.js";
+
+export {
+  OPERATOR_CREDENTIAL_ISSUER,
+  OPERATOR_DOSSIER_VIEWER,
+  OPERATOR_POLICY_GATE,
+  OPERATOR_SCOPES,
+} from "./operator-roles.js";
+
 // --- Materialization (B2) ------------------------------------------
 
 export type {
@@ -57,6 +75,11 @@ export {
   PrincipalSnapshotInvariantError,
 } from "./materialize/materialize.js";
 
+// --- AAL2 enforcement (B3) -----------------------------------------
+
+export type { AalDecision, AalLevel, AalSignal } from "./aal.js";
+export { evaluateAal, evaluateTierAal, tierRequiresAal2 } from "./aal.js";
+
 // --- Proxy / audience gate (B2) ------------------------------------
 
 export type { AudienceDecision, RouteAudience } from "./proxy/audience.js";
@@ -64,6 +87,9 @@ export { audienceForPath, evaluateAudience, evaluateAudienceByTier } from "./pro
 
 export type { ClerkSessionInput } from "./proxy/clerk-session.js";
 export { clerkSessionToTier } from "./proxy/clerk-session.js";
+
+export type { RouteAccessInput, RouteDecision } from "./proxy/decide-access.js";
+export { decideRouteAccess } from "./proxy/decide-access.js";
 
 // --- Clerk webhook surface (B2) ------------------------------------
 

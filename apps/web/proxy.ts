@@ -1,21 +1,18 @@
-// F02 T018 — Next.js 16 middleware (FR-9, FR-29, FR-36).
+// F02 T018/T030/T034 — Next.js 16 middleware (FR-9, FR-11–13, FR-29, FR-36).
 //
-// Resolves the Clerk session for every request, derives the Spyglass
-// human tier (without a database round-trip), and applies the
-// audience gate per route group:
+// Resolves the Clerk session for every request and delegates the
+// audience + AAL2 decision to the pure `decideRouteAccess` function
+// in `@spyglass/auth`. The middleware itself only handles request-
+// shaped concerns: building the input, mapping the typed decision
+// to `Response` / `NextResponse.redirect()`.
 //
-//   - operator surface is hidden — non-operators get 404 (FR-9).
-//   - employer/seeker surfaces redirect unauthenticated callers to
-//     the audience-specific Clerk sign-in.
-//   - wrong-tier authenticated requests get 404 (don't leak which
-//     tiers exist).
-//
-// Full materialization (`materializePrincipal`) happens lazily at the
-// request handler via `getPrincipal()` — see T020.
+// All policy lives in the pure function, which has full unit-test
+// coverage including the FR-9 hidden-operator-surface and the
+// FR-11/12/13 AAL2 step-up paths (T029, T034).
 
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { audienceForPath, clerkSessionToTier, evaluateAudienceByTier } from "@spyglass/auth";
+import { decideRouteAccess } from "@spyglass/auth";
 
 function parseOperatorOrgIds(raw: string | undefined): ReadonlySet<string> {
   if (!raw) return new Set();
@@ -31,25 +28,32 @@ const operatorClerkOrgIds = parseOperatorOrgIds(process.env.SPYGLASS_OPERATOR_CL
 
 export default clerkMiddleware(async (auth, req) => {
   const url = new URL(req.url);
-  const audience = audienceForPath(url.pathname);
-  if (audience === null) return;
-
   const session = await auth();
-  const tier = clerkSessionToTier({
-    userId: session.userId,
-    orgId: session.orgId ?? null,
-    orgRole: session.orgRole ?? null,
-    operatorClerkOrgIds,
+  const fva = session.factorVerificationAge;
+  const secondFactorVerificationAge = Array.isArray(fva) && fva.length >= 2 ? (fva[1] ?? -1) : -1;
+
+  const decision = decideRouteAccess({
+    pathname: url.pathname,
+    session: {
+      userId: session.userId,
+      orgId: session.orgId ?? null,
+      orgRole: session.orgRole ?? null,
+      operatorClerkOrgIds,
+    },
+    aal: { secondFactorVerificationAge },
   });
 
-  const decision = evaluateAudienceByTier(audience, tier);
   switch (decision.kind) {
     case "allow":
+    case "public":
       return;
     case "not_found":
       return new NextResponse("Not Found", { status: 404 });
-    case "unauthorized":
-      return NextResponse.redirect(new URL(`/${audience}/sign-in`, req.url));
+    case "redirect_sign_in":
+    case "redirect_step_up":
+      // Clerk's catch-all sign-in surface drives both first-factor
+      // sign-in and the AAL2 step-up challenge from the same URL.
+      return NextResponse.redirect(new URL(`/${decision.audience}/sign-in`, req.url));
   }
 });
 
