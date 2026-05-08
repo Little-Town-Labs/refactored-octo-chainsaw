@@ -19,5 +19,9 @@
     "type-check": "tsc --noEmit -p tsconfig.json",
     "test": "jest --passWithNoTests",
     "lint": "eslint ."
+  },
+  "dependencies": {
+    "svix": "^1.93.0",
+    "zod": "^4.4.3"
   }
 }

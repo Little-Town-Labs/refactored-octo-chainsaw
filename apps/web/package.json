@@ -12,10 +12,14 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
+    "@clerk/nextjs": "7.3.2",
+    "@spyglass/auth": "workspace:*",
+    "@spyglass/db": "workspace:*",
     "@spyglass/shared": "workspace:*",
     "next": "^16.0.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "svix": "^1.93.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

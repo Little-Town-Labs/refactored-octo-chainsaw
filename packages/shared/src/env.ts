@@ -35,6 +35,10 @@ export const envSchema = z.object({
   // F02 — Auth (Clerk)
   CLERK_SECRET_KEY: z.string().min(1).optional(),
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1).optional(),
+  CLERK_WEBHOOK_SIGNING_SECRET: z.string().startsWith("whsec_").optional(),
+  // Comma-separated Clerk org IDs that map to the Spyglass operator
+  // Organization (FR-9). Empty in dev; populated per environment.
+  SPYGLASS_OPERATOR_CLERK_ORG_IDS: z.string().optional(),
 
   // F12 — AI infrastructure (Vercel AI Gateway)
   AI_GATEWAY_API_KEY: z.string().min(1).optional(),
@@ -57,6 +61,10 @@ export const envDescriptions: Record<keyof Env, string> = {
   INNGEST_EVENT_KEY: "Inngest event publish key — required from F08",
   CLERK_SECRET_KEY: "Clerk server-side secret — required from F02",
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "Clerk public key (browser-exposed) — required from F02",
+  CLERK_WEBHOOK_SIGNING_SECRET:
+    "Svix signing secret for the Clerk webhook endpoint (whsec_…) — required from F02 once webhooks are configured",
+  SPYGLASS_OPERATOR_CLERK_ORG_IDS:
+    "Comma-separated Clerk org IDs mapped to the Spyglass operator Organization (FR-9). Empty in dev.",
   AI_GATEWAY_API_KEY: "Vercel AI Gateway API key — required from F12",
   SENTRY_DSN: "Sentry DSN — required from F24",
 };

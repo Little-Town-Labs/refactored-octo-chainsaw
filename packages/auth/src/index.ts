@@ -40,3 +40,30 @@ export {
   PrincipalRequiredError,
   withPrincipal,
 } from "./guard.js";
+
+// --- Materialization (B2) ------------------------------------------
+
+export type {
+  AuditEventSink,
+  MaterializationSource,
+  OrganizationLookup,
+  PrincipalLookup,
+  PrincipalRepo,
+  PrincipalSnapshot,
+} from "./materialize/types.js";
+export {
+  materializePrincipal,
+  PrincipalDisabledError,
+  PrincipalSnapshotInvariantError,
+} from "./materialize/materialize.js";
+
+// --- Clerk webhook surface (B2) ------------------------------------
+
+export type { ClerkWebhookEvent, ClerkWebhookEventType } from "./webhook/clerk-events.js";
+export { ClerkWebhookPayloadError, parseClerkWebhookEvent } from "./webhook/clerk-events.js";
+
+export type { ClerkWebhookHeaders } from "./webhook/verify.js";
+export { verifyClerkWebhook, WebhookSignatureError } from "./webhook/verify.js";
+
+export type { SnapshotContext, SnapshotResult, TerminationDirective } from "./webhook/snapshot.js";
+export { eventToSnapshot } from "./webhook/snapshot.js";

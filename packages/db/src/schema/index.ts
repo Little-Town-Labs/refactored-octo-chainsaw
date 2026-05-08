@@ -4,5 +4,5 @@
 // `drizzle.config.ts`); the re-export below keeps `./src/schema.ts`
 // minimal while the per-table modules stay focused.
 
-export { organizations, type NewOrganization, type Organization } from "./organizations.js";
-export { principals, type NewPrincipal, type Principal } from "./principals.js";
+export { organizations, type NewOrganizationRow, type OrganizationRow } from "./organizations.js";
+export { principals, type NewPrincipalRow, type PrincipalRow } from "./principals.js";

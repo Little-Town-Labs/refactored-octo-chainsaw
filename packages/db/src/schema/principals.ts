@@ -77,5 +77,11 @@ export const principals = pgTable(
   ],
 );
 
-export type Principal = typeof principals.$inferSelect;
-export type NewPrincipal = typeof principals.$inferInsert;
+/**
+ * Drizzle row types are renamed to `*Row` so they do not collide with
+ * the runtime `Principal` discriminated union exported from
+ * `@spyglass/auth`. The DB row is a flat persistence shape; the
+ * runtime Principal is the typed authentication-result object.
+ */
+export type PrincipalRow = typeof principals.$inferSelect;
+export type NewPrincipalRow = typeof principals.$inferInsert;

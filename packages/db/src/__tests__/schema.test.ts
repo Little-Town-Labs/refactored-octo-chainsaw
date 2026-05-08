@@ -6,15 +6,15 @@
 import {
   organizations,
   principals,
-  type NewOrganization,
-  type NewPrincipal,
-  type Organization,
-  type Principal,
+  type NewOrganizationRow,
+  type NewPrincipalRow,
+  type OrganizationRow,
+  type PrincipalRow,
 } from "../schema/index.js";
 
 describe("F02 schema — principals (data-model §principals)", () => {
   it("exposes the expected columns at the type level", () => {
-    const sample: NewPrincipal = {
+    const sample: NewPrincipalRow = {
       kind: "human",
       external_idp: "clerk",
       external_id: "user_abc",
@@ -25,7 +25,7 @@ describe("F02 schema — principals (data-model §principals)", () => {
   });
 
   it("inferred Principal row carries timestamps populated by the DB", () => {
-    const _typeOnly: Principal = {
+    const _typeOnly: PrincipalRow = {
       principal_id: "00000000-0000-0000-0000-000000000001",
       kind: "human",
       external_idp: "clerk",
@@ -52,7 +52,7 @@ describe("F02 schema — principals (data-model §principals)", () => {
 
 describe("F02 schema — organizations (data-model §organizations)", () => {
   it("inferred row type carries the discriminator", () => {
-    const sample: NewOrganization = {
+    const sample: NewOrganizationRow = {
       clerk_org_id: "org_abc",
       kind: "employer",
       display_name: "Acme Corp",
@@ -61,7 +61,7 @@ describe("F02 schema — organizations (data-model §organizations)", () => {
   });
 
   it("organizations.kind discriminator includes 'operator'", () => {
-    const sample: NewOrganization = {
+    const sample: NewOrganizationRow = {
       clerk_org_id: "org_xyz",
       kind: "operator",
       display_name: "Spyglass Operators",
@@ -70,7 +70,7 @@ describe("F02 schema — organizations (data-model §organizations)", () => {
   });
 
   it("inferred Organization row exposes the expected timestamps", () => {
-    const _typeOnly: Organization = {
+    const _typeOnly: OrganizationRow = {
       org_id: "00000000-0000-0000-0000-000000000010",
       clerk_org_id: "org_abc",
       kind: "employer",
