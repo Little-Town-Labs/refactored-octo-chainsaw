@@ -161,6 +161,9 @@ export {
   VercelOidcAtInAppSurfaceError,
 } from "./verifier/vercel-oidc-rejection.js";
 
+export type { VerifyAtSurfaceOptions } from "./verifier/verify-service-at-surface.js";
+export { verifyServiceCredentialAtSurface } from "./verifier/verify-service-at-surface.js";
+
 export type { Jwks, JwksKeyRow, JwksRepo } from "./jwks/types.js";
 export { isJwksVisible } from "./jwks/types.js";
 export { buildJwks } from "./jwks/build.js";

@@ -131,6 +131,10 @@ importers:
       zod:
         specifier: ^4.4.3
         version: 4.4.3
+    devDependencies:
+      '@spyglass/test-harness':
+        specifier: workspace:*
+        version: link:../test-harness
 
   packages/channels-core: {}
 
@@ -161,6 +165,25 @@ importers:
       '@types/node':
         specifier: ^24.0.0
         version: 24.12.2
+
+  packages/test-harness:
+    dependencies:
+      drizzle-kit:
+        specifier: ^0.31.10
+        version: 0.31.10
+      drizzle-orm:
+        specifier: ^0.45.2
+        version: 0.45.2(@types/pg@8.20.0)(pg@8.20.0)
+      pg:
+        specifier: ^8.20.0
+        version: 8.20.0
+    devDependencies:
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.12.2
+      '@types/pg':
+        specifier: ^8.20.0
+        version: 8.20.0
 
   packages/tickets: {}
 

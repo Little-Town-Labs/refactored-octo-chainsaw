@@ -55,6 +55,11 @@ export const envSchema = z.object({
 
   // F24 — Incident response / monitoring
   SENTRY_DSN: z.string().url().optional(),
+
+  // Integration test harness — required only when running
+  // `pnpm test:integration` against Neon (otherwise the suite skips).
+  NEON_API_KEY: z.string().min(1).optional(),
+  NEON_PROJECT_ID: z.string().min(1).optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -83,6 +88,10 @@ export const envDescriptions: Record<keyof Env, string> = {
     "Issuer URL emitted in agent JWT `iss` claim — defaults to the Spyglass deployment URL per environment.",
   AI_GATEWAY_API_KEY: "Vercel AI Gateway API key — required from F12",
   SENTRY_DSN: "Sentry DSN — required from F24",
+  NEON_API_KEY:
+    "Neon API key for the integration test harness — required only by `pnpm test:integration`.",
+  NEON_PROJECT_ID:
+    "Neon project ID for the integration test harness — required only by `pnpm test:integration`.",
 };
 
 let cached: Env | undefined;

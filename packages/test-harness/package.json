@@ -1,5 +1,5 @@
 {
-  "name": "@spyglass/auth",
+  "name": "@spyglass/test-harness",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -18,15 +18,15 @@
     "build": "tsc -b",
     "type-check": "tsc --noEmit -p tsconfig.json",
     "test": "jest --passWithNoTests",
-    "test:integration": "jest --passWithNoTests -c jest.config.integration.js",
     "lint": "eslint ."
   },
   "dependencies": {
-    "jose": "^6.1.0",
-    "svix": "^1.93.0",
-    "zod": "^4.4.3"
+    "drizzle-kit": "^0.31.10",
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.20.0"
   },
   "devDependencies": {
-    "@spyglass/test-harness": "workspace:*"
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.20.0"
   }
 }

@@ -1,0 +1,77 @@
+# Spyglass integration-test workflow.
+#
+# Runs scenario-level integration suites (e.g. F02 Quickstart Scenario 5)
+# against a per-run Neon copy-on-write branch. Branch is created from
+# the project's primary branch, drizzle migrations applied, suite run,
+# branch deleted unconditionally in `always()`.
+#
+# This workflow is *opt-in* — it does NOT run on every PR. Free-tier
+# GitHub Actions minutes are limited and Neon branch operations have
+# real cost. Triggers:
+#
+#   - Manual dispatch (workflow_dispatch)
+#   - PRs that carry the `integration` label
+#
+# Secrets live under the `ci` GitHub environment:
+#   - NEON_API_KEY      (Bearer token for Neon REST API)
+#   - NEON_PROJECT_ID   (target Neon project)
+#   - NEON_PARENT_BRANCH_ID (optional — fork from a specific baseline;
+#     omit to fork from the project's primary branch)
+
+name: integration
+
+on:
+  workflow_dispatch:
+  pull_request:
+    # Trigger semantics:
+    #   - `labeled`     → fires when a PR gains the `integration` label
+    #   - `synchronize` → fires on push to a labeled PR
+    #   - `reopened`    → fires when a labeled-and-closed PR reopens
+    #   - `opened`      → fires on first creation of a PR that already
+    #                     carries the label (e.g. retargeted from a fork)
+    # Removing types here without updating the job-level `if:` will
+    # widen the trigger surface — read the gating block before editing.
+    types: [labeled, synchronize, reopened, opened]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: integration-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scenario-tests:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.pull_request.labels.*.name, 'integration')
+    name: scenario tests (Neon branch)
+    runs-on: ubuntu-24.04
+    environment: ci
+    timeout-minutes: 15
+    env:
+      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+      NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+      NEON_PARENT_BRANCH_ID: ${{ secrets.NEON_PARENT_BRANCH_ID }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+
+      - name: build (test-harness consumers depend on dist)
+        run: pnpm -r run build
+
+      # Neon branch lifecycle is handled inside individual scenarios
+      # (so per-file isolation is preserved). The harness skips
+      # gracefully if NEON_API_KEY is absent — failure here means
+      # secrets are wired correctly but a scenario actually broke.
+      - name: run integration suites
+        run: pnpm test:integration
+
+      # Defense-in-depth: if a scenario crashed before its `afterAll`
+      # cleanup, sweep any branches whose names match our prefix.
+      # Cleanup script is best-effort — failures here don't fail CI.
+      - name: cleanup orphaned branches
+        if: always()
+        continue-on-error: true
+        run: bash scripts/neon-cleanup-branches.sh

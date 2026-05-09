@@ -101,7 +101,8 @@ export type AuditEventName =
   | "service_credential.bootstrapped"
   | "service_credential.bootstrap_denied"
   | "service_credential.rotated"
-  | "service_credential.rotation_denied";
+  | "service_credential.rotation_denied"
+  | "service_credential.rejected_vercel_oidc";
 
 /**
  * Sink for F02 audit events (NFR-10). Production wiring delivers to

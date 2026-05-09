@@ -17,6 +17,12 @@
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"]
     },
+    "test:integration": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "env": ["NEON_API_KEY", "NEON_PROJECT_ID", "NEON_PARENT_BRANCH_ID", "DATABASE_URL"],
+      "outputs": []
+    },
     "format:check": {
       "outputs": []
     },
