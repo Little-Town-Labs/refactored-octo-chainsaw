@@ -235,8 +235,46 @@ indistinguishable across the cases (within tolerance).
 
 ---
 
+## Scenario 11 — Operator console workflow (B6 gate, FR-41)
+
+**Steps.**
+1. Sign in as an operator with the `service.dossier.sign`
+   issuance scope; navigate to `/operator/credentials`.
+2. Verify the credentials list renders with at least the
+   columns: principal, generation, scope set, status,
+   `expires_at`. Page is keyboard-navigable; no axe-core
+   violations on initial render.
+3. Click "Issue agent credential" → fill the form (target
+   principal, scope subset, TTL) → submit. Verify the new
+   credential appears in the list within one refresh and an
+   audit event with `action='credential.issued'` is emitted.
+4. From the list, revoke the credential just issued. Verify
+   row status flips to `revoked`, `revoked_at` is populated,
+   and an audit event with `action='credential.revoked'` is
+   emitted.
+5. Navigate to `/operator/audit`. Verify both audit events
+   from steps 3-4 are visible, ordered newest-first, and that
+   pagination via the URL `?cursor=…` produces a stable
+   shareable link (read-only — no action affordances).
+6. Trigger a sign-out from the user-menu confirmation
+   component. Verify the all-devices option is offered and
+   that selecting it for the *current* operator's own
+   principal does NOT require a second operator (two-op gate
+   only fires for revoke-all targeting another operator —
+   covered by EC-3 in Story 5 follow-up).
+
+**Pass criteria.**
+- Steps 1-6 complete without 5xx, JS console errors, or axe
+  violations on the rendered pages.
+- Every state-changing action (issue, revoke, sign-out)
+  emits a structured audit event matching NFR-10.
+- The `/operator/audit` view is read-only — no buttons or
+  forms that mutate state (kill-switch lives in F06).
+
+---
+
 ## Acceptance summary
 
-When all 10 scenarios pass and the underlying success metrics
+When all 11 scenarios pass and the underlying success metrics
 (M-1…M-6) hit their targets, F02 is merge-ready pending
 `/security-review` (mandatory per Constitution §V.3).

@@ -148,10 +148,11 @@ issuance p95 ≤50ms warm.
 | T059b | Two-operator step required for `revokeAllSessionsForPrincipal` against operator targets (EC-3) | S | T060 | T032 | 3, 6 | EC-3, plan §12 Q2 |
 | T060 | Sign-out confirmation component (all-devices option for operator/admin; revoke-all on op target requires two-operator gate from T059b) | S | T061 | T020, T059b | 2, 3 | FR-35 |
 | T061 | MFA-step banners (non-enumerating copy)                                | S      | T062    | T030       | 2, 3  | NFR-13, NFR-12 |
-| T062 | WCAG 2.2 AA verification checklist for operator console pages         | M      | —       | T056–T061  | 3     | NFR-14, §III.1 |
+| T062 | WCAG 2.2 AA verification checklist for operator console pages — artifact at `docs/security/operator-console-a11y.md` (axe-core automated pass + manual NVDA keyboard walk-through; one row per WCAG 2.2 AA SC, status + evidence) | M | — | T056–T061 | 3 | NFR-14, §III.1 |
 
-**B6 gate.** Quickstart Scenarios 7, 10 pass; manual a11y review
-completed and recorded.
+**B6 gate.** Quickstart Scenarios 10 (enumeration resistance, T061
+banners) and 11 (operator console workflow, T056–T060) pass;
+`docs/security/operator-console-a11y.md` produced per T062.
 
 ---
 
