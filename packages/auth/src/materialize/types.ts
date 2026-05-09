@@ -97,6 +97,8 @@ export type AuditEventName =
   | "organization.materialized"
   | "agent_credential.issued"
   | "agent_credential.issue_denied"
+  | "agent_credential.issued_by_operator"
+  | "agent_credential.issue_by_operator_denied"
   | "agent_credential.revoked"
   | "service_credential.bootstrapped"
   | "service_credential.bootstrap_denied"

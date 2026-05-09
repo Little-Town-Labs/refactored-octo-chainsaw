@@ -149,6 +149,9 @@ export {
   revokeAgentCredential,
 } from "./issuer/revocation.js";
 
+export type { IssueByOperatorDeps } from "./issuer/operator-issuance.js";
+export { issueAgentCredentialByOperator } from "./issuer/operator-issuance.js";
+
 export type {
   AgentCredentialListFilter,
   AgentCredentialListRepo,
