@@ -156,6 +156,11 @@ export type {
 } from "./verifier/verify.js";
 export { CredentialVerificationError, verifyAgentCredential } from "./verifier/verify.js";
 
+export {
+  assertNotVercelOidc,
+  VercelOidcAtInAppSurfaceError,
+} from "./verifier/vercel-oidc-rejection.js";
+
 export type { Jwks, JwksKeyRow, JwksRepo } from "./jwks/types.js";
 export { isJwksVisible } from "./jwks/types.js";
 export { buildJwks } from "./jwks/build.js";
