@@ -25,6 +25,9 @@ export default {
         jsc: {
           parser: { syntax: "typescript", tsx: true, decorators: false },
           target: "es2022",
+          transform: {
+            react: { runtime: "automatic" },
+          },
         },
       },
     ],
