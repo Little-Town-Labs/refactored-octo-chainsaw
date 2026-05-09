@@ -150,6 +150,22 @@ export {
 } from "./issuer/revocation.js";
 
 export type {
+  AgentCredentialListFilter,
+  AgentCredentialListRepo,
+  AgentCredentialListRow,
+  ListAgentCredentialsDeps,
+  ListAgentCredentialsInput,
+  ListAgentCredentialsOutput,
+  ListStatusFilter,
+} from "./issuer/listing.js";
+export {
+  DEFAULT_LIST_LIMIT,
+  InvalidCursorError,
+  listAgentCredentialsForOperator,
+  MAX_LIST_LIMIT,
+} from "./issuer/listing.js";
+
+export type {
   RevocationChecker,
   VerificationFailureReason,
   VerifyOptions,
