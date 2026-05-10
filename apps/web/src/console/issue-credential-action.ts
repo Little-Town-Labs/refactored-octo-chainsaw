@@ -25,7 +25,7 @@ import {
 import { getDb } from "@spyglass/db";
 
 import { getPrincipal } from "../auth/get-principal.js";
-import { createConsoleAuditSink } from "../auth/audit-sink.js";
+import { createDrizzleAuditSink } from "../auth/audit-sink-db.js";
 import { createDrizzleAgentCredentialRepo } from "../auth/agent-credential-issuance-repo.js";
 import { loadAgentSigningKey } from "../auth/load-agent-signing-key.js";
 import { parseIssueInput } from "./parse-issue-input.js";
@@ -69,7 +69,7 @@ export async function issueCredentialAction(
       },
       {
         repo: createDrizzleAgentCredentialRepo(getDb()),
-        sink: createConsoleAuditSink(),
+        sink: createDrizzleAuditSink(getDb()),
         signingKey: loadAgentSigningKey(),
         issuer: process.env.SPYGLASS_ISSUER ?? "https://spyglass.local",
         audience: process.env.SPYGLASS_AUDIENCE_RUNNER ?? "spyglass.runner",

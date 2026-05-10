@@ -18,3 +18,8 @@ export {
   type NewServiceCredentialRow,
   type ServiceCredentialRow,
 } from "./service-credentials.js";
+export {
+  auditEventsBuffer,
+  type AuditEventsBufferRow,
+  type NewAuditEventsBufferRow,
+} from "./audit-events-buffer.js";

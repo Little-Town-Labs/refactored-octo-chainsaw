@@ -23,7 +23,7 @@ import { RoleRequiredError, revokeAgentCredential } from "@spyglass/auth";
 import { getDb } from "@spyglass/db";
 
 import { getPrincipal } from "../auth/get-principal.js";
-import { createConsoleAuditSink } from "../auth/audit-sink.js";
+import { createDrizzleAuditSink } from "../auth/audit-sink-db.js";
 import {
   createDrizzleRevocationListRepo,
   createDrizzleRevokeRepo,
@@ -61,7 +61,7 @@ export async function revokeCredentialAction(formData: FormData): Promise<void> 
     {
       repo: createDrizzleRevokeRepo(db),
       listRepo: createDrizzleRevocationListRepo(db),
-      sink: createConsoleAuditSink(),
+      sink: createDrizzleAuditSink(db),
       now: () => Math.floor(Date.now() / 1000),
       correlationId: () => randomUUID(),
     },
