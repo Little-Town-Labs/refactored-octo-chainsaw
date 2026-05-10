@@ -155,6 +155,7 @@ export { issueAgentCredentialByOperator } from "./issuer/operator-issuance.js";
 export type {
   ApprovalRecord,
   PrincipalKindLookup,
+  PrincipalLookupResult,
   RevokeAllApprovalRepo,
   RevokeAllInput,
   RevokeAllReasonCode,
