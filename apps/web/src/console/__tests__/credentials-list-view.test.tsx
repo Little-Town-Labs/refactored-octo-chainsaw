@@ -71,6 +71,7 @@ describe("<CredentialsListView />", () => {
       "Issued",
       "Expires",
       "Status",
+      "Actions",
     ]);
     expect(within(table).getAllByText(/00000000…/).length).toBeGreaterThanOrEqual(2);
     expect(within(table).getByText("seeker")).toBeInTheDocument();
@@ -104,6 +105,28 @@ describe("<CredentialsListView />", () => {
       />,
     );
     expect(screen.getByText("expired")).toHaveAttribute("data-status", "expired");
+  });
+
+  it("renders a per-row Revoke link only for active credentials", () => {
+    render(
+      <CredentialsListView
+        rows={[
+          row({ credential_id: "00000000-0000-0000-0000-00000000c001" }),
+          row({
+            credential_id: "00000000-0000-0000-0000-00000000c002",
+            revoked_at: new Date("2026-05-02T00:00:00Z"),
+          }),
+        ]}
+        next_cursor={null}
+        params={{ status: "all" }}
+      />,
+    );
+    const revokeLinks = screen.getAllByRole("link", { name: /revoke credentials for/i });
+    expect(revokeLinks).toHaveLength(1);
+    expect(revokeLinks[0]).toHaveAttribute(
+      "href",
+      "/operator/console/credentials/00000000-0000-0000-0000-0000000000aa/revoke",
+    );
   });
 
   it("renders a 'Next page' link with the cursor preserved when next_cursor is set", () => {

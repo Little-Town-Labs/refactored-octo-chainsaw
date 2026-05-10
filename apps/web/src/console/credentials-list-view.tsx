@@ -85,6 +85,7 @@ export function CredentialsListView({
               <th scope="col">Issued</th>
               <th scope="col">Expires</th>
               <th scope="col">Status</th>
+              <th scope="col">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -110,6 +111,16 @@ export function CredentialsListView({
                     <time dateTime={r.expires_at.toISOString()}>{r.expires_at.toISOString()}</time>
                   </td>
                   <td data-status={status}>{status}</td>
+                  <td>
+                    {status === "active" ? (
+                      <Link
+                        href={`/operator/console/credentials/${r.principal_id}/revoke`}
+                        aria-label={`Revoke credentials for principal ${r.principal_id.slice(0, 8)}…`}
+                      >
+                        Revoke
+                      </Link>
+                    ) : null}
+                  </td>
                 </tr>
               );
             })}
