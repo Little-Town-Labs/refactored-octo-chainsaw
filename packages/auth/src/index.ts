@@ -153,6 +153,25 @@ export type { IssueByOperatorDeps } from "./issuer/operator-issuance.js";
 export { issueAgentCredentialByOperator } from "./issuer/operator-issuance.js";
 
 export type {
+  ApprovalRecord,
+  PrincipalKindLookup,
+  RevokeAllApprovalRepo,
+  RevokeAllInput,
+  RevokeAllReasonCode,
+  RevokeAllResult,
+  RevokeAllSessionsDeps,
+  SessionRevoker,
+} from "./issuer/revoke-all-sessions.js";
+export {
+  ApprovalAlreadyExecutedError,
+  ApprovalNotFoundError,
+  revokeAllSessionsForPrincipal,
+  SelfApprovalError,
+  TargetNotFoundError,
+  TargetNotHumanError,
+} from "./issuer/revoke-all-sessions.js";
+
+export type {
   AgentCredentialListFilter,
   AgentCredentialListRepo,
   AgentCredentialListRow,

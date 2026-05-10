@@ -23,3 +23,8 @@ export {
   type AuditEventsBufferRow,
   type NewAuditEventsBufferRow,
 } from "./audit-events-buffer.js";
+export {
+  revokeAllSessionsApprovals,
+  type RevokeAllSessionsApprovalRow,
+  type NewRevokeAllSessionsApprovalRow,
+} from "./revoke-all-sessions-approvals.js";
