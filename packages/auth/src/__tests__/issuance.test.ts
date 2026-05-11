@@ -219,6 +219,27 @@ describe("issueAgentCredential — authorization", () => {
     ).rejects.toThrow(/Scope/i);
     expect(sink.events[0]?.payload.reason).toBe("scope_insufficient");
   });
+
+  it("audit-sink failure does not mask the typed deny (T068/MEDIUM-1, T070 regression)", async () => {
+    // Sink that throws on every emit; the typed deny error must
+    // still reach the caller — sink failures route to stderr only.
+    const failingSink: AuditEventSink = {
+      async emit() {
+        throw new Error("simulated audit sink outage");
+      },
+    };
+    const lowScope: ServicePrincipal = { ...service, scopes: ["other.scope"] };
+    const bundle = await makeBundle();
+    const { repo } = makeRepo();
+    const deps = makeDeps(bundle, failingSink as unknown as ReturnType<typeof makeSink>, repo);
+    const originalErr = console.error;
+    console.error = () => {};
+    try {
+      await expect(issueAgentCredential(lowScope, baseInput, deps)).rejects.toThrow(/Scope/i);
+    } finally {
+      console.error = originalErr;
+    }
+  });
 });
 
 describe("issueAgentCredential — idempotency (EC-8)", () => {

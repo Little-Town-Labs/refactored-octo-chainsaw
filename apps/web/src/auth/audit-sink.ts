@@ -23,6 +23,13 @@ import type { AuditEventSink } from "@spyglass/auth";
 //     — operator-supplied free text from the revoke / sign-out
 //     orchestrators is sensitive operational data per the
 //     credential-lifecycle runbook §3; addresses T068/MEDIUM-3.
+//
+// Redaction is **shallow** by design. F02 audit-event payloads are
+// flat objects at every call site (revoke, sign-out, issuance);
+// new call sites must keep payloads flat or extend this helper to
+// walk recursively. The contract is enforced by inspection at PR
+// time, not at runtime — adding a nested object containing `notes`
+// would silently re-introduce a leak.
 function redactPayload(payload: Readonly<Record<string, unknown>>): Record<string, unknown> {
   const out: Record<string, unknown> = { ...payload };
   if (typeof out.external_id === "string") {
