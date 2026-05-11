@@ -36,7 +36,7 @@ modeling per `.specify/memory/constitution.md` §V.3.
 | Feature | Status | Notes |
 |---------|--------|-------|
 | **F01** Monorepo scaffold | ✅ **Complete** (merged to `main`) | A1–A10 closed; CI green; SBOM published; signed releases; lefthook + lint/test/type-check; Neon verified |
-| **F02** Identity & Auth | 🟡 **In progress** (branch `02-identity-auth-aaa`) | B1–B5.2 complete; B6 T056–T060 complete (T061, T062 remaining); B5.3, B7–B9 remaining |
+| **F02** Identity & Auth | 🟡 **In progress** (branch `02-identity-auth-aaa`) | B1–B6 implementation complete (T001–T062); B5.3 (Vercel-OIDC guard) + B7–B9 remaining. B6 gate awaits operator-run Quickstart Scenarios 10 + 11. |
 | F03–F25 | ⏳ Not started | F03 schema umbrella absorbs F02's migrations; downstream features begin after F02 closes |
 
 ### F02 sub-slice progress (branch `02-identity-auth-aaa`)
@@ -50,22 +50,29 @@ modeling per `.specify/memory/constitution.md` §V.3.
 | **B5.1** | `service_credentials` schema + migration | T049, T050 | ✅ |
 | **B5.2** | Bootstrap-exchange handler + rotation (FR-25, FR-26, FR-26a, NFR-5) | T051, T052, T055 | ✅ |
 | **B5.3** | Vercel-OIDC rejection guard at in-app service surfaces (FR-26b, FR-26c) | T053, T054 | ⏳ |
-| **B6** | Operator console UI: list/issue/revoke + audit viewer + two-operator sign-out gate | T047b, T056–T060 ✅ / T061, T062 ⏳ | 🟡 |
+| **B6** | Operator console UI: list/issue/revoke + audit viewer + two-operator sign-out gate + auth banners + a11y artifact | T047b, T056–T062 ✅ | ✅ (impl) — gate pending operator-run scenarios |
 | **B7** | Runbooks (rotation, revocation, compromise drill) | (TBD) | ⏳ |
 | **B8** | `/security-review` pass + threat-model artifact | (TBD) | ⏳ |
 | **B9** | Final `/code-review` + `/simplify` + merge to `main` | — | ⏳ |
 
 Discipline: every slice runs `code-reviewer` + `code-simplifier` before
-commit. 348 tests green at HEAD (`e53e38e`) — 236 auth + 112 web;
+commit. 373 tests green at HEAD (`e0cfcac`) — 236 auth + 137 web;
 type-check + lint clean across the workspace.
 
-**B6 sub-progress.** T056 list page, T057 issue form, T058 revoke action,
-T059a audit buffer + sink, T059 audit viewer, T059b two-operator
-revoke-all-sessions backend orchestrator, and T060 sign-out confirmation
-UI + Drizzle adapters all landed. Remaining inside B6: T061 (MFA-step
-banners, NFR-13) and T062 (WCAG 2.2 AA verification artifact at
-`docs/security/operator-console-a11y.md`). B6 gate (Quickstart Scenarios
-10 + 11 + a11y artifact) opens once T061 and T062 are complete.
+**B6 implementation closed.** T047b operator credential listing,
+T056 list page, T057 issue form, T058 revoke action, T059a audit
+buffer + sink, T059 audit viewer, T059b two-operator
+revoke-all-sessions backend orchestrator, T060 sign-out confirmation
+UI + Drizzle adapters, T061 enumeration-resistant auth banners
+(NFR-13, NFR-14), and T062 WCAG 2.2 AA verification artifact
+(`docs/security/operator-console-a11y.md` — 35 SCs pass, 6 pending
+environment verification once design tokens land, 0 failing) are
+all in. **B6 gate** still requires an operator-run pass of
+Quickstart Scenarios 10 (enumeration resistance) and 11 (operator
+console workflow) against a live dev server + NVDA. Deferred
+follow-ups: jest-axe integration into view tests, per-route
+metadata.title, query-string flash hardening (signed cookie / HMAC)
+across all B6 surfaces, design-token landing.
 
 ---
 
@@ -618,7 +625,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 ### Stage 1 checklist
 - [x] **F01** Monorepo scaffold + tech-stack baseline _(merged to `main`; PR #1)_
-- [ ] **F02** Identity & Auth (Clerk + AAA) _(B1–B5.2 complete; B6 T056–T060 complete; T061, T062, B5.3, B7–B9 remaining on branch `02-identity-auth-aaa`)_
+- [ ] **F02** Identity & Auth (Clerk + AAA) _(B1–B6 implementation complete, T001–T062; B5.3, B7–B9 remaining on branch `02-identity-auth-aaa`; B6 gate pending operator-run Quickstart Scenarios 10 + 11)_
 - [ ] **F03** Database schema + Drizzle migrations _(F02 migrations land in F03's umbrella schema; standalone F03 spec pending)_
 - [ ] **Stage 1 gate:** CI green, SBOM published, signed releases, MFA working for admin
 
@@ -713,3 +720,4 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 | 1.2.0   | 2026-05-08 | Status update only — no scope changes. Added "Current Status" section recording F01 complete (merged to `main`), F02 in progress on branch `02-identity-auth-aaa` with B1–B5.2 closed (tasks T001–T052, T055) and B5.3 → B9 remaining. Ticked F01 in Stage 1 checklist; F02/F03 remain open. PATCH-style status amendment surfaced as MINOR for the new section. |
 | 1.2.1   | 2026-05-10 | Status update only — no scope changes. F02 B6 progress: T047b, T056–T060 complete (operator credential list/issue/revoke, audit-events buffer + sink + viewer, two-operator-gated revoke-all-sessions orchestrator + Drizzle adapters + sign-out confirmation UI). Test count 348 green at HEAD `e53e38e` (236 auth + 112 web). B6 remaining: T061 MFA banners, T062 WCAG 2.2 AA artifact. PATCH-style status amendment. |
 | 1.2.2   | 2026-05-11 | Editorial only — no scope changes. Renamed feature-delivery phases A–H to **Stage 1–8** to disambiguate from the product-lifecycle "Phase 0/1/2" wording (Phase 0 alpha, pre-Phase-2 counsel review). Touches headings, the Implementation Stages table, per-stage checklists/gates, and the "stage-by-stage execution" guidance. PATCH-style editorial amendment. |
+| 1.2.3   | 2026-05-11 | Status update only — no scope changes. F02 B6 implementation closed: T061 enumeration-resistant auth banners (NFR-13, NFR-14) and T062 WCAG 2.2 AA verification artifact (`docs/security/operator-console-a11y.md` — 35 SCs pass, 6 pending environment verification, 0 failing) landed. Tests: 373 green at HEAD `e0cfcac` (236 auth + 137 web). B6 gate remains pending an operator-run pass of Quickstart Scenarios 10 + 11 against a live dev server + NVDA. PATCH-style status amendment. |
