@@ -1,6 +1,10 @@
 // F02 T018 — Clerk session → tier inference tests.
 
-import { clerkSessionToTier } from "../proxy/clerk-session.js";
+import {
+  InvalidOperatorClerkOrgIdError,
+  clerkSessionToTier,
+  parseOperatorClerkOrgIds,
+} from "../proxy/clerk-session.js";
 import { evaluateAudienceByTier } from "../proxy/audience.js";
 
 const operatorIds = new Set(["org_op"]);
@@ -81,6 +85,40 @@ describe("clerkSessionToTier", () => {
         operatorClerkOrgIds: operatorIds,
       }),
     ).toBeNull();
+  });
+});
+
+describe("parseOperatorClerkOrgIds (T068/LOW-4 shape validation)", () => {
+  it("returns an empty set for undefined / empty input", () => {
+    expect(parseOperatorClerkOrgIds(undefined).size).toBe(0);
+    expect(parseOperatorClerkOrgIds("").size).toBe(0);
+  });
+
+  it("accepts a single well-formed org id", () => {
+    const out = parseOperatorClerkOrgIds("org_abc123");
+    expect(out.has("org_abc123")).toBe(true);
+    expect(out.size).toBe(1);
+  });
+
+  it("accepts comma-separated well-formed ids with whitespace", () => {
+    const out = parseOperatorClerkOrgIds(" org_a , org_b ,org_c123");
+    expect(out.has("org_a")).toBe(true);
+    expect(out.has("org_b")).toBe(true);
+    expect(out.has("org_c123")).toBe(true);
+    expect(out.size).toBe(3);
+  });
+
+  it("drops whitespace-only entries between commas", () => {
+    expect(parseOperatorClerkOrgIds("org_a, ,org_b").size).toBe(2);
+  });
+
+  it("throws InvalidOperatorClerkOrgIdError on a malformed entry", () => {
+    expect(() => parseOperatorClerkOrgIds("user_abc")).toThrow(InvalidOperatorClerkOrgIdError);
+    expect(() => parseOperatorClerkOrgIds("org_abc,not-an-org")).toThrow(
+      InvalidOperatorClerkOrgIdError,
+    );
+    expect(() => parseOperatorClerkOrgIds("org_abc!")).toThrow(InvalidOperatorClerkOrgIdError);
+    expect(() => parseOperatorClerkOrgIds("orgs_abc")).toThrow(InvalidOperatorClerkOrgIdError);
   });
 });
 

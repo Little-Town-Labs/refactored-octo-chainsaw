@@ -89,6 +89,20 @@ export function createDrizzleAuditSink(
         if (lookup === null) {
           // Principal not (yet) materialized — write to fallback so
           // the event is not lost. Reconciliation will surface drift.
+          //
+          // Audit-viewer reads `audit_events_buffer` only, so this
+          // fallback is observable in the operator UI only via stdout.
+          // Emit a structured warning so the gap is searchable rather
+          // than silent (addresses T068/MEDIUM-2).
+          console.warn(
+            JSON.stringify({
+              ts: new Date().toISOString(),
+              kind: "audit_db_fallback_to_console",
+              reason: "principal_not_found",
+              name: event.name,
+              correlation_id: event.correlation_id,
+            }),
+          );
           await fallback.emit(event);
           return;
         }

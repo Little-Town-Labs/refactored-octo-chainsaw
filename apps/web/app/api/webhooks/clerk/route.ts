@@ -109,14 +109,34 @@ export async function handleClerkWebhook(args: HandleArgs): Promise<Response> {
   }
 
   const directive = eventToSnapshot(event, args.snapshotContext);
+  const correlation_id = randomUUID();
 
-  await processClerkDirective(directive, {
-    repo: args.repo,
-    sink: args.sink,
-    sessionRevoker: args.sessionRevoker,
-    now: () => Math.floor(Date.now() / 1000),
-    correlationId: () => randomUUID(),
-  });
+  try {
+    await processClerkDirective(directive, {
+      repo: args.repo,
+      sink: args.sink,
+      sessionRevoker: args.sessionRevoker,
+      now: () => Math.floor(Date.now() / 1000),
+      correlationId: () => correlation_id,
+    });
+  } catch (cause) {
+    // Webhook-signature-verified payload that fails downstream
+    // processing (DB outage during disablePrincipal, Clerk pagination
+    // failure during session revoke). Re-throw so Clerk's retry
+    // policy fires, but emit a structured marker first so an outage
+    // spanning Clerk's retry budget is searchable rather than mixed
+    // into generic 5xx noise (addresses T068/LOW-2).
+    console.error(
+      JSON.stringify({
+        ts: new Date().toISOString(),
+        kind: "webhook_processing_failed",
+        event_type: event.type,
+        correlation_id,
+        cause: cause instanceof Error ? cause.message : String(cause),
+      }),
+    );
+    throw cause;
+  }
 
   return new Response(null, { status: 204 });
 }

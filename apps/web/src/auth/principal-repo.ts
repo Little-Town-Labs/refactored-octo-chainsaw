@@ -11,6 +11,8 @@
 // The DB schema enforces the same invariants via CHECK constraints
 // (see `packages/db/src/schema/principals.ts`); this layer is thin.
 
+import { createHash } from "node:crypto";
+
 import type { OrganizationLookup, PrincipalLookup, PrincipalRepo } from "@spyglass/auth";
 import type { HumanTier } from "@spyglass/auth";
 import { type Db, organizations, principals } from "@spyglass/db";
@@ -161,11 +163,20 @@ export function createDrizzlePrincipalRepo(db: Db): PrincipalRepo {
         // revocation upstream already succeeded, so this is not a
         // security concern, but the reconciliation job (T024)
         // should investigate sustained drift.
+        //
+        // Hash the external_id rather than slicing — slicing leaks
+        // the first byte of the Clerk userId, which combined with
+        // the log timestamp is an enumeration sidechannel
+        // (T068/LOW-3). Matches the sha256-16-hex convention from
+        // audit-sink.ts.
         console.warn(
           JSON.stringify({
             kind: "audit_warn",
             name: "principal.disable_noop",
-            external_id_hint: input.external_id.slice(0, 6),
+            external_id_hash: createHash("sha256")
+              .update(input.external_id)
+              .digest("hex")
+              .slice(0, 16),
             org_id: input.org_id,
           }),
         );

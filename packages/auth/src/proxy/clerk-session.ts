@@ -36,15 +36,35 @@ const MEMBER_ROLES = new Set(["org:member", "member"]);
  * Parse a comma-separated list of Clerk org IDs from an env var into
  * the set the proxy and lazy materializer both consume. Empty / null
  * yields an empty set; whitespace-only entries are dropped.
+ *
+ * Each entry must match the Clerk `org_<id>` shape. Malformed entries
+ * throw at parse time so a misconfiguration (typo, blank after
+ * comma, accidental userId pasted) surfaces immediately at module
+ * load rather than at first sign-in (T068/LOW-4).
  */
+export class InvalidOperatorClerkOrgIdError extends Error {
+  constructor(public readonly value: string) {
+    super(
+      `Invalid Clerk operator org id: ${JSON.stringify(value)} (expected /^org_[A-Za-z0-9]+$/)`,
+    );
+    this.name = "InvalidOperatorClerkOrgIdError";
+  }
+}
+
+const CLERK_ORG_ID_RE = /^org_[A-Za-z0-9]+$/;
+
 export function parseOperatorClerkOrgIds(raw: string | undefined): ReadonlySet<string> {
   if (!raw) return new Set();
-  return new Set(
-    raw
-      .split(",")
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0),
-  );
+  const entries = raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+  for (const entry of entries) {
+    if (!CLERK_ORG_ID_RE.test(entry)) {
+      throw new InvalidOperatorClerkOrgIdError(entry);
+    }
+  }
+  return new Set(entries);
 }
 
 export function clerkSessionToTier(input: ClerkSessionInput): HumanTier | null {

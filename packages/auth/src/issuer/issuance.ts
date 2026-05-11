@@ -147,13 +147,29 @@ export async function issueAgentCredential(
     contract_id: input.contract_id,
     contract_version: input.contract_version,
   };
-  const emit = (name: AuditEventName, extra: Readonly<Record<string, unknown>>) =>
-    deps.sink.emit({
-      name,
-      principal_id: caller.principal_id,
-      correlation_id,
-      payload: { ...baseAuditPayload, ...extra },
-    });
+  // Audit-sink failure must not mask the typed deny/success result.
+  // Mirrors the safeEmit pattern in service-issuance.ts and the
+  // safeDenyAudit pattern in revoke-all-sessions.ts; addresses
+  // T068/MEDIUM-1.
+  const emit = async (
+    name: AuditEventName,
+    extra: Readonly<Record<string, unknown>>,
+  ): Promise<void> => {
+    try {
+      await deps.sink.emit({
+        name,
+        principal_id: caller.principal_id,
+        correlation_id,
+        payload: { ...baseAuditPayload, ...extra },
+      });
+    } catch (cause) {
+      console.error("[issuance] audit sink emit failed", {
+        name,
+        correlation_id,
+        cause: cause instanceof Error ? cause.message : String(cause),
+      });
+    }
+  };
   const denyAndThrow = async (ctx: DenialContext, error: Error): Promise<never> => {
     await emit("agent_credential.issue_denied", {
       reason: ctx.reason,
