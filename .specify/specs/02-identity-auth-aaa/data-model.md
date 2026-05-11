@@ -211,13 +211,57 @@ The verifier consults this on mint and on cross-process refresh
 
 ---
 
+### `revoke_all_sessions_approvals`
+
+Two-operator gate state for `revokeAllSessionsForPrincipal`
+against an **operator target** (EC-3, FR-35). Non-operator targets
+revoke immediately without writing here. Introduced in T059b (B6).
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| `approval_id` | `uuid` | PK, DEFAULT `uuidv7()` |
+| `target_principal_id` | `uuid` | NOT NULL, FK → `principals.principal_id` |
+| `initiated_by` | `uuid` | NOT NULL, FK → `principals.principal_id` (first operator) |
+| `reason_code` | `text` | NOT NULL, CHECK `IN ('session_compromise','operator_emergency','credential_rotation','compliance_action')` |
+| `notes` | `text` | NULL allowed; ≤500 chars; control chars stripped at orchestrator boundary |
+| `initiated_at` | `timestamptz` | NOT NULL, DEFAULT `now()` |
+| `expires_at` | `timestamptz` | NOT NULL (initiated_at + 15 minutes by default) |
+| `approved_by` | `uuid` | NULL until second operator approves; FK → `principals.principal_id` |
+| `approved_at` | `timestamptz` | NULL until approved |
+| `executed_at` | `timestamptz` | NULL until the IdP revoke runs; stamped in the same transaction as `approved_*` |
+
+**Constraints**
+- `CHECK approved_by IS NULL OR approved_by <> initiated_by`
+  (two-operator rule at the DB layer; orchestrator + adapter SQL
+  enforce defense-in-depth alongside this).
+- `CHECK reason_code IN (...)` mirrors the typed `RevokeAllReasonCode`
+  union so a future surface bypassing the orchestrator can't pollute
+  audit/compliance reports with arbitrary strings.
+
+**Lifecycle.** Row inserted by operator A (initiated_by = A,
+expires_at = now + 15min). Operator B (≠ A) presents `approval_id`
+within the TTL; markApproved UPDATE guards `executed_at IS NULL`
++ `approved_by IS NULL` + `initiated_by <> :approved_by`, stamps
+all three timestamps atomically with the IdP revoke. Expired rows
+remain for audit; a future pruner sweeps them (threat-model.md §6
+residual #6).
+
+**Audit events.** `human_sessions.revoke_all_initiated` (insert),
+`human_sessions.revoked_all` (execute, `two_operator_gated: true`),
+`human_sessions.revoke_all_denied` (any failure path, with
+structured `reason` field).
+
+---
+
 ## Relationships
 
 ```
 principals ─┬─< organizations         (employer / operator membership)
             ├─< agent_credentials      (kind='agent' principals)
             ├─< service_credentials    (kind='service' principals)
-            └─< audit_events_buffer    (every privileged action)
+            ├─< audit_events_buffer    (every privileged action)
+            └─< revoke_all_sessions_approvals  (EC-3 two-operator gate;
+                                                FKs on target + initiated_by + approved_by)
 
 signing_keys (independent; referenced logically by `kid` in JWTs)
 revocations  (denormalized projection of agent/service credentials)
