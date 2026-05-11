@@ -208,20 +208,25 @@ Cadence: rotate every 90 days minimum; sooner if any of:
 
 ### 3.3 Revoke
 
-No operator UI yet (B6 only ships agent-credential revocation).
-Until B6+ adds a service-credential revoke surface, revocation is
-via the orchestrator from a backend script:
+No operator UI yet (B6 only ships agent-credential revocation),
+and no dedicated `revokeServiceCredential` orchestrator exists at
+v0 — service-credential revocation flows through signing-key
+force-retire (§4.3) which transitively invalidates every credential
+signed under that `kid`:
 
-```ts
-// Pseudo-code; the actual entry point depends on the runbook owner
-import { revokeServiceCredential } from "@spyglass/auth";
-await revokeServiceCredential(operatorPrincipal, {
-  principal_id, generation, reason_code,
-}, deps);
-```
+1. Generate a new service-purpose key (§4.1) and activate it.
+2. Force-retire the old key (§4.3) with `verify_until = now()` so
+   all in-flight service credentials stop verifying within one
+   JWKS-cache refresh.
+3. Re-bootstrap the affected service at `generation=1` via §3.1
+   (rotate the bootstrap secret first if compromise is suspected).
+4. Confirm `service_credential.bootstrapped` audit fires for the
+   replacement; no prior generation is reachable.
 
-Anything mass-revoking service credentials must be performed by
-the credential-issuer operator role and audited.
+When B6+ ships a per-credential service revoke surface, that
+becomes the preferred path and this section will reference it.
+Until then, signing-key rotation is the only sanctioned emergency
+mechanism for service-credential revocation.
 
 ### 3.4 Compromise
 
@@ -253,13 +258,14 @@ The bootstrap of a new signing key, per
 2. Store the private key in the secrets store
    (`AGENT_SIGNING_KEY_PKCS8` env or whichever your environment
    names it).
-3. Insert a row into `signing_keys` with:
+3. Insert a row into `signing_keys` with the JWK-form public key:
    ```sql
-   INSERT INTO signing_keys (kid, purpose, algorithm, public_key_pem, activated_at, verify_until)
-   VALUES ($1, 'agent', 'EdDSA', $2, NULL, NULL);
+   INSERT INTO signing_keys (kid, purpose, algorithm, public_key_jwk, activated_at, verify_until)
+   VALUES ($1, 'agent', 'EdDSA', $2::jsonb, NULL, NULL);
    ```
-   `activated_at=NULL` keeps it out of the JWKS list (it is
-   pre-activation).
+   `public_key_jwk` is the public key encoded as a JWK object
+   (jose's `exportJWK()` returns the right shape). `activated_at=NULL`
+   keeps it out of the JWKS list (it is pre-activation).
 
 ### 4.2 Rotate
 

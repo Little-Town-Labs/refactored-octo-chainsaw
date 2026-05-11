@@ -203,6 +203,29 @@ export {
 export type { VerifyAtSurfaceOptions } from "./verifier/verify-service-at-surface.js";
 export { verifyServiceCredentialAtSurface } from "./verifier/verify-service-at-surface.js";
 
+// --- Service-credential issuance (B5.2) ----------------------------
+
+export type {
+  BootstrapSecretChecker,
+  BootstrapServiceInput,
+  RotateServiceInput,
+  ServiceCredentialOutput,
+  ServiceCredentialRepo,
+  ServiceCredentialRow,
+} from "./issuer/service-issuance.js";
+export {
+  bootstrapServiceCredential,
+  DEFAULT_SERVICE_TTL_SECONDS,
+  EmptyServiceScopeSetError,
+  InvalidBootstrapSecretError,
+  NoPriorCredentialError,
+  PrincipalMismatchError,
+  rotateServiceCredential,
+  SERVICE_CREDENTIAL_ROTATION_SCOPE,
+  ServiceIssuanceConflictError,
+  ServiceUniqueViolationError,
+} from "./issuer/service-issuance.js";
+
 export type { Jwks, JwksKeyRow, JwksRepo } from "./jwks/types.js";
 export { isJwksVisible } from "./jwks/types.js";
 export { buildJwks } from "./jwks/build.js";
