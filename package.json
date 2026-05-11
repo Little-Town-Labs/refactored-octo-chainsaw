@@ -30,7 +30,7 @@
     "@swc/jest": "^0.2.39",
     "@types/jest": "^30.0.0",
     "eslint": "^10.3.0",
-    "eslint-config-next": "^16.2.5",
+    "eslint-config-next": "^16.2.6",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-boundaries": "^6.0.2",
     "eslint-plugin-import": "^2.32.0",
