@@ -36,7 +36,7 @@ modeling per `.specify/memory/constitution.md` §V.3.
 | Feature | Status | Notes |
 |---------|--------|-------|
 | **F01** Monorepo scaffold | ✅ **Complete** (merged to `main`) | A1–A10 closed; CI green; SBOM published; signed releases; lefthook + lint/test/type-check; Neon verified |
-| **F02** Identity & Auth | 🟡 **In progress** (branch `02-identity-auth-aaa`) | B1–B7 implementation complete (T001–T065); B8 (security review + threat model) + B9 (final review + merge) remaining. Gates awaiting operator-run scenarios: B6 (10 + 11), B7 (6 + tabletop drill). |
+| **F02** Identity & Auth | 🟡 **In progress** (branch `02-identity-auth-aaa`) | B1–B8 implementation complete (T001–T070); B9 (final code-review + simplify + merge) remaining. Gates awaiting operator-run scenarios: B6 (10 + 11), B7 (6 + drill), B8 (T071 metrics + T072 quickstart end-to-end). |
 | F03–F25 | ⏳ Not started | F03 schema umbrella absorbs F02's migrations; downstream features begin after F02 closes |
 
 ### F02 sub-slice progress (branch `02-identity-auth-aaa`)
@@ -52,11 +52,11 @@ modeling per `.specify/memory/constitution.md` §V.3.
 | **B5.3** | Vercel-OIDC rejection guard at in-app service surfaces (FR-26b, FR-26c) | T053, T054 | ✅ |
 | **B6** | Operator console UI: list/issue/revoke + audit viewer + two-operator sign-out gate + auth banners + a11y artifact | T047b, T056–T062 ✅ | ✅ (impl) — gate pending operator-run scenarios |
 | **B7** | Lifecycle runbooks + compromise drill (FR-39, FR-40) | T063, T064 ✅ / T065 ✅ (scaffold) | ✅ (impl) — gate pending Scenario 6 + Gary review + operator-run drill |
-| **B8** | `/security-review` pass + threat-model artifact | (TBD) | ⏳ |
-| **B9** | Final `/code-review` + `/simplify` + merge to `main` | — | ⏳ |
+| **B8** | STRIDE threat model + `/security-review` round-trip + (deferred) metrics + quickstart | T067, T068, T069, T070 ✅ / T071, T072 ⏳ | ✅ (impl) — gate pending T071 metrics + T072 quickstart end-to-end |
+| **B9** | Final `/code-review` + `/simplify` + merge to `main` | T073–T078 | ⏳ |
 
 Discipline: every slice runs `code-reviewer` + `code-simplifier` before
-commit. 373 tests green at HEAD (`e0cfcac`) — 236 auth + 137 web;
+commit. 384 tests green at HEAD (`55ab86b`) — 242 auth + 142 web;
 type-check + lint clean across the workspace.
 
 **B6 implementation closed.** T047b operator credential listing,
@@ -625,7 +625,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 ### Stage 1 checklist
 - [x] **F01** Monorepo scaffold + tech-stack baseline _(merged to `main`; PR #1)_
-- [ ] **F02** Identity & Auth (Clerk + AAA) _(B1–B7 implementation complete, T001–T065; B8 + B9 remaining on branch `02-identity-auth-aaa`; B6/B7 gates pending operator-run scenarios)_
+- [ ] **F02** Identity & Auth (Clerk + AAA) _(B1–B8 implementation complete, T001–T070; B9 remaining on branch `02-identity-auth-aaa`; B6/B7/B8 gates pending operator-run scenarios)_
 - [ ] **F03** Database schema + Drizzle migrations _(F02 migrations land in F03's umbrella schema; standalone F03 spec pending)_
 - [ ] **Stage 1 gate:** CI green, SBOM published, signed releases, MFA working for admin
 
@@ -722,3 +722,4 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 | 1.2.2   | 2026-05-11 | Editorial only — no scope changes. Renamed feature-delivery phases A–H to **Stage 1–8** to disambiguate from the product-lifecycle "Phase 0/1/2" wording (Phase 0 alpha, pre-Phase-2 counsel review). Touches headings, the Implementation Stages table, per-stage checklists/gates, and the "stage-by-stage execution" guidance. PATCH-style editorial amendment. |
 | 1.2.3   | 2026-05-11 | Status update only — no scope changes. F02 B6 implementation closed: T061 enumeration-resistant auth banners (NFR-13, NFR-14) and T062 WCAG 2.2 AA verification artifact (`docs/security/operator-console-a11y.md` — 35 SCs pass, 6 pending environment verification, 0 failing) landed. Tests: 373 green at HEAD `e0cfcac` (236 auth + 137 web). B6 gate remains pending an operator-run pass of Quickstart Scenarios 10 + 11 against a live dev server + NVDA. PATCH-style status amendment. |
 | 1.2.4   | 2026-05-11 | Status update only — no scope changes. Corrected B5.3 status (Vercel-OIDC rejection guard was already complete at commit `3aa4479`, prior entries stale). F02 B7 implementation closed: T063 credential-lifecycle runbook, T064 IdP coverage matrix, T065 compromise tabletop scaffold (execution log empty pending operator-run drill). All three docs at `docs/security/`. B7 gate pending Quickstart Scenario 6 + Gary review + drill execution. PATCH-style status amendment. |
+| 1.2.5   | 2026-05-11 | Status update only — no scope changes. F02 B8 implementation closed: T067 STRIDE threat model (`.specify/specs/02-identity-auth-aaa/threat-model.md`, 0 CRITICAL/HIGH residuals), T068 security-review pass (0/0/3/4/5 across CRITICAL/HIGH/MEDIUM/LOW/INFO; `docs/security/security-review-f02-t068.md`), T069 remediation of all 7 actionable findings (commit `c39440e`), T070 re-verification APPROVE (`docs/security/security-review-f02-t070.md`). Tests: 384 green at HEAD `55ab86b` (242 auth + 142 web). B8 gate remains pending T071 metrics + T072 quickstart end-to-end. PATCH-style status amendment. |
