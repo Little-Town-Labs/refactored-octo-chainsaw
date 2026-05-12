@@ -12,12 +12,20 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
+    "@clerk/nextjs": "7.3.2",
+    "@spyglass/auth": "workspace:*",
+    "@spyglass/db": "workspace:*",
     "@spyglass/shared": "workspace:*",
+    "drizzle-orm": "^0.45.2",
     "next": "^16.2.6",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "svix": "^1.93.0"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10",
+    "@testing-library/jest-dom": "^6",
+    "@testing-library/react": "^16",
     "@types/node": "^24.12.3",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

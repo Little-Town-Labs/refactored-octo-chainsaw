@@ -19,7 +19,8 @@
     "build": "tsc -b",
     "type-check": "tsc --noEmit -p tsconfig.json",
     "test": "jest --passWithNoTests",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",

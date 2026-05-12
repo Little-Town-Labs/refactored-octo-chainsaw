@@ -18,6 +18,15 @@
     "build": "tsc -b",
     "type-check": "tsc --noEmit -p tsconfig.json",
     "test": "jest --passWithNoTests",
+    "test:integration": "jest --passWithNoTests -c jest.config.integration.js",
     "lint": "eslint ."
+  },
+  "dependencies": {
+    "jose": "^6.1.0",
+    "svix": "^1.93.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@spyglass/test-harness": "workspace:*"
   }
 }

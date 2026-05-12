@@ -1,0 +1,266 @@
+openapi: 3.1.0
+info:
+  title: Spyglass F02 — Identity & Auth (External REST surfaces)
+  version: 0.1.0
+  summary: |
+    REST surfaces for F02 Identity & Auth. Covers external/webhook ingress
+    (Clerk webhooks) and externally-fetchable verification material (JWKS).
+    All in-app, service-to-service, and operator surfaces live on tRPC —
+    see `auth-trpc.md`.
+  description: |
+    Design rules:
+      * Fail-closed defaults (FR-28). Every unrecognized condition → 4xx/5xx
+        with no privileged side-effects.
+      * No enumeration leaks (NFR-13). Error bodies use a single
+        `application/problem+json` shape (RFC 9457) with stable, generic
+        `type` URIs. No "user not found" vs "wrong password" distinctions.
+      * Every privileged or auth-relevant request emits a structured event
+        to the F05 audit pipeline (NFR-10). Emission is server-side and
+        not part of the response shape.
+      * Zero-trust (FR-29): each request is authorized on its own merits.
+        No ambient session.
+      * Idempotency: webhooks de-dupe on Clerk's event id; mint paths
+        de-dupe on a domain key (see tRPC contract).
+
+servers:
+  - url: https://{deployment}.spyglass.example/api
+    description: Production / preview deployment base
+    variables:
+      deployment:
+        default: app
+
+tags:
+  - name: webhooks
+    description: Inbound webhooks from Clerk (signature-verified).
+  - name: jwks
+    description: Public verification material for agent + service credentials.
+
+# ---------------------------------------------------------------------------
+# Security schemes
+# ---------------------------------------------------------------------------
+components:
+  securitySchemes:
+    ClerkWebhookSignature:
+      type: apiKey
+      in: header
+      name: svix-signature
+      description: |
+        Clerk webhook signature (Svix-format `svix-id`, `svix-timestamp`,
+        `svix-signature`). Verified against the Clerk-issued signing
+        secret stored in the F01 environment manifest. Replay window is
+        bounded (≤5 min) by the timestamp header.
+    None:
+      type: apiKey
+      in: header
+      name: X-No-Auth
+      description: |
+        Sentinel for surfaces that are intentionally public (JWKS).
+        Anonymous access is *explicit*, never implicit (FR-36).
+
+  # -------------------------------------------------------------------------
+  # Shared schemas
+  # -------------------------------------------------------------------------
+  schemas:
+    Problem:
+      type: object
+      description: |
+        RFC 9457 problem detail. Used for every error. Fields are
+        deliberately generic to avoid enumeration leaks (NFR-13).
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+          format: uri
+          example: https://spyglass.example/problems/auth-failed
+        title:
+          type: string
+          example: Authentication failed
+        status:
+          type: integer
+          format: int32
+          example: 401
+        detail:
+          type: string
+          description: Generic, non-enumerating description.
+        instance:
+          type: string
+          format: uri
+        correlation_id:
+          type: string
+          description: Server-generated correlation id; safe to surface.
+
+    ClerkWebhookEnvelope:
+      type: object
+      description: |
+        Generic Clerk webhook envelope. We accept the fields we care
+        about and ignore the rest forward-compatibly.
+      required: [type, data, object, timestamp]
+      properties:
+        type:
+          type: string
+          enum:
+            - user.created
+            - user.updated
+            - user.deleted
+            - organization.created
+            - organization.updated
+            - organization.deleted
+            - organizationMembership.created
+            - organizationMembership.updated
+            - organizationMembership.deleted
+            - session.created
+            - session.ended
+            - session.removed
+            - session.revoked
+        object:
+          type: string
+          example: event
+        timestamp:
+          type: integer
+          format: int64
+        data:
+          type: object
+          description: |
+            Clerk's event-specific payload. Treated as opaque at the
+            transport layer; the in-app projector validates the shape
+            it expects per event type and ignores fields it does not
+            consume.
+          additionalProperties: true
+
+    JWKSet:
+      type: object
+      required: [keys]
+      properties:
+        keys:
+          type: array
+          items:
+            type: object
+            description: |
+              JWK per RFC 7517. EdDSA (Ed25519) keys: `kty=OKP`, `crv=Ed25519`.
+              Includes `kid`, `use=sig`, `alg=EdDSA`. Rotated keys are
+              retained for verification until the last credential issued
+              under them expires (NFR-5, EC-11).
+            additionalProperties: true
+
+# ---------------------------------------------------------------------------
+# Paths
+# ---------------------------------------------------------------------------
+paths:
+  /webhooks/clerk:
+    post:
+      tags: [webhooks]
+      operationId: clerkWebhookIngress
+      summary: Clerk webhook ingress (Principal projector).
+      description: |
+        Materializes / updates the Spyglass `Principal` row from Clerk
+        events. Handles:
+          * `user.created`, `user.updated`, `user.deleted`
+          * `organization.*`, `organizationMembership.*`
+          * `session.removed`, `session.revoked`, `session.ended`
+
+        Behavior:
+          * **Auth:** Clerk signing secret via `svix-signature`. Bodies
+            failing verification are rejected with 401 and audited.
+          * **Idempotency:** de-duped on Clerk event id (`svix-id`).
+            Duplicate deliveries return 200 with no side-effects.
+          * **Lazy materialization fallback:** if a user authenticates
+            before their `user.created` webhook arrives, the in-app
+            guard materializes a Principal on first authenticated
+            request with no privileged action allowed before
+            materialization completes (EC-1, EC-2).
+          * **Reconciliation:** a separate Inngest function reconciles
+            drift on a documented cadence (EC-2).
+          * **Audit:** every accepted event emits a `principal.projected`
+            structured event to F05.
+          * **Performance target:** p95 ≤ 150 ms end-to-end (excluding
+            Clerk network), bounded by a single Drizzle upsert.
+          * **Failure mode:** 5xx triggers Clerk's retry; never returns
+            2xx without a successful upsert (NFR-9).
+      security:
+        - ClerkWebhookSignature: []
+      parameters:
+        - in: header
+          name: svix-id
+          required: true
+          schema: { type: string }
+        - in: header
+          name: svix-timestamp
+          required: true
+          schema: { type: string }
+        - in: header
+          name: svix-signature
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ClerkWebhookEnvelope' }
+      responses:
+        '200':
+          description: Accepted (or duplicate; idempotent no-op).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean, const: true }
+        '400':
+          description: Malformed envelope.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '401':
+          description: Signature verification failed. Audited.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '422':
+          description: |
+            Unsupported event type. Returns 200 if we are choosing to
+            ignore-forward-compat; 422 only when an event we declared
+            interest in has a shape we cannot project.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '500':
+          description: Server error; Clerk will retry.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /.well-known/jwks.json:
+    get:
+      tags: [jwks]
+      operationId: getJWKS
+      summary: Public JWKS for agent and service credentials.
+      description: |
+        Returns the active set of public keys used by F02 to sign
+        agent credentials (FR-18) and platform-internal service
+        credentials (FR-26a). Consumed by the F08.5 tool dispatcher
+        and any in-app verifier needing offline verification.
+
+        Behavior:
+          * **Auth:** none (intentionally public; FR-36 explicit
+            anonymous marker).
+          * **Cache:** `Cache-Control: public, max-age=300,
+            stale-while-revalidate=900`. Verifiers SHOULD honor
+            `kid` and refresh on `kid` miss.
+          * **Rotation:** old keys remain published until the last
+            credential issued under them expires (EC-11).
+          * **Performance:** static-ish; p95 ≤ 20 ms.
+          * **Audit:** none per request (high cardinality, low
+            sensitivity); rotation events emit a `jwks.rotated`
+            audit event.
+      security:
+        - None: []
+      responses:
+        '200':
+          description: Active JWKS.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/JWKSet' }
+          headers:
+            Cache-Control:
+              schema: { type: string }
+              example: public, max-age=300, stale-while-revalidate=900
