@@ -25,9 +25,9 @@ import {
 } from "@spyglass/auth";
 import { getDb } from "@spyglass/db";
 
-import { createConsoleAuditSink } from "./audit-sink.js";
-import { createDrizzlePrincipalRepo } from "./principal-repo.js";
-import { resolvePrincipalFromSession, type ResolveDeps } from "./session-resolver.js";
+import { createConsoleAuditSink } from "./audit-sink";
+import { createDrizzlePrincipalRepo } from "./principal-repo";
+import { resolvePrincipalFromSession, type ResolveDeps } from "./session-resolver";
 
 let cachedDeps: ResolveDeps | undefined;
 

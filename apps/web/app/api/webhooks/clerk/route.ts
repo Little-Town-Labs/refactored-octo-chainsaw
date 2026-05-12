@@ -35,10 +35,10 @@ import {
 } from "@spyglass/auth";
 import { getDb } from "@spyglass/db";
 
-import { createConsoleAuditSink } from "../../../../src/auth/audit-sink.js";
-import { createClerkSessionRevoker } from "../../../../src/auth/clerk-session-revoker.js";
-import { createDrizzlePrincipalRepo } from "../../../../src/auth/principal-repo.js";
-import { withAnonymous } from "../../../../src/auth/with-anonymous.js";
+import { createConsoleAuditSink } from "../../../../src/auth/audit-sink";
+import { createClerkSessionRevoker } from "../../../../src/auth/clerk-session-revoker";
+import { createDrizzlePrincipalRepo } from "../../../../src/auth/principal-repo";
+import { withAnonymous } from "../../../../src/auth/with-anonymous";
 
 // Per the session-start Vercel knowledge update: Fluid Compute's
 // default Node.js runtime is preferred over Edge for compatibility.

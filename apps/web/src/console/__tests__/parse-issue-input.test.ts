@@ -1,6 +1,6 @@
 // F02 T057 — Tests for `parseIssueInput`.
 
-import { parseIssueInput } from "../parse-issue-input.js";
+import { parseIssueInput } from "../parse-issue-input";
 
 const VALID = {
   run_id: "00000000-0000-0000-0000-0000000000aa",

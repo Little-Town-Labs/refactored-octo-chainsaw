@@ -24,24 +24,16 @@ import { redirect } from "next/navigation";
 import { RoleRequiredError, revokeAllSessionsForPrincipal } from "@spyglass/auth";
 import { getDb } from "@spyglass/db";
 
-import { getPrincipal } from "../auth/get-principal.js";
-import { createDrizzleAuditSink } from "../auth/audit-sink-db.js";
-import { createClerkSessionRevoker } from "../auth/clerk-session-revoker.js";
+import { getPrincipal } from "../auth/get-principal";
+import { createDrizzleAuditSink } from "../auth/audit-sink-db";
+import { createClerkSessionRevoker } from "../auth/clerk-session-revoker";
 import {
   createDrizzlePrincipalKindLookup,
   createDrizzleRevokeAllApprovalRepo,
   createSessionRevokerFromClerkRevoker,
-} from "../auth/revoke-all-sessions-repos.js";
-import { parseSignOutInput } from "./parse-sign-out-input.js";
-
-export class SignOutFormInvalidError extends Error {
-  readonly errors: Readonly<Record<string, string | undefined>>;
-  constructor(errors: Readonly<Record<string, string | undefined>>) {
-    super("Sign-out form failed validation.");
-    this.name = "SignOutFormInvalidError";
-    this.errors = errors;
-  }
-}
+} from "../auth/revoke-all-sessions-repos";
+import { parseSignOutInput } from "./parse-sign-out-input";
+import { SignOutFormInvalidError } from "./sign-out-errors";
 
 export async function signOutAction(formData: FormData): Promise<void> {
   const principal = await getPrincipal();

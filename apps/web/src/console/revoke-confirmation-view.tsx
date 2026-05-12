@@ -20,7 +20,7 @@ import type { JSX } from "react";
 
 import type { AgentCredentialListRow } from "@spyglass/auth";
 
-import { REASON_CODES } from "./parse-revoke-input.js";
+import { REASON_CODES } from "./parse-revoke-input";
 
 export interface RevokeConfirmationViewProps {
   readonly principalId: string;

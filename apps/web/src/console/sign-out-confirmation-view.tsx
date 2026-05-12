@@ -23,7 +23,7 @@
 import Link from "next/link";
 import type { JSX } from "react";
 
-import { SIGN_OUT_REASON_CODES } from "./parse-sign-out-input.js";
+import { SIGN_OUT_REASON_CODES } from "./parse-sign-out-input";
 
 export interface SignOutConfirmationViewProps {
   readonly targetPrincipalId: string;

@@ -24,7 +24,7 @@
 
 import { useActionState, useState } from "react";
 
-import type { IssueFormField } from "./parse-issue-input.js";
+import type { IssueFormField } from "./parse-issue-input";
 
 export type IssueResultState =
   | { readonly status: "idle" }

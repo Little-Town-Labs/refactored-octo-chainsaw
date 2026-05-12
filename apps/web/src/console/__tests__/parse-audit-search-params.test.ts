@@ -1,6 +1,6 @@
 // F02 T059 — Tests for the audit searchParams parser.
 
-import { parseAuditParams } from "../parse-audit-search-params.js";
+import { parseAuditParams } from "../parse-audit-search-params";
 
 describe("parseAuditParams", () => {
   it("returns empty when no params supplied", () => {

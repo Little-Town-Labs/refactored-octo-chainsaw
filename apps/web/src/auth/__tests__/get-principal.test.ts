@@ -17,7 +17,7 @@ import type {
   PrincipalRepo,
 } from "@spyglass/auth";
 
-import { resolvePrincipalFromSession } from "../session-resolver.js";
+import { resolvePrincipalFromSession } from "../session-resolver";
 
 function makeRepo(): { repo: PrincipalRepo; principals: PrincipalLookup[] } {
   const orgs: OrganizationLookup[] = [];

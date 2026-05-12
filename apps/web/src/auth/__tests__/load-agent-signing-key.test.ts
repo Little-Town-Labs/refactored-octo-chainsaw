@@ -2,10 +2,7 @@
 
 import { generateKeyPairSync } from "node:crypto";
 
-import {
-  AgentSigningKeyMisconfiguredError,
-  loadAgentSigningKey,
-} from "../load-agent-signing-key.js";
+import { AgentSigningKeyMisconfiguredError, loadAgentSigningKey } from "../load-agent-signing-key";
 
 const KID_ENV = "SPYGLASS_AGENT_SIGNING_KID";
 const KEY_ENV = "SPYGLASS_AGENT_SIGNING_KEY_PKCS8_B64";

@@ -24,13 +24,13 @@ import {
 } from "@spyglass/auth";
 import { getDb } from "@spyglass/db";
 
-import { getPrincipal } from "../auth/get-principal.js";
-import { createDrizzleAuditSink } from "../auth/audit-sink-db.js";
-import { createDrizzleAgentCredentialRepo } from "../auth/agent-credential-issuance-repo.js";
-import { loadAgentSigningKey } from "../auth/load-agent-signing-key.js";
-import { parseIssueInput } from "./parse-issue-input.js";
-import type { IssueResultState } from "./issue-credential-form.js";
-import { EMPTY_ERRORS } from "./issue-result-state.js";
+import { getPrincipal } from "../auth/get-principal";
+import { createDrizzleAuditSink } from "../auth/audit-sink-db";
+import { createDrizzleAgentCredentialRepo } from "../auth/agent-credential-issuance-repo";
+import { loadAgentSigningKey } from "../auth/load-agent-signing-key";
+import { parseIssueInput } from "./parse-issue-input";
+import type { IssueResultState } from "./issue-credential-form";
+import { EMPTY_ERRORS } from "./issue-result-state";
 
 export async function issueCredentialAction(
   _state: IssueResultState,

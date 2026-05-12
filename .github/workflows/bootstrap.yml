@@ -39,6 +39,12 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
+      # bootstrap.sh's Node-version guard reads .nvmrc and refuses to
+      # continue under an older Node. ubuntu-24.04 runners ship with
+      # Node 20 preinstalled; pin to .nvmrc (Node 24) before running.
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: ".nvmrc"
       - name: first run (full setup)
         run: bash scripts/bootstrap.sh
       - name: second run (must be fast — NFR-2 ≤ 2 min)

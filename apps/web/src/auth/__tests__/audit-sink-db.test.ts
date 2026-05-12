@@ -5,7 +5,7 @@ import { drizzle } from "drizzle-orm/pg-proxy";
 import * as schema from "@spyglass/db";
 import type { Db } from "@spyglass/db";
 
-import { createDrizzleAuditSink } from "../audit-sink-db.js";
+import { createDrizzleAuditSink } from "../audit-sink-db";
 
 interface CapturedQuery {
   readonly sql: string;

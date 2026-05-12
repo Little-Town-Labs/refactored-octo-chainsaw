@@ -11,9 +11,9 @@
 
 import type { JSX } from "react";
 
-import { getPrincipal } from "../../../../../src/auth/get-principal.js";
-import { issueCredentialAction } from "../../../../../src/console/issue-credential-action.js";
-import { IssueCredentialForm } from "../../../../../src/console/issue-credential-form.js";
+import { getPrincipal } from "../../../../../src/auth/get-principal";
+import { issueCredentialAction } from "../../../../../src/console/issue-credential-action";
+import { IssueCredentialForm } from "../../../../../src/console/issue-credential-form";
 
 const AVAILABLE_SCOPES: ReadonlyArray<string> = [
   "dossier.read",

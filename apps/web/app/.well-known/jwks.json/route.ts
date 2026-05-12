@@ -12,8 +12,8 @@
 import { buildJwks } from "@spyglass/auth";
 import { getDb } from "@spyglass/db";
 
-import { createDrizzleJwksRepo } from "../../../src/auth/jwks-repo.js";
-import { withAnonymous } from "../../../src/auth/with-anonymous.js";
+import { createDrizzleJwksRepo } from "../../../src/auth/jwks-repo";
+import { withAnonymous } from "../../../src/auth/with-anonymous";
 
 export const runtime = "nodejs";
 

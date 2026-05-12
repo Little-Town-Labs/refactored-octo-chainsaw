@@ -13,7 +13,7 @@
 // which banner copy renders — the banner copy itself stays fixed
 // (see auth-banner.tsx for the NFR-13 rationale).
 
-import type { AuthBannerKind } from "./auth-banner.js";
+import type { AuthBannerKind } from "./auth-banner";
 
 const FORM_INVALID_NAMES: ReadonlySet<string> = new Set([
   "SignOutFormInvalidError",

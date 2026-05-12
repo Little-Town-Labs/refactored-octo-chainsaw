@@ -29,7 +29,11 @@ while IFS= read -r f; do CANDIDATES+=("$f"); done < <(
   find apps -type f \( -name "route.ts" -o -name "route.tsx" \) 2>/dev/null || true
 )
 while IFS= read -r f; do CANDIDATES+=("$f"); done < <(
-  grep -rl --include='*.ts' --include='*.tsx' "use server" apps 2>/dev/null || true
+  # Match the actual `"use server"` directive (quoted, anchored at
+  # line start) rather than any string containing those two words,
+  # so files that merely mention the directive in a comment are not
+  # flagged.
+  grep -rlE '^"use server"' --include='*.ts' --include='*.tsx' apps 2>/dev/null || true
 )
 while IFS= read -r f; do CANDIDATES+=("$f"); done < <(
   find packages -type f -name "*.inngest.ts" 2>/dev/null || true
@@ -52,8 +56,14 @@ for f in "${CANDIDATES[@]}"; do
     continue
   fi
 
-  if ! grep -q -E "withPrincipal|withAnonymous" "$f"; then
-    VIOLATIONS+=("$f (missing withPrincipal/withAnonymous)")
+  # `getPrincipal()` is the canonical RSC / server-action gate: it
+  # consumes the typed Principal produced upstream by the proxy +
+  # materializer and throws AnonymousAccessError when missing.
+  # `withPrincipal` is the HOF equivalent for custom route handlers
+  # and Inngest fns. Either signal counts as coverage; explicit
+  # `withAnonymous` is the documented opt-out.
+  if ! grep -q -E "withPrincipal|withAnonymous|getPrincipal" "$f"; then
+    VIOLATIONS+=("$f (missing withPrincipal/withAnonymous/getPrincipal)")
   fi
 done
 

@@ -17,8 +17,8 @@
 import Link from "next/link";
 import type { JSX } from "react";
 
-import type { AuditEventsListRow } from "../auth/audit-events-list-repo.js";
-import type { ParsedAuditParams } from "./parse-audit-search-params.js";
+import type { AuditEventsListRow } from "../auth/audit-events-list-repo";
+import type { ParsedAuditParams } from "./parse-audit-search-params";
 
 export interface AuditEventsListViewProps {
   readonly rows: ReadonlyArray<AuditEventsListRow>;

@@ -12,8 +12,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { AuthBanner, type AuthBannerKind } from "../auth-banner.js";
-import { selectBannerKind } from "../select-banner-kind.js";
+import { AuthBanner, type AuthBannerKind } from "../auth-banner";
+import { selectBannerKind } from "../select-banner-kind";
 
 const ALL_KINDS: ReadonlyArray<AuthBannerKind> = [
   "forbidden",

@@ -7,7 +7,7 @@ import {
   IssueCredentialForm,
   type IssueAction,
   type IssueResultState,
-} from "../issue-credential-form.js";
+} from "../issue-credential-form";
 
 const noopAction: IssueAction = async () => ({ status: "idle" });
 

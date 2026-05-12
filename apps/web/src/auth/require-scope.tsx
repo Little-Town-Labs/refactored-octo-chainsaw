@@ -17,7 +17,7 @@
 
 import type { ReactNode } from "react";
 
-import { usePrincipal, type ClientPrincipal } from "./principal-context.js";
+import { usePrincipal, type ClientPrincipal } from "./principal-context";
 
 interface RequireScopeProps {
   /**

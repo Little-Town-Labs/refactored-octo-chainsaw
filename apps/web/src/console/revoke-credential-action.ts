@@ -22,22 +22,11 @@ import { redirect } from "next/navigation";
 import { RoleRequiredError, revokeAgentCredential } from "@spyglass/auth";
 import { getDb } from "@spyglass/db";
 
-import { getPrincipal } from "../auth/get-principal.js";
-import { createDrizzleAuditSink } from "../auth/audit-sink-db.js";
-import {
-  createDrizzleRevocationListRepo,
-  createDrizzleRevokeRepo,
-} from "../auth/revocation-repos.js";
-import { parseRevokeInput } from "./parse-revoke-input.js";
-
-export class RevokeFormInvalidError extends Error {
-  readonly errors: Readonly<Record<string, string | undefined>>;
-  constructor(errors: Readonly<Record<string, string | undefined>>) {
-    super("Revoke form failed validation.");
-    this.name = "RevokeFormInvalidError";
-    this.errors = errors;
-  }
-}
+import { getPrincipal } from "../auth/get-principal";
+import { createDrizzleAuditSink } from "../auth/audit-sink-db";
+import { createDrizzleRevocationListRepo, createDrizzleRevokeRepo } from "../auth/revocation-repos";
+import { parseRevokeInput } from "./parse-revoke-input";
+import { RevokeFormInvalidError } from "./revoke-errors";
 
 export async function revokeCredentialAction(formData: FormData): Promise<void> {
   const principal = await getPrincipal();

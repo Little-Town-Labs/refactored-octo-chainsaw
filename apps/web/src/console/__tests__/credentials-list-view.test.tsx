@@ -5,7 +5,7 @@ import "@testing-library/jest-dom";
 
 import type { AgentCredentialListRow } from "@spyglass/auth";
 
-import { CredentialsListView } from "../credentials-list-view.js";
+import { CredentialsListView } from "../credentials-list-view";
 
 // Stub `next/link` — under jsdom we don't need its routing behavior;
 // rendering a plain anchor preserves the href + accessible-name

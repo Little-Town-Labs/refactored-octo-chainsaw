@@ -12,7 +12,7 @@ import { drizzle } from "drizzle-orm/pg-proxy";
 import * as schema from "@spyglass/db";
 import type { Db } from "@spyglass/db";
 
-import { createDrizzleAgentCredentialListRepo } from "../agent-credential-list-repo.js";
+import { createDrizzleAgentCredentialListRepo } from "../agent-credential-list-repo";
 
 interface CapturedQuery {
   readonly sql: string;

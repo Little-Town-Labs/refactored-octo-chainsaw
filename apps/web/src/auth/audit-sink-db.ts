@@ -27,7 +27,7 @@ import type { AuditEventSink } from "@spyglass/auth";
 import { auditEventsBuffer, principals, type Db } from "@spyglass/db";
 import { eq } from "drizzle-orm";
 
-import { createConsoleAuditSink } from "./audit-sink.js";
+import { createConsoleAuditSink } from "./audit-sink";
 
 interface PrincipalLookup {
   readonly kind: "human" | "agent" | "service";

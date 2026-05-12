@@ -10,8 +10,8 @@ import "server-only";
 
 import type { ReactNode } from "react";
 
-import { getPrincipal } from "./get-principal.js";
-import { PrincipalContextProvider, type ClientPrincipal } from "./principal-context.js";
+import { getPrincipal } from "./get-principal";
+import { PrincipalContextProvider, type ClientPrincipal } from "./principal-context";
 
 export async function PrincipalProvider({ children }: { children: ReactNode }) {
   const principal = await getPrincipal();

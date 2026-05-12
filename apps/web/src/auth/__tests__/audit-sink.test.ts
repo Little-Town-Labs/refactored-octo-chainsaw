@@ -6,7 +6,7 @@
 // `notes` to be replaced with a `notes_present` boolean before
 // the line is logged.
 
-import { createConsoleAuditSink } from "../audit-sink.js";
+import { createConsoleAuditSink } from "../audit-sink";
 
 function capture(): {
   readonly sink: ReturnType<typeof createConsoleAuditSink>;

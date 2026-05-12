@@ -3,9 +3,9 @@
 import { render, screen, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import type { AuditEventsListRow } from "../../auth/audit-events-list-repo.js";
+import type { AuditEventsListRow } from "../../auth/audit-events-list-repo";
 
-import { AuditEventsListView } from "../audit-events-list-view.js";
+import { AuditEventsListView } from "../audit-events-list-view";
 
 jest.mock("next/link", () => {
   const Link = ({

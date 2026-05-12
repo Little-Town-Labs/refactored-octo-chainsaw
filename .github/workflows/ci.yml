@@ -65,6 +65,13 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
+      # Workspace packages (@spyglass/auth, @spyglass/db, ...) publish
+      # via `./dist/*` per package.json `exports`. A fresh CI clone
+      # has no dist/ artifacts, so `tsc --noEmit` on apps/web fails
+      # with TS2307 on every workspace import. Build first to populate
+      # dist/*.d.ts. (turbo.json declares `type-check` depends on
+      # `^build`, but `pnpm -r run` bypasses turbo's task graph.)
+      - run: pnpm -r run build
       - run: pnpm -r run type-check
 
   test:

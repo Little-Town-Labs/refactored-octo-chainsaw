@@ -5,7 +5,7 @@ import "@testing-library/jest-dom";
 
 import type { AgentCredentialListRow } from "@spyglass/auth";
 
-import { RevokeConfirmationView } from "../revoke-confirmation-view.js";
+import { RevokeConfirmationView } from "../revoke-confirmation-view";
 
 jest.mock("next/link", () => {
   const Link = ({

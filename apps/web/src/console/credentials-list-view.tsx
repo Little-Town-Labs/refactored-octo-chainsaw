@@ -15,7 +15,7 @@ import type { JSX } from "react";
 
 import type { AgentCredentialListRow } from "@spyglass/auth";
 
-import type { ParsedListParams } from "./parse-search-params.js";
+import type { ParsedListParams } from "./parse-search-params";
 
 export interface CredentialsListViewProps {
   readonly rows: ReadonlyArray<AgentCredentialListRow>;

@@ -16,7 +16,7 @@ import {
   createDrizzlePrincipalKindLookup,
   createDrizzleRevokeAllApprovalRepo,
   createSessionRevokerFromClerkRevoker,
-} from "../revoke-all-sessions-repos.js";
+} from "../revoke-all-sessions-repos";
 
 interface CapturedQuery {
   readonly sql: string;

@@ -1,6 +1,6 @@
 // F02 T056 — Tests for `parseListParams`.
 
-import { parseListParams } from "../parse-search-params.js";
+import { parseListParams } from "../parse-search-params";
 
 const UUID = "00000000-0000-0000-0000-0000000000aa";
 

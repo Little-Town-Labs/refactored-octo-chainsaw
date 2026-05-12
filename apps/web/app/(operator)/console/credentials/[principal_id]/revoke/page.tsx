@@ -17,10 +17,10 @@ import type { JSX } from "react";
 import { RoleRequiredError, listAgentCredentialsForOperator } from "@spyglass/auth";
 import { getDb } from "@spyglass/db";
 
-import { getPrincipal } from "../../../../../../src/auth/get-principal.js";
-import { createDrizzleAgentCredentialListRepo } from "../../../../../../src/auth/agent-credential-list-repo.js";
-import { revokeCredentialAction } from "../../../../../../src/console/revoke-credential-action.js";
-import { RevokeConfirmationView } from "../../../../../../src/console/revoke-confirmation-view.js";
+import { getPrincipal } from "../../../../../../src/auth/get-principal";
+import { createDrizzleAgentCredentialListRepo } from "../../../../../../src/auth/agent-credential-list-repo";
+import { revokeCredentialAction } from "../../../../../../src/console/revoke-credential-action";
+import { RevokeConfirmationView } from "../../../../../../src/console/revoke-confirmation-view";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

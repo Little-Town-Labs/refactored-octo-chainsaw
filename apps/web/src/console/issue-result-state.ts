@@ -3,7 +3,7 @@
 // limited to a single async export so its `'use server'` directive
 // surfaces exactly one callable RPC endpoint.
 
-import type { IssueFormField } from "./parse-issue-input.js";
+import type { IssueFormField } from "./parse-issue-input";
 
 export const EMPTY_ERRORS: Readonly<Record<IssueFormField, string | undefined>> = Object.freeze({
   run_id: undefined,

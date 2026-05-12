@@ -1,6 +1,6 @@
 // F02 T058 — Tests for `parseRevokeInput`.
 
-import { parseRevokeInput, REASON_CODES } from "../parse-revoke-input.js";
+import { parseRevokeInput, REASON_CODES } from "../parse-revoke-input";
 
 const VALID_PID = "00000000-0000-0000-0000-00000000a001";
 

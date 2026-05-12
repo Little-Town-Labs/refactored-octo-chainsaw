@@ -1,6 +1,6 @@
 // F02 T060 — Parser tests for the sign-out form.
 
-import { parseSignOutInput } from "../parse-sign-out-input.js";
+import { parseSignOutInput } from "../parse-sign-out-input";
 
 const VALID_TARGET = "11111111-1111-7111-8111-111111111111";
 const VALID_APPROVAL = "22222222-2222-7222-8222-222222222222";

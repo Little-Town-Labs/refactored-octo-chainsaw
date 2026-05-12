@@ -10,7 +10,7 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { SignOutConfirmationView } from "../sign-out-confirmation-view.js";
+import { SignOutConfirmationView } from "../sign-out-confirmation-view";
 
 jest.mock("next/link", () => {
   const Link = ({
