@@ -1,0 +1,104 @@
+# F03 contract — JSON Schema for docs/data-governance/data-classification.yaml
+#
+# The register itself is the YAML document at docs/data-governance/.
+# This file documents the shape the schema-lint script (FR-6, R-cov)
+# validates the register against.
+#
+# Authored 2026-05-12 (F03 plan v1.0). Versioned alongside the register.
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/schemas/data-classification.v1.json"
+title: "Spyglass data-classification register"
+type: object
+required:
+  - $schema_version
+  - $generated
+  - $last_reviewed
+  - $owner
+  - data_classes
+  - tables
+additionalProperties: false
+
+properties:
+  $schema_version:
+    type: string
+    pattern: "^[0-9]+\\.[0-9]+$"
+    description: Semver-style version of this register file (not the JSON-schema version).
+  $generated:
+    type: boolean
+    description: Always false at F03 v1 — the register is human-authored.
+  $last_reviewed:
+    type: string
+    format: date
+  $owner:
+    type: string
+
+  data_classes:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [id, description, sensitivity, erasure_mode, default_lawful_basis]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          pattern: "^[a-z][a-z0-9_]*$"
+        description:
+          type: string
+        sensitivity:
+          enum: [low, medium, high, critical]
+        erasure_mode:
+          enum: [hard_delete, tombstone, redact_in_place]
+        default_lawful_basis:
+          type: string
+
+  tables:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [name, file, migration, primary_class, columns]
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          pattern: "^[a-z][a-z0-9_]*$"
+        file:
+          type: string
+          description: Path from repo root to the Drizzle schema module.
+        migration:
+          type: string
+          description: Path from repo root to the first migration creating this table.
+        primary_class:
+          type: string
+          description: Must reference one of the data_classes[].id values.
+        data_subject_linkage:
+          type: object
+          required: [column, role]
+          properties:
+            column:
+              type: string
+              description: Column on this table that joins back to a principal_id.
+            role:
+              enum: [self, actor, target, initiator, approver, none]
+        columns:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [name, class, erasure]
+            additionalProperties: false
+            properties:
+              name:
+                type: string
+              class:
+                type: string
+                description: Must reference one of the data_classes[].id values.
+              erasure:
+                enum: [hard_delete, tombstone, redact_in_place, inherit]
+              fk:
+                type: string
+                pattern: "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"
+              notes:
+                type: string
