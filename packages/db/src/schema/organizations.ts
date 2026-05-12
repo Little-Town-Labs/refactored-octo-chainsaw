@@ -11,6 +11,12 @@
 import { sql } from "drizzle-orm";
 import { check, index, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
+// schema-lint: skip-r2-timestamps
+// Reason: organizations are Clerk-mirror state; mutations are driven
+// by webhook reconciliation against Clerk, not by Spyglass code.
+// `disabled_at` captures soft-delete; no other field is mutable.
+// Per docs/data-governance/schema-conventions.md §2.
+
 export const organizations = pgTable(
   "organizations",
   {

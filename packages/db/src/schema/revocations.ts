@@ -11,6 +11,14 @@
 import { sql } from "drizzle-orm";
 import { check, index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
+// schema-lint: skip-r1-uuidv7-pk
+// schema-lint: skip-r2-timestamps
+// Reason: denormalized live-revocation list. `credential_id` is COPIED
+// from the parent agent_credentials / service_credentials row (it does
+// not generate its own id, hence no uuidv7() default). Timestamps
+// (`revoked_at`, `expires_at`) come from the parent row; this table
+// has no independent lifecycle. Per docs/data-governance/schema-conventions.md §2.
+
 export const revocations = pgTable(
   "revocations",
   {

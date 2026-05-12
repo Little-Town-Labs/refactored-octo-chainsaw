@@ -264,6 +264,23 @@ jobs:
       - name: scan handlers for guard coverage
         run: bash scripts/check-principal-coverage.sh
 
+  schema-conventions:
+    # F03 T017 / T018 — FR-6, NFR-2, M-1.
+    # Validates Drizzle schema modules against the conventions codified
+    # in docs/data-governance/schema-conventions.md and cross-checks
+    # docs/data-governance/data-classification.yaml for table coverage.
+    # Rule R6 also scans packages/db/migrations/*.sql for destructive
+    # SQL against audit-relevant tables (forbidden outside the
+    # tombstone procedure — Constitution §I.4.3).
+    name: schema-conventions (F03 FR-6)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: lint Drizzle schema + register coverage + migrations
+        run: bash scripts/check-schema-conventions.sh
+      - name: self-tests for the lint script
+        run: bash scripts/__tests__/check-schema-conventions.test.sh
+
   no-credentials-in-logs:
     # F02 T011b / T012 — NFR-6.
     # Structural scan for credential values being passed to console.*
