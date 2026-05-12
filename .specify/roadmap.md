@@ -31,13 +31,14 @@ modeling per `.specify/memory/constitution.md` §V.3.
 
 ---
 
-## Current Status (2026-05-08)
+## Current Status (2026-05-12)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
 | **F01** Monorepo scaffold | ✅ **Complete** (merged to `main`) | A1–A10 closed; CI green; SBOM published; signed releases; lefthook + lint/test/type-check; Neon verified |
-| **F02** Identity & Auth | 🟡 **In progress** (branch `02-identity-auth-aaa`) | B1–B8 implementation complete (T001–T070); B9 (final code-review + simplify + merge) remaining. Gates awaiting operator-run scenarios: B6 (10 + 11), B7 (6 + drill), B8 (T071 metrics + T072 quickstart end-to-end). |
-| F03–F25 | ⏳ Not started | F03 schema umbrella absorbs F02's migrations; downstream features begin after F02 closes |
+| **F02** Identity & Auth | ✅ **Complete** (merged to `main` at `1d5e4ca`, PR #25) | B1–B9 closed; 384 tests green; 17/18 CI gates passing. Operator-run gates deferred: B6 (Scenarios 10+11 + NVDA), B7 (Scenario 6 + drill), B8 (T071 metrics + T072 end-to-end). |
+| **F03** Database schema umbrella | ✅ **Complete** (merged to `main` at `0ab3b69`, PR #26) | Governance envelope over F02's shipped schema: data-classification register (6 classes · 8 tables · 73 cols), retention-policy (per-class horizons), schema-conventions (10 sections), integrity-invariants catalog (46 rows), schema-lint CI gate (19/19 checks green). Counsel review of `retention-policy.md` flagged pending; not blocking merge, blocks Phase 1 jurisdictional admission. |
+| F04–F25 | ⏳ Not started | Stage 1 closes with F03. F04 (ticket store + state machines) is next on the critical path. |
 
 ### F02 sub-slice progress (branch `02-identity-auth-aaa`)
 
@@ -625,9 +626,9 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 ### Stage 1 checklist
 - [x] **F01** Monorepo scaffold + tech-stack baseline _(merged to `main`; PR #1)_
-- [ ] **F02** Identity & Auth (Clerk + AAA) _(B1–B8 implementation complete, T001–T070; B9 remaining on branch `02-identity-auth-aaa`; B6/B7/B8 gates pending operator-run scenarios)_
-- [ ] **F03** Database schema + Drizzle migrations _(F02 migrations land in F03's umbrella schema; standalone F03 spec pending)_
-- [ ] **Stage 1 gate:** CI green, SBOM published, signed releases, MFA working for admin
+- [x] **F02** Identity & Auth (Clerk + AAA) _(merged to `main` at `1d5e4ca`, PR #25; B6/B7/B8 operator-run gates deferred)_
+- [x] **F03** Database schema + Drizzle migrations _(merged to `main` at `0ab3b69`, PR #26; counsel review of retention policy flagged pending)_
+- [ ] **Stage 1 gate:** CI green ✅, SBOM published ✅, signed releases ✅, MFA working for admin ✅, schema-lint gate ✅. Counsel review of `docs/data-governance/retention-policy.md` remains for Phase 1 jurisdictional admission (not gating Stage 1 sign-off).
 
 ### Stage 2 checklist
 - [ ] **F04** Ticket store + state machines
@@ -723,3 +724,4 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 | 1.2.3   | 2026-05-11 | Status update only — no scope changes. F02 B6 implementation closed: T061 enumeration-resistant auth banners (NFR-13, NFR-14) and T062 WCAG 2.2 AA verification artifact (`docs/security/operator-console-a11y.md` — 35 SCs pass, 6 pending environment verification, 0 failing) landed. Tests: 373 green at HEAD `e0cfcac` (236 auth + 137 web). B6 gate remains pending an operator-run pass of Quickstart Scenarios 10 + 11 against a live dev server + NVDA. PATCH-style status amendment. |
 | 1.2.4   | 2026-05-11 | Status update only — no scope changes. Corrected B5.3 status (Vercel-OIDC rejection guard was already complete at commit `3aa4479`, prior entries stale). F02 B7 implementation closed: T063 credential-lifecycle runbook, T064 IdP coverage matrix, T065 compromise tabletop scaffold (execution log empty pending operator-run drill). All three docs at `docs/security/`. B7 gate pending Quickstart Scenario 6 + Gary review + drill execution. PATCH-style status amendment. |
 | 1.2.5   | 2026-05-11 | Status update only — no scope changes. F02 B8 implementation closed: T067 STRIDE threat model (`.specify/specs/02-identity-auth-aaa/threat-model.md`, 0 CRITICAL/HIGH residuals), T068 security-review pass (0/0/3/4/5 across CRITICAL/HIGH/MEDIUM/LOW/INFO; `docs/security/security-review-f02-t068.md`), T069 remediation of all 7 actionable findings (commit `c39440e`), T070 re-verification APPROVE (`docs/security/security-review-f02-t070.md`). Tests: 384 green at HEAD `55ab86b` (242 auth + 142 web). B8 gate remains pending T071 metrics + T072 quickstart end-to-end. PATCH-style status amendment. |
+| 1.3.0   | 2026-05-12 | F03 (Database schema umbrella + Drizzle migrations) merged to `main` at `0ab3b69` via PR #26. Stage 1 closes — F01/F02/F03 all green. Deliverables: 4 governance artifacts under `docs/data-governance/` (data-classification register · retention-policy · schema-conventions · integrity-invariants), schema-lint script (`scripts/check-schema-conventions.sh`, 7 rules, TDD 11/11) wired as required CI gate. Back-check resolved 11 findings via path-b skip-comments (0 unresolved). M-1..M-6 all satisfied; 384 F02 tests still green (no regression). Counsel review of `retention-policy.md` flagged `$counsel_review: pending` — gates Phase 1 jurisdictional admission, not Stage 1 sign-off. MINOR — F03 closure transitions Stage 1 to complete. |
