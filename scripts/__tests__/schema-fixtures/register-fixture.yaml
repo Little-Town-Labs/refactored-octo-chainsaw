@@ -1,0 +1,38 @@
+# Fixture register matching the good-r1 / good-r4 / skip-r2 fixtures.
+# Used by the lint test harness to verify R3 (register coverage).
+$schema_version: "1.0"
+$generated: false
+$last_reviewed: "2026-05-12"
+$owner: "fixture"
+
+data_classes:
+  - id: fixture_class
+    description: "Fixture class for tests."
+    sensitivity: low
+    erasure_mode: hard_delete
+    default_lawful_basis: "fixture"
+
+tables:
+  - name: good_r1
+    file: scripts/__tests__/schema-fixtures/good-r1.ts
+    migration: scripts/__tests__/schema-fixtures/fixture.sql
+    primary_class: fixture_class
+    columns:
+      - { name: good_r1_id, class: fixture_class, erasure: hard_delete }
+      - { name: created_at, class: fixture_class, erasure: hard_delete }
+      - { name: updated_at, class: fixture_class, erasure: hard_delete }
+  - name: good_r4
+    file: scripts/__tests__/schema-fixtures/good-r4.ts
+    migration: scripts/__tests__/schema-fixtures/fixture.sql
+    primary_class: fixture_class
+    columns:
+      - { name: good_r4_id, class: fixture_class, erasure: hard_delete }
+      - { name: kind, class: fixture_class, erasure: hard_delete }
+      - { name: created_at, class: fixture_class, erasure: hard_delete }
+      - { name: updated_at, class: fixture_class, erasure: hard_delete }
+  - name: skip_r2
+    file: scripts/__tests__/schema-fixtures/skip-r2.ts
+    migration: scripts/__tests__/schema-fixtures/fixture.sql
+    primary_class: fixture_class
+    columns:
+      - { name: skip_r2_id, class: fixture_class, erasure: hard_delete }

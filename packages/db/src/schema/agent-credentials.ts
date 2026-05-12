@@ -29,6 +29,11 @@ import {
 
 import { principals } from "./principals.js";
 
+// schema-lint: skip-r2-timestamps
+// Reason: append-only issuance record; `issued_at` is the
+// domain-appropriate creation timestamp and `revoked_at` is the only
+// permitted state change. Per docs/data-governance/schema-conventions.md §2.
+
 export const agentCredentials = pgTable(
   "agent_credentials",
   {

@@ -1,0 +1,258 @@
+# Spyglass data-classification register
+#
+# Authoritative classification of every column in the Spyglass relational
+# schema. The schema-lint script (scripts/check-schema-conventions.sh)
+# verifies coverage between this file and the Drizzle schema modules
+# under packages/db/src/schema/.
+#
+# Governance origin: F03 (.specify/specs/03-db-schema-migrations/).
+# Contract: .specify/specs/03-db-schema-migrations/contracts/data-classification.schema.yaml
+# Retention horizons: docs/data-governance/retention-policy.md
+# Migration & evolution conventions: docs/data-governance/schema-conventions.md
+# Integrity invariants: docs/data-governance/integrity-invariants.md
+#
+# Material changes to this file SHALL ship as standalone PRs (NFR-5),
+# not bundled with unrelated schema work, so reviewer attention is
+# focused on classification deltas.
+
+$schema_version: "1.0"
+$generated: false
+$last_reviewed: "2026-05-12"
+$owner: "Gary"
+
+# Data classes — see retention-policy.md for the horizon and lawful
+# basis attached to each id.
+data_classes:
+  - id: identity_humanref
+    description: >-
+      External IdP identifiers and human-display attributes tying a
+      principal row to a real natural person (Clerk user_id, email-as-id,
+      display_name). Personal data under GDPR Art. 4(1).
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(b) — performance of a contract with the data subject
+      (Spyglass terms of service for seekers / employer-admins).
+
+  - id: identity_principal
+    description: >-
+      Internal principal identifiers and structural attributes
+      (principal_id, kind, tier, org membership) that exist solely to
+      let Spyglass route authorization and audit decisions. Tied to a
+      human via identity_humanref but not personal data on its own
+      once the linkage is tombstoned.
+    sensitivity: medium
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(b) — contract (cascades from identity_humanref).
+
+  - id: operational_credential
+    description: >-
+      Metadata about issued JWTs (kid, scope_set, run/contract bindings,
+      issued_at, expires_at, revoked_at). No PII; required for
+      revocation, rate-limiting, and forensic attribution.
+    sensitivity: low
+    erasure_mode: hard_delete
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(f) — legitimate interest (platform security and
+      auditability); SOC 2 CC7 monitoring.
+
+  - id: operational_signing_key
+    description: >-
+      EdDSA keypair metadata and the public key (JWK). The public key
+      is published at /.well-known/jwks.json and is not confidential;
+      lifecycle timestamps are retained as long as any credential
+      signed by the key remains verifiable.
+    sensitivity: low
+    erasure_mode: hard_delete
+    default_lawful_basis: >-
+      Operational requirement — without these rows the platform cannot
+      verify previously-issued credentials. GDPR Art. 6(1)(f)
+      legitimate interest applies if any tie-back to a person exists.
+
+  - id: audit_record
+    description: >-
+      Structured audit-event rows (principal_id, event_name,
+      correlation_id, payload). The payload jsonb may contain
+      personal data depending on the event; the strictest applicable
+      class therefore applies (EC-1).
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — legal obligation (audit retention under
+      SOC 2 CC7 and AEDT regulations including NYC LL 144 §5-301).
+
+  - id: approval_workflow
+    description: >-
+      Two-operator gate approval rows: who initiated, who approved,
+      reason_code, free-text notes, decision timestamps. The notes
+      column may contain personal data references; row metadata
+      (initiator/approver/target principal IDs) is operational and
+      retained for accountability.
+    sensitivity: medium
+    erasure_mode: redact_in_place
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — accountability obligation (Constitution
+      §I.5.3); notes redacted on subject erasure, row retained.
+
+# Tables — one entry per pgTable in packages/db/src/schema/.
+# Coverage is enforced by the lint (rule R3).
+tables:
+  # ------------------------------------------------------------------
+  # T003 — organizations + principals (shipped by F02 B2)
+  # ------------------------------------------------------------------
+  - name: organizations
+    file: packages/db/src/schema/organizations.ts
+    migration: packages/db/migrations/0000_f02_auth_principals_organizations.sql
+    primary_class: identity_principal
+    data_subject_linkage:
+      column: org_id
+      role: none
+    columns:
+      - { name: org_id, class: identity_principal, erasure: tombstone }
+      - { name: clerk_org_id, class: identity_principal, erasure: tombstone, notes: "Mirror of Clerk Organization id; not personal data on its own but ties members to a real organization." }
+      - { name: kind, class: identity_principal, erasure: hard_delete, notes: "employer|operator — structural; not subject-bound." }
+      - { name: display_name, class: identity_humanref, erasure: tombstone, notes: "May contain natural-person info if the org is a sole proprietorship." }
+      - { name: created_at, class: identity_principal, erasure: tombstone }
+      - { name: disabled_at, class: identity_principal, erasure: tombstone }
+
+  - name: principals
+    file: packages/db/src/schema/principals.ts
+    migration: packages/db/migrations/0000_f02_auth_principals_organizations.sql
+    primary_class: identity_principal
+    data_subject_linkage:
+      column: principal_id
+      role: self
+    columns:
+      - { name: principal_id, class: identity_principal, erasure: tombstone, notes: "Internal opaque id; the canonical join target for every other table." }
+      - { name: kind, class: identity_principal, erasure: hard_delete, notes: "human|agent|service — structural." }
+      - { name: external_idp, class: identity_humanref, erasure: tombstone, notes: "'clerk' for humans; null for agents/services." }
+      - { name: external_id, class: identity_humanref, erasure: tombstone, notes: "Clerk user_id for humans; the linkage to a natural person." }
+      - { name: tier, class: identity_principal, erasure: hard_delete }
+      - { name: org_id, class: identity_principal, erasure: tombstone, fk: organizations.org_id }
+      - { name: service_name, class: identity_principal, erasure: hard_delete }
+      - { name: service_version, class: identity_principal, erasure: hard_delete }
+      - { name: display_name, class: identity_humanref, erasure: tombstone }
+      - { name: created_at, class: identity_principal, erasure: tombstone }
+      - { name: updated_at, class: identity_principal, erasure: tombstone }
+      - { name: disabled_at, class: identity_principal, erasure: tombstone }
+      - { name: disabled_reason, class: identity_principal, erasure: tombstone, notes: "May reference incident context; tombstone with the row." }
+
+  # ------------------------------------------------------------------
+  # T004 — agent_credentials, service_credentials, revocations
+  # (shipped by F02 B4 / B5.2)
+  # ------------------------------------------------------------------
+  - name: agent_credentials
+    file: packages/db/src/schema/agent-credentials.ts
+    migration: packages/db/migrations/0001_f02_b4_agent_credentials_signing_keys_revocations.sql
+    primary_class: operational_credential
+    data_subject_linkage:
+      column: principal_id
+      role: actor
+    columns:
+      - { name: credential_id, class: operational_credential, erasure: hard_delete }
+      - { name: principal_id, class: operational_credential, erasure: hard_delete, fk: principals.principal_id, notes: "Joins to a kind='agent' principal; agents are not natural persons." }
+      - { name: run_id, class: operational_credential, erasure: hard_delete }
+      - { name: side, class: operational_credential, erasure: hard_delete }
+      - { name: contract_id, class: operational_credential, erasure: hard_delete }
+      - { name: contract_version, class: operational_credential, erasure: hard_delete }
+      - { name: ticket_id, class: operational_credential, erasure: hard_delete, notes: "Ties credential to a match ticket; ticket-level retention dominates if stricter." }
+      - { name: scope_set, class: operational_credential, erasure: hard_delete }
+      - { name: kid, class: operational_credential, erasure: hard_delete }
+      - { name: issued_at, class: operational_credential, erasure: hard_delete }
+      - { name: expires_at, class: operational_credential, erasure: hard_delete }
+      - { name: revoked_at, class: operational_credential, erasure: hard_delete }
+      - { name: revoked_by, class: operational_credential, erasure: hard_delete, fk: principals.principal_id }
+      - { name: revocation_reason, class: operational_credential, erasure: hard_delete }
+
+  - name: service_credentials
+    file: packages/db/src/schema/service-credentials.ts
+    migration: packages/db/migrations/0002_f02_b5_service_credentials.sql
+    primary_class: operational_credential
+    data_subject_linkage:
+      column: principal_id
+      role: actor
+    columns:
+      - { name: credential_id, class: operational_credential, erasure: hard_delete }
+      - { name: principal_id, class: operational_credential, erasure: hard_delete, fk: principals.principal_id, notes: "Joins to a kind='service' principal; services are not natural persons." }
+      - { name: scope_set, class: operational_credential, erasure: hard_delete }
+      - { name: kid, class: operational_credential, erasure: hard_delete }
+      - { name: issued_at, class: operational_credential, erasure: hard_delete }
+      - { name: expires_at, class: operational_credential, erasure: hard_delete }
+      - { name: revoked_at, class: operational_credential, erasure: hard_delete }
+      - { name: revoked_by, class: operational_credential, erasure: hard_delete, fk: principals.principal_id }
+      - { name: revocation_reason, class: operational_credential, erasure: hard_delete }
+      - { name: rotation_generation, class: operational_credential, erasure: hard_delete }
+
+  - name: revocations
+    file: packages/db/src/schema/revocations.ts
+    migration: packages/db/migrations/0001_f02_b4_agent_credentials_signing_keys_revocations.sql
+    primary_class: operational_credential
+    data_subject_linkage:
+      column: credential_id
+      role: none
+    columns:
+      - { name: credential_id, class: operational_credential, erasure: hard_delete, notes: "Denormalized from agent_credentials / service_credentials; pruned daily after expiry." }
+      - { name: kind, class: operational_credential, erasure: hard_delete }
+      - { name: expires_at, class: operational_credential, erasure: hard_delete }
+      - { name: revoked_at, class: operational_credential, erasure: hard_delete }
+
+  # ------------------------------------------------------------------
+  # T005 — signing_keys (shipped by F02 B4)
+  # ------------------------------------------------------------------
+  - name: signing_keys
+    file: packages/db/src/schema/signing-keys.ts
+    migration: packages/db/migrations/0001_f02_b4_agent_credentials_signing_keys_revocations.sql
+    primary_class: operational_signing_key
+    data_subject_linkage:
+      column: kid
+      role: none
+    columns:
+      - { name: kid, class: operational_signing_key, erasure: hard_delete, notes: "Key id; published in JWKS." }
+      - { name: algorithm, class: operational_signing_key, erasure: hard_delete }
+      - { name: public_key_jwk, class: operational_signing_key, erasure: hard_delete, notes: "Public key; published in JWKS. Not confidential." }
+      - { name: purpose, class: operational_signing_key, erasure: hard_delete }
+      - { name: created_at, class: operational_signing_key, erasure: hard_delete }
+      - { name: activated_at, class: operational_signing_key, erasure: hard_delete }
+      - { name: retired_at, class: operational_signing_key, erasure: hard_delete }
+      - { name: verify_until, class: operational_signing_key, erasure: hard_delete, notes: "Row drops from JWKS query after this timestamp; hard_delete permitted thereafter." }
+
+  # ------------------------------------------------------------------
+  # T006 — audit_events_buffer + revoke_all_sessions_approvals
+  # (shipped by F02 B6)
+  # ------------------------------------------------------------------
+  - name: audit_events_buffer
+    file: packages/db/src/schema/audit-events-buffer.ts
+    migration: packages/db/migrations/0003_f02_b6_audit_events_buffer.sql
+    primary_class: audit_record
+    data_subject_linkage:
+      column: principal_id
+      role: actor
+    columns:
+      - { name: event_id, class: audit_record, erasure: tombstone }
+      - { name: event_name, class: audit_record, erasure: tombstone }
+      - { name: principal_id, class: audit_record, erasure: tombstone, fk: principals.principal_id, notes: "Actor of the audit event; the join target for subject erasure." }
+      - { name: principal_kind, class: audit_record, erasure: tombstone }
+      - { name: role_or_scope, class: audit_record, erasure: tombstone }
+      - { name: correlation_id, class: audit_record, erasure: tombstone }
+      - { name: payload, class: audit_record, erasure: tombstone, notes: "May contain PII per event_name; payload-level redaction is applied at sink (apps/web/src/auth/audit-sink.ts) per F02 T069/MEDIUM-3." }
+      - { name: created_at, class: audit_record, erasure: tombstone }
+
+  - name: revoke_all_sessions_approvals
+    file: packages/db/src/schema/revoke-all-sessions-approvals.ts
+    migration: packages/db/migrations/0004_f02_b6_revoke_all_sessions_approvals.sql
+    primary_class: approval_workflow
+    data_subject_linkage:
+      column: target_principal_id
+      role: target
+    columns:
+      - { name: approval_id, class: approval_workflow, erasure: redact_in_place }
+      - { name: target_principal_id, class: approval_workflow, erasure: redact_in_place, fk: principals.principal_id, notes: "Subject of the revoke-all action." }
+      - { name: initiated_by, class: approval_workflow, erasure: redact_in_place, fk: principals.principal_id, notes: "First operator in the two-operator gate." }
+      - { name: reason_code, class: approval_workflow, erasure: redact_in_place }
+      - { name: notes, class: approval_workflow, erasure: redact_in_place, notes: "Free-text operator note; nulled on subject erasure (per F02 T069/MEDIUM-3 redaction pattern); row metadata retained." }
+      - { name: initiated_at, class: approval_workflow, erasure: redact_in_place }
+      - { name: expires_at, class: approval_workflow, erasure: redact_in_place }
+      - { name: approved_by, class: approval_workflow, erasure: redact_in_place, fk: principals.principal_id }
+      - { name: approved_at, class: approval_workflow, erasure: redact_in_place }
+      - { name: executed_at, class: approval_workflow, erasure: redact_in_place }

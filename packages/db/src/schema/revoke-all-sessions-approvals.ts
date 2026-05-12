@@ -24,6 +24,11 @@ import { check, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 import { principals } from "./principals.js";
 
+// schema-lint: skip-r2-timestamps
+// Reason: workflow row — `initiated_at` is the creation timestamp;
+// state advances through `approved_at` / `executed_at` columns rather
+// than a generic `updated_at`. Per docs/data-governance/schema-conventions.md §2.
+
 export const revokeAllSessionsApprovals = pgTable(
   "revoke_all_sessions_approvals",
   {

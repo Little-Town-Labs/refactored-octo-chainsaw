@@ -16,6 +16,11 @@
 import { sql } from "drizzle-orm";
 import { check, index, jsonb, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 
+// schema-lint: skip-r2-timestamps
+// Reason: lifecycle uses explicit phase timestamps (`created_at`,
+// `activated_at`, `retired_at`, `verify_until`) rather than a generic
+// `updated_at`. Per docs/data-governance/schema-conventions.md §2.
+
 export const signingKeys = pgTable(
   "signing_keys",
   {
