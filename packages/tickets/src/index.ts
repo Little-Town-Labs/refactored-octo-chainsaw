@@ -49,3 +49,22 @@ export {
   MissingReasonCodeError,
   IdempotencyConflictError,
 } from "./errors.js";
+
+// F04 B4 — Identifier allocator.
+export {
+  nextIdentifier,
+  sequenceNameFor,
+  drizzleSequenceExecutor,
+  SequenceNotFoundError,
+  type TicketIdentifierKind,
+  type SequenceExecutor,
+  type NextIdentifierArgs,
+} from "./identifiers.js";
+
+export {
+  bootstrapYearSequences,
+  drizzleBootstrapExecutor,
+  type SequenceBootstrapExecutor,
+  type BootstrappedSequenceEvent,
+  type BootstrapResult,
+} from "./rollover.js";
