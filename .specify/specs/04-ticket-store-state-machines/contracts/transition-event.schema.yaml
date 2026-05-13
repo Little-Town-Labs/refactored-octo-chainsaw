@@ -1,0 +1,111 @@
+# F04 contract — JSON Schema for ticket transition events emitted to
+# F02's audit_events_buffer (and eventually F05's hash-chained log).
+#
+# Every state transition in seeker_tickets, employer_req_tickets, or
+# match_tickets MUST emit one event matching this schema. F05's log
+# adopts this shape unchanged.
+#
+# Versioned by $id; .v2 requires a coordinated F04+F05 deliverable.
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "spyglass/ticket-transition-event.v1"
+title: "Ticket transition event payload"
+type: object
+required: [event_name, principal_id, correlation_id, payload]
+additionalProperties: false
+
+properties:
+  event_name:
+    type: string
+    pattern: "^(seeker|employer_req|match)_ticket\\.[a-z_]+$"
+    description: "Format: <kind>_ticket.<transition_name>"
+  principal_id:
+    type: string
+    format: uuid
+    description: "F02 principal_id of the caller"
+  correlation_id:
+    type: string
+    minLength: 1
+    description: "Request-scoped id; propagates into downstream events"
+  payload:
+    type: object
+    required: [ticket_id, ticket_identifier, ticket_kind, from_state, to_state]
+    additionalProperties: false
+    properties:
+      ticket_id:
+        type: string
+        format: uuid
+      ticket_identifier:
+        type: string
+        pattern: "^(ST|ER|MT)-[0-9]{4}-[0-9]{5}$"
+      ticket_kind:
+        enum: [seeker, employer_req, match]
+      from_state:
+        type: string
+        minLength: 1
+      to_state:
+        type: string
+        minLength: 1
+
+      # Optional fields (transition-specific)
+      reason_code:
+        type: string
+        description: "Required on operator and source-withdrawn transitions; closed enum"
+      notes_present:
+        type: boolean
+        description: "Never the raw notes (F02 T069/MEDIUM-3 redaction pattern)"
+
+      # match_ticket-only fields
+      run_id:
+        type: [string, "null"]
+        format: uuid
+        description: "Set on match transitions to/from negotiating, delivered, expired, accepted, rejected"
+      dossier_id:
+        type: [string, "null"]
+        format: uuid
+        description: "Set on match transitions to delivered, accepted, rejected"
+      attempt:
+        type: integer
+        minimum: 1
+        description: "Set on match transitions; increments on renegotiation (EC-7)"
+
+      # Convenience cross-link fields (denormalized at emit time)
+      seeker_ticket_id:
+        type: string
+        format: uuid
+        description: "On match_ticket events: the linked seeker ticket id"
+      employer_req_ticket_id:
+        type: string
+        format: uuid
+        description: "On match_ticket events: the linked employer-req ticket id"
+
+      # Operator transition: required actor reason
+      actor_principal_id:
+        type: string
+        format: uuid
+        description: "On operator-transition events: the operator principal_id (=== principal_id at top level, denormalized for query convenience)"
+
+allOf:
+  # match_ticket.delivered MUST carry dossier_id and run_id
+  - if:
+      properties:
+        payload:
+          properties:
+            event_name: { const: "match_ticket.delivered" }
+    then:
+      properties:
+        payload:
+          required: [run_id, dossier_id]
+          properties:
+            run_id: { type: string }
+            dossier_id: { type: string }
+
+  # Operator transitions MUST carry reason_code
+  - if:
+      properties:
+        event_name:
+          pattern: "_ticket\\.operator_transition$"
+    then:
+      properties:
+        payload:
+          required: [reason_code]
