@@ -86,6 +86,26 @@ class in the register has a section here (M-3).
 | Erasure mode | `tombstone` (inherited) |
 | Notes | F05's hash-chained log replaces this table; cutover removes this transitional entry. Per CL-3 in spec.md §8 |
 
+### 1.7 `ticket_intent`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years after `disabled_at` |
+| Horizon (ISO-8601) | `disabled_at+P7Y` |
+| Lawful basis | GDPR Art. 6(1)(b) performance of contract; audit-retention obligation under §I.5.3; NYC LL 144 §5-301 audit-retention floor where applicable to the employer side |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-pending-f05)) |
+| Notes | Tombstones the personal-data linkage (principal_id, identifier) but retains structural metadata for bias-audit re-derivation (Constitution §I.2 + NIST AI RMF Measure 2.11). F-TBD per-class sweeper executes the tombstone after the horizon |
+
+### 1.8 `ticket_match`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years after terminal-state entry (`accepted` / `rejected` / `expired`) |
+| Horizon (ISO-8601) | `terminal-state-driven:match_tickets.state+P7Y` |
+| Lawful basis | GDPR Art. 6(1)(b) performance of contract; row-level audit retention under §I.5.3; NIST AI RMF Measure 2.11 (bias-audit-readiness retains rubric refs even after subject erasure) |
+| Erasure mode | `tombstone` |
+| Notes | Personal-data linkages (seeker_ticket_id, employer_req_ticket_id) tombstoned with the source tickets; match-row metadata (round, attempt, contract refs, decision_locus_jurisdiction) retained for audit reconstruction |
+
 ### 1.6 `approval_workflow`
 
 | Field | Value |
@@ -133,8 +153,10 @@ in §1 above. (M-3 mechanical check.)
 | `operational_signing_key` | §1.4 | `verify_until+P90D` | hard_delete |
 | `audit_record` | §1.5 | `P7Y` (buffer: `transitional:f05`) | tombstone |
 | `approval_workflow` | §1.6 | `P7Y` (notes: `redact:notes:P30D`) | redact_in_place |
+| `ticket_intent` | §1.7 | `disabled_at+P7Y` | tombstone |
+| `ticket_match` | §1.8 | `terminal-state-driven:match_tickets.state+P7Y` | tombstone |
 
-**6 classes declared · 6 classes covered · M-3 ✅**
+**8 classes declared · 8 classes covered · M-3 ✅**
 
 ---
 

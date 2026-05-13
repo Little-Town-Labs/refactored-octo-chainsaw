@@ -165,9 +165,86 @@ Migration: [`0004_f02_b6_revoke_all_sessions_approvals.sql`](../../packages/db/m
 
 ---
 
+---
+
+## seeker_tickets
+File: [`packages/db/src/schema/seeker-tickets.ts`](../../packages/db/src/schema/seeker-tickets.ts) ·
+Migration: [`0005_f04_ticket_store.sql`](../../packages/db/migrations/0005_f04_ticket_store.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `seeker_tickets_pkey` | PK | `seeker_ticket_id uuid` default `uuidv7()` | Duplicate / missing PK | `packages/tickets/src/__tests__/repo/seeker.test.ts` |
+| `seeker_tickets_state_check` | CHECK | `state IN ('draft','submitted','screening','matching','matched','closed','withdrawn')` | Invalid seeker-state drift | `packages/tickets/src/__tests__/transitions.test.ts` |
+| `seeker_tickets_work_mode_check` | CHECK | `work_mode IN ('remote','hybrid','onsite')` | Invalid work-mode | `packages/tickets/src/__tests__/repo/seeker.test.ts` |
+| `seeker_tickets_comp_band_order_check` | CHECK | `comp_band_min <= comp_band_max` | Inverted comp bands | `packages/tickets/src/__tests__/repo/seeker.test.ts` |
+| `seeker_tickets_jurisdictions_nonempty` | CHECK | `jsonb_typeof(jurisdictions) = 'array' AND jsonb_array_length(jurisdictions) >= 1` | Untagged ticket (Constitution §I.A.1) | `packages/tickets/src/__tests__/repo/seeker.test.ts` |
+| `seeker_tickets_identifier_shape_check` | CHECK | `identifier ~ '^ST-[0-9]{4}-[0-9]{5}$'` | Identifier drift (FR-7) | `packages/tickets/src/__tests__/identifiers.test.ts` |
+| `seeker_tickets_identifier_idx` | UNIQUE | `UNIQUE (identifier)` | Identifier collision (EC-9) | `packages/tickets/src/__tests__/identifiers.test.ts` |
+| `seeker_tickets_state_hot_idx` | PARTIAL | `(state) WHERE state IN ('matching','screening')` | (perf) hot-state listings | — |
+| `seeker_tickets_principal_idx` | INDEX | `(principal_id, created_at DESC)` | (perf) seeker self-service listings | — |
+| `seeker_tickets_principal_fk` | FK | `principal_id → principals.principal_id` | Orphan principal reference | `packages/tickets/src/__tests__/repo/seeker.test.ts` |
+
+---
+
+## employer_req_tickets
+File: [`packages/db/src/schema/employer-req-tickets.ts`](../../packages/db/src/schema/employer-req-tickets.ts) ·
+Migration: [`0005_f04_ticket_store.sql`](../../packages/db/migrations/0005_f04_ticket_store.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `employer_req_tickets_pkey` | PK | `employer_req_ticket_id uuid` default `uuidv7()` | Duplicate / missing PK | `packages/tickets/src/__tests__/repo/employer-req.test.ts` |
+| `employer_req_tickets_state_check` | CHECK | `state IN ('draft','submitted','open','matching','filled','closed','withdrawn')` | Invalid employer-req state drift | `packages/tickets/src/__tests__/transitions.test.ts` |
+| `employer_req_tickets_role_level_check` | CHECK | role_level in closed enum | Invalid level drift | `packages/tickets/src/__tests__/repo/employer-req.test.ts` |
+| `employer_req_tickets_work_mode_check` | CHECK | `work_mode IN ('remote','hybrid','onsite')` | Invalid work-mode | `packages/tickets/src/__tests__/repo/employer-req.test.ts` |
+| `employer_req_tickets_comp_band_order_check` | CHECK | `comp_band_min <= comp_band_max` | Inverted comp bands | `packages/tickets/src/__tests__/repo/employer-req.test.ts` |
+| `employer_req_tickets_headcount_check` | CHECK | `headcount_total >= 1 AND 0 <= headcount_filled <= headcount_total` | Negative or overfilled headcounts (EC-2) | `packages/tickets/src/__tests__/repo/employer-req.test.ts` |
+| `employer_req_tickets_jurisdictions_nonempty` | CHECK | non-empty array | Untagged ticket | `packages/tickets/src/__tests__/repo/employer-req.test.ts` |
+| `employer_req_tickets_identifier_shape_check` | CHECK | `identifier ~ '^ER-[0-9]{4}-[0-9]{5}$'` | Identifier drift | `packages/tickets/src/__tests__/identifiers.test.ts` |
+| `employer_req_tickets_identifier_idx` | UNIQUE | `UNIQUE (identifier)` | Identifier collision | `packages/tickets/src/__tests__/identifiers.test.ts` |
+| `employer_req_tickets_state_hot_idx` | PARTIAL | `(state) WHERE state IN ('matching','open')` | (perf) hot-state listings | — |
+| `employer_req_tickets_org_idx` | INDEX | `(org_id, created_at DESC)` | (perf) org-side listings | — |
+| `employer_req_tickets_principal_fk` | FK | `principal_id → principals.principal_id` | Orphan principal | `packages/tickets/src/__tests__/repo/employer-req.test.ts` |
+| `employer_req_tickets_org_fk` | FK | `org_id → organizations.org_id` | Orphan org | `packages/tickets/src/__tests__/repo/employer-req.test.ts` |
+
+---
+
+## match_tickets
+File: [`packages/db/src/schema/match-tickets.ts`](../../packages/db/src/schema/match-tickets.ts) ·
+Migration: [`0005_f04_ticket_store.sql`](../../packages/db/migrations/0005_f04_ticket_store.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `match_tickets_pkey` | PK | `match_ticket_id uuid` default `uuidv7()` | Duplicate / missing PK | `packages/tickets/src/__tests__/repo/match.test.ts` |
+| `match_tickets_state_check` | CHECK | `state IN ('created','negotiating','delivered','accepted','rejected','expired')` | Invalid match-state drift | `packages/tickets/src/__tests__/transitions.test.ts` |
+| `match_tickets_round_bounds_check` | CHECK | `0 <= round AND round <= round_cap` | Round counter overflow (FR-11 / EC-6) | `packages/tickets/src/__tests__/repo/match.test.ts` |
+| `match_tickets_round_cap_check` | CHECK | `round_cap >= 1` | Invalid cap | `packages/tickets/src/__tests__/repo/match.test.ts` |
+| `match_tickets_attempt_check` | CHECK | `attempt >= 1` | Pre-issuance attempts (FR-10) | `packages/tickets/src/__tests__/repo/match.test.ts` |
+| `match_tickets_identifier_shape_check` | CHECK | `identifier ~ '^MT-[0-9]{4}-[0-9]{5}$'` | Identifier drift | `packages/tickets/src/__tests__/identifiers.test.ts` |
+| `match_tickets_identifier_idx` | UNIQUE | `UNIQUE (identifier)` | Identifier collision | `packages/tickets/src/__tests__/identifiers.test.ts` |
+| `match_tickets_idempotency_idx` | UNIQUE | `UNIQUE (seeker_ticket_id, employer_req_ticket_id, attempt)` | Double-match for the same pair on the same attempt (FR-8 / EC-3) | `packages/tickets/src/__tests__/repo/match.test.ts` |
+| `match_tickets_state_hot_idx` | PARTIAL | `(state) WHERE state IN ('negotiating','created')` | (perf) hot-state listings | — |
+| `match_tickets_seeker_fk_idx` | INDEX | `(seeker_ticket_id)` | (perf) seeker-side join | — |
+| `match_tickets_employer_fk_idx` | INDEX | `(employer_req_ticket_id)` | (perf) employer-side join | — |
+| `match_tickets_run_id_idx` | PARTIAL | `(run_id) WHERE run_id IS NOT NULL` | (perf) Parley run-side join | — |
+| `match_tickets_jurisdiction_idx` | INDEX | `(decision_locus_jurisdiction)` | (perf) F06 policy-gate join | — |
+| `match_tickets_seeker_fk` | FK | `seeker_ticket_id → seeker_tickets.seeker_ticket_id` | Orphan seeker reference | `packages/tickets/src/__tests__/repo/match.test.ts` |
+| `match_tickets_employer_fk` | FK | `employer_req_ticket_id → employer_req_tickets.employer_req_ticket_id` | Orphan employer reference | `packages/tickets/src/__tests__/repo/match.test.ts` |
+
+**Note.** `dossier_id` carries no FK constraint until F10 lands the
+`dossiers` table (per CL-2). Application-level invariant in
+`assertTransition`: `delivered → accepted/rejected` requires
+`dossier_id IS NOT NULL`.
+
+---
+
 ## Changelog
 
 - **v1.0 (2026-05-12)** — Authored under F03 T010–T013. 47 invariants
   catalogued across 8 F02 tables. Test cross-references point at F02
   unit-test files; where no direct unit test exists (perf indexes,
   audit-buffer invariants), the protection rationale is named instead.
+- **v1.1 (2026-05-12)** — F04 T003 amendment. Added 3 new table
+  sections (seeker_tickets / employer_req_tickets / match_tickets)
+  with 38 new invariants. Test refs point at `packages/tickets/`
+  test files (RED until F04 B3/B5 land). Total invariants:
+  47 + 38 = 85.

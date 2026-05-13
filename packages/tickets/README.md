@@ -1,7 +1,7 @@
 # @spyglass/tickets
 
-**Status:** alpha — F01 placeholder; populated in F04 (Ticket store +
-state machines).
+**Status:** alpha — F04 implementation in progress (B1 skeleton landed
+2026-05-12; B2–B9 in branch `04-ticket-store-state-machines`).
 
 The ticket spine. Three ticket types — `seeker_ticket`,
 `employer_req_ticket`, `match_ticket` — each with its own state
