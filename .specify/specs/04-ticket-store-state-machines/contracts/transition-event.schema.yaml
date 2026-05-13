@@ -86,12 +86,15 @@ properties:
         description: "On operator-transition events: the operator principal_id (=== principal_id at top level, denormalized for query convenience)"
 
 allOf:
-  # match_ticket.delivered MUST carry dossier_id and run_id
+  # match_ticket.delivered MUST carry dossier_id and run_id.
+  # Note: `event_name` lives at the root, not inside `payload`. The
+  # earlier draft of this schema mistakenly nested it under `payload`,
+  # which made the `if` vacuously true (a missing property is not a
+  # constraint failure) and required run_id+dossier_id on every event.
   - if:
       properties:
-        payload:
-          properties:
-            event_name: { const: "match_ticket.delivered" }
+        event_name: { const: "match_ticket.delivered" }
+      required: [event_name]
     then:
       properties:
         payload:
