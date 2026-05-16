@@ -60,6 +60,14 @@ class MemoryTx implements TicketTransactionStore {
     return clone(this.state.seekers.find((r) => r.seeker_ticket_id === id) ?? null);
   }
 
+  async findSeekerByIdentifier(identifier: string): Promise<SeekerTicketRow | null> {
+    return clone(this.state.seekers.find((r) => r.identifier === identifier) ?? null);
+  }
+
+  async listSeekers(): Promise<SeekerTicketRow[]> {
+    return clone(this.state.seekers);
+  }
+
   async updateSeeker(id: string, values: Partial<SeekerTicketRow>): Promise<SeekerTicketRow> {
     const idx = this.state.seekers.findIndex((r) => r.seeker_ticket_id === id);
     if (idx < 0) throw new Error(`seeker ticket not found: ${id}`);
@@ -94,6 +102,14 @@ class MemoryTx implements TicketTransactionStore {
 
   async getEmployerReq(id: string): Promise<EmployerReqTicketRow | null> {
     return clone(this.state.employerReqs.find((r) => r.employer_req_ticket_id === id) ?? null);
+  }
+
+  async findEmployerReqByIdentifier(identifier: string): Promise<EmployerReqTicketRow | null> {
+    return clone(this.state.employerReqs.find((r) => r.identifier === identifier) ?? null);
+  }
+
+  async listEmployerReqs(): Promise<EmployerReqTicketRow[]> {
+    return clone(this.state.employerReqs);
   }
 
   async updateEmployerReq(
@@ -138,6 +154,10 @@ class MemoryTx implements TicketTransactionStore {
     return clone(this.state.matches.find((r) => r.match_ticket_id === id) ?? null);
   }
 
+  async findMatchByIdentifier(identifier: string): Promise<MatchTicketRow | null> {
+    return clone(this.state.matches.find((r) => r.identifier === identifier) ?? null);
+  }
+
   async findMatchByPair(
     seekerTicketId: string,
     employerReqTicketId: string,
@@ -152,6 +172,10 @@ class MemoryTx implements TicketTransactionStore {
           r.disabled_at === null,
       ) ?? null,
     );
+  }
+
+  async listMatches(): Promise<MatchTicketRow[]> {
+    return clone(this.state.matches);
   }
 
   async updateMatch(id: string, values: Partial<MatchTicketRow>): Promise<MatchTicketRow> {

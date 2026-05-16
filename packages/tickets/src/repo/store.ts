@@ -24,10 +24,14 @@ import type { InsertAuditEvent, TicketAuditWriter } from "../audit.js";
 export interface TicketTransactionStore extends TicketAuditWriter {
   insertSeekerDraft(values: NewSeekerTicketRow): Promise<SeekerTicketRow>;
   getSeeker(id: string): Promise<SeekerTicketRow | null>;
+  findSeekerByIdentifier(identifier: string): Promise<SeekerTicketRow | null>;
+  listSeekers(): Promise<SeekerTicketRow[]>;
   updateSeeker(id: string, values: Partial<SeekerTicketRow>): Promise<SeekerTicketRow>;
 
   insertEmployerReqDraft(values: NewEmployerReqTicketRow): Promise<EmployerReqTicketRow>;
   getEmployerReq(id: string): Promise<EmployerReqTicketRow | null>;
+  findEmployerReqByIdentifier(identifier: string): Promise<EmployerReqTicketRow | null>;
+  listEmployerReqs(): Promise<EmployerReqTicketRow[]>;
   updateEmployerReq(
     id: string,
     values: Partial<EmployerReqTicketRow>,
@@ -35,11 +39,13 @@ export interface TicketTransactionStore extends TicketAuditWriter {
 
   insertMatch(values: NewMatchTicketRow): Promise<MatchTicketRow>;
   getMatch(id: string): Promise<MatchTicketRow | null>;
+  findMatchByIdentifier(identifier: string): Promise<MatchTicketRow | null>;
   findMatchByPair(
     seekerTicketId: string,
     employerReqTicketId: string,
     attempt: number,
   ): Promise<MatchTicketRow | null>;
+  listMatches(): Promise<MatchTicketRow[]>;
   updateMatch(id: string, values: Partial<MatchTicketRow>): Promise<MatchTicketRow>;
 }
 
@@ -65,6 +71,17 @@ function drizzleTxAdapter(tx: DrizzleTx): TicketTransactionStore {
         .limit(1);
       return rows[0] ?? null;
     },
+    async findSeekerByIdentifier(identifier) {
+      const rows = await db
+        .select()
+        .from(seekerTickets)
+        .where(eq(seekerTickets.identifier, identifier))
+        .limit(1);
+      return rows[0] ?? null;
+    },
+    async listSeekers() {
+      return db.select().from(seekerTickets).limit(1000);
+    },
     async updateSeeker(id, values) {
       const [row] = await db
         .update(seekerTickets)
@@ -86,6 +103,17 @@ function drizzleTxAdapter(tx: DrizzleTx): TicketTransactionStore {
         .where(eq(employerReqTickets.employer_req_ticket_id, id))
         .limit(1);
       return rows[0] ?? null;
+    },
+    async findEmployerReqByIdentifier(identifier) {
+      const rows = await db
+        .select()
+        .from(employerReqTickets)
+        .where(eq(employerReqTickets.identifier, identifier))
+        .limit(1);
+      return rows[0] ?? null;
+    },
+    async listEmployerReqs() {
+      return db.select().from(employerReqTickets).limit(1000);
     },
     async updateEmployerReq(id, values) {
       const [row] = await db
@@ -109,6 +137,14 @@ function drizzleTxAdapter(tx: DrizzleTx): TicketTransactionStore {
         .limit(1);
       return rows[0] ?? null;
     },
+    async findMatchByIdentifier(identifier) {
+      const rows = await db
+        .select()
+        .from(matchTickets)
+        .where(eq(matchTickets.identifier, identifier))
+        .limit(1);
+      return rows[0] ?? null;
+    },
     async findMatchByPair(seekerTicketId, employerReqTicketId, attempt) {
       const rows = await db
         .select()
@@ -123,6 +159,9 @@ function drizzleTxAdapter(tx: DrizzleTx): TicketTransactionStore {
             r.disabled_at === null,
         ) ?? null
       );
+    },
+    async listMatches() {
+      return db.select().from(matchTickets).limit(1000);
     },
     async updateMatch(id, values) {
       const [row] = await db

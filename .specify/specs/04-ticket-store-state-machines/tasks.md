@@ -15,7 +15,7 @@ Status legend: 🟡 Ready · 🔴 Blocked · 🟢 In Progress · ✅ Complete ·
 ## Phase B1 — Skeleton + governance amendments (4h)
 
 ### T001 — Create `@spyglass/tickets` package skeleton
-**Status:** 🟡 Ready · **Effort:** 1h · **Blocked by:** none
+**Status:** ✅ Complete · **Effort:** 1h · **Blocked by:** none
 **Story:** all · **FR/NFR:** plan §3 R-4
 **Description.** Create `packages/tickets/` with `package.json`,
 `tsconfig.json`, `jest.config.js`, `eslint.config.js`, mirroring
@@ -24,12 +24,12 @@ Add `@spyglass/tickets` to root pnpm workspace. Create `src/index.ts`
 with one placeholder export.
 
 **Acceptance:**
-- [ ] Package builds (`pnpm --filter @spyglass/tickets build`).
-- [ ] Type-check clean.
-- [ ] No new deps beyond `drizzle-orm` + `@spyglass/auth` + `@spyglass/db`.
+- [x] Package builds (`pnpm --filter @spyglass/tickets build`).
+- [x] Type-check clean.
+- [x] No new deps beyond `drizzle-orm` + `@spyglass/auth` + `@spyglass/db`.
 
 ### T002 — Amend F03 register with F04 new classes + tables
-**Status:** 🔴 Blocked by T001 · **Effort:** 1.5h
+**Status:** ✅ Complete · **Effort:** 1.5h
 **Story:** US-1..US-7 · **FR/NFR:** FR-12, FR-13, NFR-7, NFR-8, M-3, M-6
 **Description.** Edit `docs/data-governance/data-classification.yaml`:
 add `ticket_intent` and `ticket_match` data classes; add table
@@ -38,12 +38,12 @@ following plan §4.1 column lists (~50 cols total). Validate against
 JSON-Schema contract.
 
 **Acceptance:**
-- [ ] `pnpm schema:lint` exits clean.
-- [ ] Column counts match plan §4.1.
-- [ ] Lawful basis recorded per personal-data column.
+- [x] `pnpm schema:lint` exits clean.
+- [x] Column counts match plan §4.1.
+- [x] Lawful basis recorded per personal-data column.
 
 ### T003 — Amend F03 retention policy + invariant catalog
-**Status:** 🔴 Blocked by T002 · **Effort:** 1h
+**Status:** ✅ Complete · **Effort:** 1h
 **Parallel with:** T004 (after T002 lands)
 **Story:** auditor / counsel · **FR/NFR:** FR-13, NFR-7
 **Description.** Edit `docs/data-governance/retention-policy.md`:
@@ -54,11 +54,11 @@ sections enumerating all CHECK/UNIQUE/PARTIAL/FK invariants per
 plan §4.1 and data-model §3.
 
 **Acceptance:**
-- [ ] All 6 register classes covered in policy (cross-check via M-3 mechanical script).
-- [ ] All planned invariants enumerated (~30+ rows across 3 tables).
+- [x] All 6 register classes covered in policy (cross-check via M-3 mechanical script).
+- [x] All planned invariants enumerated (~30+ rows across 3 tables).
 
 ### T004 — Scaffold new CI gate placeholders (red)
-**Status:** 🔴 Blocked by T001 · **Effort:** 0.5h
+**Status:** ✅ Complete · **Effort:** 0.5h
 **Parallel with:** T003
 **Story:** US-5 · **FR/NFR:** plan §4.7
 **Description.** Create `scripts/check-tickets-state-machine.sh`
@@ -67,14 +67,14 @@ new job `tickets-state-machine-coverage` to `.github/workflows/ci.yml`
 running it. Add root `pnpm tickets:coverage` script.
 
 **Acceptance:**
-- [ ] Script + CI job present; job currently fails (RED until T011).
+- [x] Script + CI job present; job currently fails (RED until T011).
 
 ---
 
 ## Phase B2 — Schema + migrations (8h)
 
 ### T005 — Author `seeker_tickets` schema module
-**Status:** 🔴 Blocked by T001 · **Effort:** 1.5h
+**Status:** ✅ Complete · **Effort:** 1.5h
 **Parallel with:** T006, T007
 **Story:** US-1 · **FR/NFR:** FR-1, FR-2.1, FR-6, FR-7
 **Description.** New `packages/db/src/schema/seeker-tickets.ts`
@@ -84,12 +84,12 @@ non-empty array, identifier regex). Add partial index on `state`
 for hot states, sort index on `created_at DESC`.
 
 **Acceptance:**
-- [ ] File compiles in `@spyglass/db`.
-- [ ] `pnpm schema:lint` clean on the new file.
-- [ ] Register entry matches column-for-column.
+- [x] File compiles in `@spyglass/db`.
+- [x] `pnpm schema:lint` clean on the new file.
+- [x] Register entry matches column-for-column.
 
 ### T006 — Author `employer_req_tickets` schema module
-**Status:** 🔴 Blocked by T001 · **Effort:** 1.5h
+**Status:** ✅ Complete · **Effort:** 1.5h
 **Parallel with:** T005, T007
 **Story:** US-2 · **FR/NFR:** FR-1, FR-2.2, FR-6, FR-7
 **Description.** Same pattern for `employer_req_tickets`. Additional
@@ -98,7 +98,7 @@ CHECK on `headcount_filled <= headcount_total`. FK to `organizations`.
 **Acceptance:** as T005.
 
 ### T007 — Author `match_tickets` schema module
-**Status:** 🔴 Blocked by T001, T005, T006 · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Story:** US-3, US-6, US-7 · **FR/NFR:** FR-1, FR-2.3, FR-8, FR-11
 **Description.** Match-ticket schema per plan §4.1. UNIQUE
 `(seeker_ticket_id, employer_req_ticket_id, attempt)` for
@@ -107,12 +107,12 @@ nullable column **without FK** per CL-2. Partial index on `state`
 hot path.
 
 **Acceptance:**
-- [ ] All CHECK invariants present (8+).
-- [ ] Idempotency UNIQUE present.
-- [ ] No FK on `dossier_id` (warn-only R5 acceptable per CL-2).
+- [x] All CHECK invariants present (8+).
+- [x] Idempotency UNIQUE present.
+- [x] No FK on `dossier_id` (warn-only R5 acceptable per CL-2).
 
 ### T008 — Generate migration `0005_f04_ticket_store.sql` + identifier sequences
-**Status:** 🔴 Blocked by T005, T006, T007 · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Story:** US-1..US-7 · **FR/NFR:** FR-1, FR-7
 **Description.** Run `pnpm db:generate` to materialize the migration.
 Hand-edit to append `CREATE SEQUENCE` statements for 2026 (current
@@ -121,19 +121,19 @@ year) per kind. Add per-file regression test under
 against a fresh schema.
 
 **Acceptance:**
-- [ ] Migration applies cleanly.
-- [ ] Three 2026 sequences exist post-apply.
-- [ ] `pnpm schema:lint` still clean.
+- [x] Migration applies cleanly.
+- [x] Three 2026 sequences exist post-apply.
+- [x] `pnpm schema:lint` still clean.
 
 ### T009 — Register entry for `identifier_sequences` audit table (if needed)
-**Status:** 🔴 Blocked by T008 · **Effort:** 0.5h
+**Status:** ✅ Complete · **Effort:** 0.5h
 **Description.** F04 doesn't add a `identifier_sequences` table —
 PostgreSQL native sequences don't need one. Confirm and document in
 data-model §6 that the audit event `identifier_sequences.bootstrapped`
 emits a payload with `sequence_name` + `year` rather than a row.
 
 **Acceptance:**
-- [ ] data-model.md §6 updated; no new register entry required.
+- [x] data-model.md §6 updated; no new register entry required.
 
 ---
 
@@ -142,7 +142,7 @@ emits a payload with `sequence_name` + `year` rather than a row.
 **TDD enforced:** T011 (impl) blocked by T010 (tests).
 
 ### T010 — Write transition-validator tests (RED)
-**Status:** 🔴 Blocked by T001 · **Effort:** 4h
+**Status:** ✅ Complete · **Effort:** 4h
 **Story:** US-1..US-6 · **FR/NFR:** FR-2, FR-3, NFR-1, M-1
 **Delegate suggestion:** tdd-guide
 **Description.** Author `packages/tickets/src/__tests__/transitions.test.ts`
@@ -157,10 +157,10 @@ with:
   InvariantViolationError.
 
 **Acceptance:**
-- [ ] Test file compiles but every test FAILS (RED — validator doesn't exist).
+- [x] Test file compiles but every test FAILS (RED — validator doesn't exist).
 
 ### T011 — Implement `states.ts`, `transitions.ts`, `errors.ts`
-**Status:** 🔴 Blocked by T010 · **Effort:** 4h
+**Status:** ✅ Complete · **Effort:** 4h
 **Story:** US-1..US-6 · **FR/NFR:** FR-2, FR-3, NFR-5
 **Description.** Implement plan §3 R-1 typed validator pattern:
 - `states.ts`: 3 state-enum union types.
@@ -172,12 +172,12 @@ with:
   `IdempotencyConflictError`.
 
 **Acceptance:**
-- [ ] All T010 tests pass (GREEN).
-- [ ] TypeScript compiler rejects an illegal `from`/`to` pair at
+- [x] All T010 tests pass (GREEN).
+- [x] TypeScript compiler rejects an illegal `from`/`to` pair at
       compile time (smoke test in CI).
 
 ### T012 — Update state-machine coverage gate (was placeholder)
-**Status:** 🔴 Blocked by T011 · **Effort:** 1.5h
+**Status:** ✅ Complete · **Effort:** 1.5h
 **Story:** US-5 · **FR/NFR:** plan §4.7 Gate A, M-1
 **Description.** Replace placeholder `scripts/check-tickets-state-machine.sh`
 with a real implementation that:
@@ -187,12 +187,12 @@ with a real implementation that:
 4. Asserts every illegal pair has ≥1 negative test.
 
 **Acceptance:**
-- [ ] Script exits 0 against post-T011 state.
-- [ ] Deliberate test deletion makes it fail (smoke test).
-- [ ] CI job `tickets-state-machine-coverage` green.
+- [x] Script exits 0 against post-T011 state.
+- [x] Deliberate test deletion makes it fail (smoke test).
+- [x] CI job `tickets-state-machine-coverage` green.
 
 ### T013 — Mermaid state-diagram cross-reference test
-**Status:** 🔴 Blocked by T011 · **Effort:** 1h
+**Status:** ✅ Complete · **Effort:** 1h
 **Story:** US-7 · **FR/NFR:** FR-14
 **Description.** Author a small Jest test that parses
 `data-model.md` Mermaid blocks and cross-checks edges against
@@ -200,11 +200,11 @@ with a real implementation that:
 the human-reviewable artifact and the implementation.
 
 **Acceptance:**
-- [ ] Test passes.
-- [ ] Deliberate Mermaid edit makes it fail (smoke test).
+- [x] Test passes.
+- [x] Deliberate Mermaid edit makes it fail (smoke test).
 
 ### T014 — Audit-event payload-schema test harness
-**Status:** 🔴 Blocked by T011 · **Effort:** 1.5h
+**Status:** ✅ Complete · **Effort:** 1.5h
 **Story:** US-7 · **FR/NFR:** FR-5, NFR-4
 **Description.** Author a Jest helper
 `packages/tickets/src/__tests__/audit-shape.helper.ts` that validates
@@ -213,15 +213,15 @@ any emitted payload against
 using `ajv`. Used by B5 tests; ships RED here (no emitter yet).
 
 **Acceptance:**
-- [ ] Helper compiles + exports `assertValidTransitionEvent(event)`.
-- [ ] `ajv` added as a devDependency.
+- [x] Helper compiles + exports `assertValidTransitionEvent(event)`.
+- [x] `ajv` added as a devDependency.
 
 ---
 
 ## Phase B4 — Identifier allocator (6h)
 
 ### T015 — `nextIdentifier(kind)` tests (RED)
-**Status:** 🔴 Blocked by T008 · **Effort:** 1h
+**Status:** ✅ Complete · **Effort:** 1h
 **Delegate suggestion:** tdd-guide
 **Description.** Tests for `packages/tickets/src/identifiers.ts`:
 - Returns properly-shaped `ST-/ER-/MT-YYYY-NNNNN`.
@@ -230,20 +230,20 @@ using `ajv`. Used by B5 tests; ships RED here (no emitter yet).
 - Throws if next year's sequence doesn't exist.
 
 **Acceptance:**
-- [ ] Tests compile, FAIL.
+- [x] Tests compile, FAIL.
 
 ### T016 — Implement `nextIdentifier(kind)`
-**Status:** 🔴 Blocked by T015 · **Effort:** 1.5h
+**Status:** ✅ Complete · **Effort:** 1.5h
 **Description.** Implement via raw SQL `SELECT nextval('<kind>_<year>_seq')`,
 0-pad to 5 digits, return `<prefix>-<year>-<padded>`. Surface a
 typed error `SequenceNotFoundError` when the year's sequence is
 missing.
 
 **Acceptance:**
-- [ ] T015 tests pass.
+- [x] T015 tests pass.
 
 ### T017 — Annual-rollover Inngest function + tests
-**Status:** 🔴 Blocked by T016 · **Effort:** 2.5h
+**Status:** ✅ Complete · **Effort:** 2.5h
 **Story:** EC-9 · **FR/NFR:** plan §3 R-3
 **Description.** Inngest cron at `0 0 1 12 *` UTC creates next
 year's three sequences (`CREATE SEQUENCE IF NOT EXISTS`). Emits
@@ -251,11 +251,11 @@ year's three sequences (`CREATE SEQUENCE IF NOT EXISTS`). Emits
 clock + a transactional rollback to verify idempotency.
 
 **Acceptance:**
-- [ ] Re-running the cron is a no-op (idempotent).
-- [ ] Emits 3 audit events on first successful run.
+- [x] Re-running the cron is a no-op (idempotent).
+- [x] Emits 3 audit events on first successful run.
 
 ### T018 — Documentation: identifier allocator runbook
-**Status:** 🔴 Blocked by T017 · **Effort:** 1h
+**Status:** ✅ Complete · **Effort:** 1h
 **Parallel with:** T017 tests
 **Description.** Author `docs/runbooks/identifier-sequences.md`
 covering: bootstrapping a fresh DB (initial year), recovering from
@@ -263,7 +263,7 @@ a missed rollover (manual `CREATE SEQUENCE`), auditing the cron's
 last run.
 
 **Acceptance:**
-- [ ] Runbook present; links from `data-model.md` §6.
+- [x] Runbook present; links from `data-model.md` §6.
 
 ---
 
@@ -377,7 +377,7 @@ mutation is rolled back. Verifies NFR-4.
 ## Phase B6 — Read primitives + cross-side isolation (10h)
 
 ### T027 — Read-primitive tests (RED)
-**Status:** 🔴 Blocked by T020, T022, T024 · **Effort:** 2.5h
+**Status:** ✅ Complete · **Effort:** 2.5h
 **Delegate suggestion:** tdd-guide
 **Description.** `packages/tickets/src/__tests__/repo/read.test.ts`
 covers FR-9 surface:
@@ -393,18 +393,18 @@ Matrix: (caller-tier × target-table × hit/miss) — ~30+ tests.
 **Acceptance:** tests FAIL.
 
 ### T028 — Implement `repo/read.ts`
-**Status:** 🔴 Blocked by T027 · **Effort:** 3h
+**Status:** ✅ Complete · **Effort:** 3h
 **Description.** Drizzle queries with tier-side filters branched on
 `principal.kind` and `principal.tier`. Service principal carve-out
 gated by scope check. Cursor-based pagination (limit + cursor) per
 NFR-2.
 
 **Acceptance:**
-- [ ] T027 tests pass.
-- [ ] Cross-side leakage tests (NFR-9) green.
+- [x] T027 tests pass.
+- [x] Cross-side leakage tests (NFR-9) green.
 
 ### T029 — F09 hand-off seam: projection adapter
-**Status:** 🔴 Blocked by T028 · **Effort:** 1.5h
+**Status:** 🟡 Ready · **Effort:** 1.5h
 **Description.** Define an interface
 `TicketProjection<K extends TicketKind>` that F09's privacy filter
 will implement. F04 ships a default "show all owned fields, hide all
@@ -415,7 +415,7 @@ filter-rule-driven projection.
 - [ ] Interface exported; default impl tested.
 
 ### T030 — Performance benchmarks against seeded dev DB
-**Status:** 🔴 Blocked by T028 · **Effort:** 2h
+**Status:** 🟡 Ready · **Effort:** 2h
 **Story:** NFR-2, NFR-3, M-5
 **Description.** Seed 10k rows / kind via a script. Run benchmark
 suite: fetch-by-id, list-by-state, match-create. Capture p50/p90/p99
@@ -426,7 +426,7 @@ latencies. Fail if p90 exceeds NFR-2/NFR-3 thresholds.
 - [ ] p90 within thresholds (50ms / 200ms / 500ms).
 
 ### T031 — Read-primitives documentation
-**Status:** 🔴 Blocked by T028 · **Effort:** 1h
+**Status:** 🟡 Ready · **Effort:** 1h
 **Parallel with:** T030
 **FR/NFR:** NFR-10
 **Description.** Author `packages/tickets/README.md` covering the

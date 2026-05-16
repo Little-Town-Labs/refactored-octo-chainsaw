@@ -106,3 +106,15 @@ export {
   type CreateMatchFields,
   type MatchRepoOptions,
 } from "./repo/match.js";
+export {
+  createReadRepo,
+  TICKET_READ_ALL_SCOPE,
+  type MatchJoinGraph,
+  type Page,
+  type PageOptions,
+  type ReadTicketKind,
+  type ReducedTicketProjection,
+  type TicketReadRepo,
+  type TicketReadRepoOptions,
+  type TicketRow,
+} from "./repo/read.js";
