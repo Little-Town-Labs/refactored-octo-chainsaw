@@ -68,3 +68,41 @@ export {
   type BootstrappedSequenceEvent,
   type BootstrapResult,
 } from "./rollover.js";
+
+// F04 B5 — Repositories + audit emission helpers.
+export {
+  buildTransitionAuditEvent,
+  emitTransitionAuditEvent,
+  principalRoleOrScope,
+  principalScopes,
+  type BuildTransitionEventArgs,
+  type InsertAuditEvent,
+  type TicketAuditWriter,
+  type TicketTransitionAuditEvent,
+  type TicketTransitionAuditPayload,
+} from "./audit.js";
+
+export {
+  createDrizzleTicketStore,
+  type TicketStore,
+  type TicketTransactionStore,
+} from "./repo/store.js";
+export {
+  createSeekerRepo,
+  type SeekerDraftFields,
+  type SeekerRepoOptions,
+  type SeekerTransitionArgs,
+} from "./repo/seeker.js";
+export {
+  createEmployerReqRepo,
+  type EmployerReqDraftFields,
+  type EmployerReqRepoOptions,
+  type EmployerReqTransitionArgs,
+} from "./repo/employer-req.js";
+export {
+  createMatchRepo,
+  MATCH_ADVANCE_SCOPE,
+  type AdvanceMatchArgs,
+  type CreateMatchFields,
+  type MatchRepoOptions,
+} from "./repo/match.js";

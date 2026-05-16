@@ -1,7 +1,8 @@
 # @spyglass/tickets
 
-**Status:** alpha — F04 implementation in progress (B1 skeleton landed
-2026-05-12; B2–B9 in branch `04-ticket-store-state-machines`).
+**Status:** alpha — F04 implementation in progress. B1–B5 are landed
+on branch `04-ticket-store-state-machines`; B6+ read primitives and
+web wiring remain.
 
 The ticket spine. Three ticket types — `seeker_ticket`,
 `employer_req_ticket`, `match_ticket` — each with its own state
@@ -9,12 +10,15 @@ machine and transition guards (PRD §5.1).
 
 ## Public API
 
-To be defined in F04. Will export the ticket types, state-machine
-definitions, transition guards, and the read/write store interface.
+- State-machine definitions and `assertTransition`.
+- Identifier allocation and annual sequence rollover helpers.
+- Repositories for seeker tickets, employer requisitions, and match
+  tickets.
+- In-transaction audit event helpers and a Drizzle-backed store adapter.
 
 ## Dependencies
 
-Will depend on `@spyglass/shared` and `@spyglass/db`.
+Depends on `@spyglass/auth`, `@spyglass/db`, and `drizzle-orm`.
 
 ## Stability tier
 

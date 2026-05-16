@@ -272,7 +272,7 @@ last run.
 **TDD enforced** on each repo: tests RED before impl GREEN.
 
 ### T019 — Seeker repo tests (RED)
-**Status:** 🔴 Blocked by T011 · **Effort:** 1.5h
+**Status:** ✅ Complete · **Effort:** 1.5h
 **Parallel with:** T021, T023
 **Delegate suggestion:** tdd-guide
 **Description.** `packages/tickets/src/__tests__/repo/seeker.test.ts`:
@@ -284,16 +284,16 @@ last run.
 **Acceptance:** tests compile, FAIL.
 
 ### T020 — Implement seeker repo
-**Status:** 🔴 Blocked by T019 · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Description.** `packages/tickets/src/repo/seeker.ts` Drizzle-backed.
 In-transaction audit emission to F02's `audit_events_buffer`. Use
 F02 `redactPayload` helper for the audit row.
 
 **Acceptance:**
-- [ ] T019 tests pass.
+- [x] T019 tests pass.
 
 ### T021 — Employer-req repo tests (RED)
-**Status:** 🔴 Blocked by T011 · **Effort:** 1.5h
+**Status:** ✅ Complete · **Effort:** 1.5h
 **Parallel with:** T019, T023
 **Delegate suggestion:** tdd-guide
 **Description.** As T019 for employer-req. Adds `headcount` semantics
@@ -302,7 +302,7 @@ F02 `redactPayload` helper for the audit row.
 **Acceptance:** tests FAIL.
 
 ### T022 — Implement employer-req repo
-**Status:** 🔴 Blocked by T021 · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **FR/NFR:** EC-2 (partial fill: `matching → matching` self-loop with headcount decrement on accepted matches)
 **Description.** As T020 for employer-req. Adds partial-fill semantics:
 when an `accepted` match transitions, decrement
@@ -310,13 +310,13 @@ when an `accepted` match transitions, decrement
 total, transition employer-req to `filled`.
 
 **Acceptance:**
-- [ ] T021 tests pass.
-- [ ] Partial-fill scenario test (EC-2): 2 matches accepted against
+- [x] T021 tests pass.
+- [x] Partial-fill scenario test (EC-2): 2 matches accepted against
       a headcount=3 requisition leaves it in `matching`; the 3rd
       accept transitions to `filled`.
 
 ### T023 — Match repo tests (RED)
-**Status:** 🔴 Blocked by T011 · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Parallel with:** T019, T021
 **Story:** US-3, US-6 · **FR/NFR:** FR-8, FR-10, FR-11, EC-6, EC-7
 **Delegate suggestion:** tdd-guide
@@ -333,7 +333,7 @@ total, transition employer-req to `filled`.
 **Acceptance:** tests FAIL.
 
 ### T024 — Implement match repo
-**Status:** 🔴 Blocked by T023 · **Effort:** 3h
+**Status:** ✅ Complete · **Effort:** 3h
 **FR/NFR:** FR-8, FR-10, FR-11, EC-6, EC-7
 **Description.** Atomic multi-table transactions. Idempotency error
 maps from PG unique-violation to `IdempotencyConflictError`.
@@ -344,14 +344,14 @@ atomic: `attempt++`, `run_id := NULL`, `dossier_id := NULL`,
 `round := 0`, `state := 'negotiating'` in one statement.
 
 **Acceptance:**
-- [ ] T023 tests pass.
-- [ ] FR-11 round ceiling enforced (negative test: incrementing past
+- [x] T023 tests pass.
+- [x] FR-11 round ceiling enforced (negative test: incrementing past
       round_cap rejected).
-- [ ] EC-7 re-negotiation atomic (multi-column update verified by
+- [x] EC-7 re-negotiation atomic (multi-column update verified by
       transaction-isolation test).
 
 ### T025 — Cross-cut: audit emission helper + payload-shape tests
-**Status:** 🔴 Blocked by T020, T022, T024 · **Effort:** 1.5h
+**Status:** ✅ Complete · **Effort:** 1.5h
 **Description.** Centralize emit logic in
 `packages/tickets/src/audit.ts` (already used by T020/T022/T024).
 Add a Jest "shape test" that exercises every transition and asserts
@@ -359,10 +359,10 @@ the emitted payload validates against the JSON-Schema (FR-5, NFR-4
 defense-in-depth).
 
 **Acceptance:**
-- [ ] All 26 named transitions emit shape-valid payloads.
+- [x] All named transitions emit shape-valid payloads.
 
 ### T026 — Audit emission no-loss test (NFR-4)
-**Status:** 🔴 Blocked by T025 · **Effort:** 1.5h
+**Status:** ✅ Complete · **Effort:** 1.5h
 **FR/NFR:** NFR-4, EC-5
 **Delegate suggestion:** tdd-guide
 **Description.** Test that simulates an audit-insert failure inside
@@ -370,7 +370,7 @@ the transaction (e.g., via a Drizzle mock) and asserts the row
 mutation is rolled back. Verifies NFR-4.
 
 **Acceptance:**
-- [ ] Failed emit → no row change visible post-failure.
+- [x] Failed emit → no row change visible post-failure.
 
 ---
 
