@@ -47,7 +47,7 @@ jobs:
       # package.json and uses pnpm for its cache-key step, so pnpm
       # must already be on PATH. Install via pnpm/action-setup ahead
       # of setup-node (mirrors .github/actions/setup).
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 9.15.0
       - uses: actions/setup-node@v5
