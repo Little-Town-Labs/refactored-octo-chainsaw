@@ -653,7 +653,7 @@ findings; rerun if needed. Output to `analyze-report.md`.
 - [x] No CRITICAL/HIGH; all MEDIUM resolved or deferred with rationale.
 
 ### T047 — Run `/code-review` + `/security-review`
-**Status:** 🟡 Ready · **Effort:** 1.5h
+**Status:** ✅ Complete · **Effort:** 1.5h
 **Delegate suggestion:** security-reviewer (F04 has real auth surface)
 **Description.** Run code-review across the F04 diff. Then run
 security-review specifically focused on FR-4 (principal coverage),
@@ -662,11 +662,11 @@ manipulation guards). Address CRITICAL/HIGH; document MEDIUM
 resolutions or defer with explicit justification.
 
 **Acceptance:**
-- [ ] Both review reports saved alongside `analyze-report.md`.
-- [ ] No CRITICAL/HIGH outstanding.
+- [x] Both review reports saved alongside `analyze-report.md`.
+- [x] No CRITICAL/HIGH outstanding.
 
 ### T048 — Final back-check against schema-lint + principal-coverage gates
-**Status:** 🔴 Blocked by T047 · **Effort:** 0.5h
+**Status:** 🟡 Ready · **Effort:** 0.5h
 **FR/NFR:** M-6
 **Description.** Run all CI gates locally. Confirm green.
 

@@ -1,5 +1,6 @@
 import {
   IdempotencyConflictError,
+  IllegalTransitionError,
   InvariantViolationError,
   MissingScopeError,
 } from "../../errors.js";
@@ -54,6 +55,37 @@ describe("match repo", () => {
     ).not.toThrow(AuditShapeError);
   });
 
+  it("createMatch transitions eligible source tickets to matching in the same transaction", async () => {
+    const store = new MemoryTicketStore();
+    store.seedSeeker(seekerRow({ state: "screening" }));
+    store.seedEmployerReq(employerReqRow({ state: "open" }));
+    const repo = makeRepo(store);
+
+    await repo.createMatch(createFields);
+
+    expect(store.seekers[0]?.state).toBe("matching");
+    expect(store.employerReqs[0]?.state).toBe("matching");
+    expect(store.matches).toHaveLength(1);
+    expect(store.audits.map((event) => event.event_name)).toEqual([
+      "seeker_ticket.matching",
+      "employer_req_ticket.matching",
+      "match_ticket.created",
+    ]);
+  });
+
+  it("createMatch rejects source tickets that cannot transition to matching", async () => {
+    const store = new MemoryTicketStore();
+    store.seedSeeker(seekerRow({ state: "draft" }));
+    store.seedEmployerReq(employerReqRow({ state: "open" }));
+    const repo = makeRepo(store);
+
+    await expect(repo.createMatch(createFields)).rejects.toBeInstanceOf(IllegalTransitionError);
+    expect(store.seekers[0]?.state).toBe("draft");
+    expect(store.employerReqs[0]?.state).toBe("open");
+    expect(store.matches).toHaveLength(0);
+    expect(store.audits).toHaveLength(0);
+  });
+
   it("createMatch requires tickets.match.advance scope", async () => {
     const store = new MemoryTicketStore();
     store.seedSeeker(seekerRow({ state: "matching" }));
@@ -101,6 +133,24 @@ describe("match repo", () => {
       dossier_id: testUuid(701),
     });
     expect(delivered.state).toBe("delivered");
+  });
+
+  it("advanceMatch assigns a run_id when entering negotiation", async () => {
+    const store = new MemoryTicketStore();
+    store.seedMatch(matchRow({ state: "created", run_id: null }));
+    const repo = makeRepo(store);
+
+    const negotiating = await repo.advanceMatch({
+      match_ticket_id: testUuid(301),
+      to: "negotiating",
+      principal: matcherPrincipal,
+    });
+
+    expect(negotiating.state).toBe("negotiating");
+    expect(negotiating.run_id).toBe(testUuid(777));
+    expect(store.audits.at(-1)?.payload).toMatchObject({
+      run_id: testUuid(777),
+    });
   });
 
   it("renegotiate atomically bumps attempt and clears run/dossier state", async () => {

@@ -1,7 +1,14 @@
 import { randomUUID } from "node:crypto";
 
 import type { Principal } from "@spyglass/auth";
-import type { MatchTicketRow, MatchTicketState } from "@spyglass/db";
+import type {
+  EmployerReqTicketRow,
+  EmployerReqTicketState,
+  MatchTicketRow,
+  MatchTicketState,
+  SeekerTicketRow,
+  SeekerTicketState,
+} from "@spyglass/db";
 
 import { IdempotencyConflictError, InvariantViolationError, MissingScopeError } from "../errors.js";
 import type { TicketIdentifierKind } from "../identifiers.js";
@@ -12,13 +19,70 @@ import {
   type BuildTransitionEventArgs,
 } from "../audit.js";
 import { assertTransition } from "../transitions.js";
-import type { TicketStore } from "./store.js";
+import type { TicketStore, TicketTransactionStore } from "./store.js";
 
 export const MATCH_ADVANCE_SCOPE = "tickets.match.advance" as const;
 
 function requireMatchAdvance(principal: Principal, scopes?: ReadonlyArray<string>): void {
   const granted = principalScopes(principal, scopes);
   if (!granted.includes(MATCH_ADVANCE_SCOPE)) throw new MissingScopeError(MATCH_ADVANCE_SCOPE);
+}
+
+async function transitionSourceToMatching(
+  tx: TicketTransactionStore,
+  args: {
+    readonly seeker: SeekerTicketRow;
+    readonly employer: EmployerReqTicketRow;
+    readonly principal: Principal;
+  },
+): Promise<void> {
+  if (args.seeker.state !== "matching") {
+    assertTransition(
+      { kind: "seeker_ticket", from: args.seeker.state as SeekerTicketState, to: "matching" },
+      { scopes: principalScopes(args.principal) },
+    );
+    const updated = await tx.updateSeeker(args.seeker.seeker_ticket_id, {
+      state: "matching",
+      updated_at: new Date(),
+    });
+    await emitTransitionAuditEvent(
+      tx,
+      buildTransitionAuditEvent({
+        kind: "seeker_ticket",
+        ticketId: updated.seeker_ticket_id,
+        identifier: updated.identifier,
+        from: args.seeker.state,
+        to: updated.state,
+        principal: args.principal,
+      }),
+    );
+  }
+
+  if (args.employer.state !== "matching") {
+    assertTransition(
+      {
+        kind: "employer_req_ticket",
+        from: args.employer.state as EmployerReqTicketState,
+        to: "matching",
+      },
+      { scopes: principalScopes(args.principal) },
+    );
+    const updated = await tx.updateEmployerReq(args.employer.employer_req_ticket_id, {
+      state: "matching",
+      updated_at: new Date(),
+    });
+    await emitTransitionAuditEvent(
+      tx,
+      buildTransitionAuditEvent({
+        kind: "employer_req_ticket",
+        ticketId: updated.employer_req_ticket_id,
+        identifier: updated.identifier,
+        from: args.employer.state,
+        to: updated.state,
+        principal: args.principal,
+      }),
+    );
+  }
 }
 
 export interface CreateMatchFields {
@@ -77,6 +141,11 @@ export function createMatchRepo(options: MatchRepoOptions) {
             1,
           );
         }
+        await transitionSourceToMatching(tx, {
+          seeker,
+          employer,
+          principal: fields.principal,
+        });
 
         const identifier = await options.allocateIdentifier("match_ticket");
         const match = await tx.insertMatch({
@@ -123,7 +192,10 @@ export function createMatchRepo(options: MatchRepoOptions) {
         const current = await tx.getMatch(args.match_ticket_id);
         if (!current) throw new Error(`match ticket not found: ${args.match_ticket_id}`);
         const nextDossier = args.dossier_id === undefined ? current.dossier_id : args.dossier_id;
-        const nextRun = args.run_id === undefined ? current.run_id : args.run_id;
+        const nextRun =
+          args.run_id === undefined
+            ? (current.run_id ?? (args.to === "negotiating" ? createRunId() : null))
+            : args.run_id;
         assertTransition(
           { kind: "match_ticket", from: current.state as MatchTicketState, to: args.to },
           {
