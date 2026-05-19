@@ -113,127 +113,127 @@ Status legend: 🟡 Ready · 🔴 Blocked · 🟢 In Progress · ✅ Complete ·
 ## Phase B4 — Transcript store (10h)
 
 ### T013 — Transcript schema and idempotency tests (RED)
-**Status:** 🟡 Ready · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Description.** Test transcript append, duplicate `(run_id, side, turn_index)`, audit linkage, and denied read access.
 
-**Acceptance:** tests fail before implementation.
+**Acceptance:** tests fail before implementation. ✅
 
 ### T014 — Add transcript schema and migration coverage
-**Status:** 🔴 Blocked by T013 · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Description.** Add `transcript_turns` schema and migration coverage if not already included in T006.
 
 **Acceptance:**
-- [ ] Unique idempotency invariant present.
-- [ ] FK/indexes support match/run lookup.
+- [x] Unique idempotency invariant present.
+- [x] FK/indexes support match/run lookup.
 
 ### T015 — Implement transcript append/read primitives
-**Status:** 🔴 Blocked by T014 · **Effort:** 4h
+**Status:** ✅ Complete · **Effort:** 4h
 **Description.** Implement scoped transcript append and read APIs.
 
 **Acceptance:**
-- [ ] T013 tests pass.
-- [ ] Transcript append emits/links audit event.
+- [x] T013 tests pass.
+- [x] Transcript append emits/links audit event.
 
 ### T016 — Transcript append benchmark
-**Status:** 🔴 Blocked by T015 · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Description.** Seed transcript turns and record append p90.
 
 **Acceptance:**
-- [ ] p90 append under 200ms in seeded dev run.
+- [x] p90 append under 200ms in seeded dev run.
 
 ---
 
 ## Phase B5 — Tombstone procedure (14h)
 
 ### T017 — Tombstone procedure tests (RED)
-**Status:** 🔴 Blocked by T008, T015 · **Effort:** 3h
+**Status:** ✅ Complete · **Effort:** 3h
 **Description.** Test successful audit tombstone, transcript tombstone, already-tombstoned rejection, legal-hold rejection, and missing lawful-basis rejection.
 
-**Acceptance:** tests fail before implementation.
+**Acceptance:** tests fail before implementation. ✅
 
 ### T018 — Implement tombstone target resolver
-**Status:** 🔴 Blocked by T017 · **Effort:** 3h
+**Status:** ✅ Complete · **Effort:** 3h
 **Description.** Resolve erasure targets from subject references across canonical audit and transcript stores.
 
 **Acceptance:**
-- [ ] Target resolver returns deterministic target sets.
-- [ ] Legal-hold targets are excluded or denied per policy.
+- [x] Target resolver returns deterministic target sets.
+- [x] Legal-hold targets are excluded or denied per policy.
 
 ### T019 — Implement atomic tombstone execution
-**Status:** 🔴 Blocked by T018 · **Effort:** 5h
+**Status:** ✅ Complete · **Effort:** 5h
 **Description.** Redact target payload/content, insert tombstone record, emit tombstone audit event, and preserve chain verification.
 
 **Acceptance:**
-- [ ] T017 success and denial tests pass.
-- [ ] Chain verifier stays valid after tombstone.
+- [x] T017 success and denial tests pass.
+- [x] Chain verifier stays valid after tombstone.
 
 ### T020 — Tombstone runbook
-**Status:** 🔴 Blocked by T019 · **Effort:** 3h
+**Status:** ✅ Complete · **Effort:** 3h
 **Description.** Add `docs/runbooks/audit-log-tombstone.md` with operator steps, counsel gates, rollback limits, and verification commands.
 
 **Acceptance:**
-- [ ] Runbook covers request intake, execution, verification, and evidence export.
+- [x] Runbook covers request intake, execution, verification, and evidence export.
 
 ---
 
 ## Phase B6 — Evidence reads/export (8h)
 
 ### T021 — Evidence export authorization tests (RED)
-**Status:** 🔴 Blocked by T008, T015 · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Description.** Test scoped and unscoped audit/transcript/export reads.
 
-**Acceptance:** unscoped principals denied by default.
+**Acceptance:** unscoped principals denied by default. ✅
 
 ### T022 — Implement evidence query/export primitives
-**Status:** 🔴 Blocked by T021 · **Effort:** 4h
+**Status:** ✅ Complete · **Effort:** 4h
 **Description.** Query by match id, run id, principal id, correlation id, and date range; generate deterministic manifests.
 
 **Acceptance:**
-- [ ] Export includes chain verification status and tombstone markers.
-- [ ] Manifest hash is deterministic.
+- [x] Export includes chain verification status and tombstone markers.
+- [x] Manifest hash is deterministic.
 
 ### T023 — Operator/counsel review documentation
-**Status:** 🔴 Blocked by T022 · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Description.** Document evidence export workflow and allowed purposes.
 
 **Acceptance:**
-- [ ] Docs identify required scopes and review purposes.
+- [x] Docs identify required scopes and review purposes.
 
 ---
 
 ## Phase B7 — Back-check, reviews, and closure (8h)
 
 ### T024 — Execute quickstart scenarios
-**Status:** 🔴 Blocked by T009, T016, T019, T022 · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Description.** Run all F05 quickstart scenarios and save `quickstart-run-<date>.md`.
 
 **Acceptance:**
-- [ ] All scenarios pass or have documented deferrals.
+- [x] All scenarios pass or have documented deferrals.
 
 ### T025 — Run `/speckit-analyze`
-**Status:** 🔴 Blocked by T024 · **Effort:** 1h
+**Status:** ✅ Complete · **Effort:** 1h
 **Acceptance:**
-- [ ] No CRITICAL/HIGH findings remain.
+- [x] No CRITICAL/HIGH findings remain.
 
 ### T026 — Run `/code-review` and mandatory `/security-review`
-**Status:** 🔴 Blocked by T025 · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Acceptance:**
-- [ ] No CRITICAL/HIGH findings remain.
+- [x] No CRITICAL/HIGH findings remain.
 
 ### T027 — Final verification
-**Status:** 🔴 Blocked by T026 · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Description.** Run package tests, type-check, lint, schema-lint, and F05 performance scripts.
 
 **Acceptance:**
-- [ ] All local gates pass.
+- [x] All local gates pass.
 
 ### T028 — Roadmap and handoff update
-**Status:** 🔴 Blocked by T027 · **Effort:** 1h
+**Status:** ✅ Complete · **Effort:** 1h
 **Description.** Mark F05 complete in roadmap and add handoff notes for F06/F07/F08/F10/F24.
 
 **Acceptance:**
-- [ ] Roadmap reflects F05 closure.
-- [ ] Handoff notes name stable audit/transcript/tombstone seams.
+- [x] Roadmap reflects F05 closure.
+- [x] Handoff notes name stable audit/transcript/tombstone seams.
 
 ---
 

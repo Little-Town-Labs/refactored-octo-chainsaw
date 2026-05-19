@@ -118,12 +118,14 @@ export async function appendCanonicalAuditEvent(
 export function createDrizzleCanonicalAuditWriterStore(db: Db): CanonicalAuditWriterStore {
   return {
     async transaction<T>(fn: (tx: CanonicalAuditWriterTx) => Promise<T>): Promise<T> {
-      return db.transaction(async (tx) => fn(drizzleCanonicalAuditWriterTx(tx as unknown as Db)));
+      return db.transaction(async (tx) =>
+        fn(createDrizzleCanonicalAuditWriterTx(tx as unknown as Db)),
+      );
     },
   };
 }
 
-function drizzleCanonicalAuditWriterTx(db: Db): CanonicalAuditWriterTx {
+export function createDrizzleCanonicalAuditWriterTx(db: Db): CanonicalAuditWriterTx {
   return {
     async lockChainNamespace(chainNamespace) {
       await db.execute(sql`select pg_advisory_xact_lock(hashtextextended(${chainNamespace}, 0))`);

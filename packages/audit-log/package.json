@@ -20,6 +20,7 @@
     "test": "jest --passWithNoTests",
     "lint": "eslint .",
     "bench:f05-chain": "tsx scripts/f05-chain-benchmark.ts",
+    "bench:f05-transcript": "tsx scripts/f05-transcript-benchmark.ts",
     "replay:f05-audit": "tsx scripts/f05-audit-replay.ts"
   },
   "dependencies": {
