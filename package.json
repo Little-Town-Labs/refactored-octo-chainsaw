@@ -10,6 +10,12 @@
     "node": ">=24.0.0 <25",
     "pnpm": ">=9.0.0 <10"
   },
+  "pnpm": {
+    "overrides": {
+      "brace-expansion@5": "5.0.6",
+      "ws@8.20.0": "8.20.1"
+    }
+  },
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test",
@@ -17,6 +23,7 @@
     "lint": "turbo run lint",
     "schema:lint": "bash scripts/check-schema-conventions.sh",
     "schema:lint:test": "bash scripts/__tests__/check-schema-conventions.test.sh",
+    "tickets:coverage": "bash scripts/check-tickets-state-machine.sh",
     "type-check": "turbo run type-check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -32,7 +39,7 @@
     "@swc/core": "^1.15.33",
     "@swc/jest": "^0.2.39",
     "@types/jest": "^30.0.0",
-    "eslint": "^10.3.0",
+    "eslint": "^10.4.0",
     "eslint-config-next": "^16.2.6",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-boundaries": "^6.0.2",
@@ -42,7 +49,7 @@
     "lefthook": "^2.1.6",
     "prettier": "^3.8.3",
     "tsx": "^4.21.0",
-    "turbo": "^2.9.12",
+    "turbo": "^2.9.14",
     "typescript": "^5.9.0",
     "typescript-eslint": "^8.59.3"
   }

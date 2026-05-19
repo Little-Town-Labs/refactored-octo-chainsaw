@@ -23,10 +23,10 @@
   "dependencies": {
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
-    "pg": "^8.20.0"
+    "pg": "^8.21.0"
   },
   "devDependencies": {
-    "@types/node": "^24.0.0",
+    "@types/node": "^24.12.4",
     "@types/pg": "^8.20.0"
   }
 }
