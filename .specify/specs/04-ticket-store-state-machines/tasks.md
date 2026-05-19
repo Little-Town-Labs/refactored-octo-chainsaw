@@ -603,7 +603,7 @@ events fired; latencies within NFR-2/NFR-3.
 - [x] Latency report appended to quickstart-run log.
 
 ### T043 — Performance benchmark capture (NFR-2, NFR-3, M-5)
-**Status:** 🟡 Ready · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Description.** Compile T030 + T042 latency captures into a single
 `docs/performance/f04-baseline.md` documenting:
 - fetch-by-id p50/p90/p99
@@ -614,11 +614,11 @@ events fired; latencies within NFR-2/NFR-3.
 Used by future performance work as the F04 baseline.
 
 **Acceptance:**
-- [ ] Document checked in.
-- [ ] All p90 values within plan §8 targets.
+- [x] Document checked in.
+- [x] All p90 values within plan §8 targets.
 
 ### T044 — Operator runbook for ticket lifecycle
-**Status:** 🟡 Ready · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Parallel with:** T041, T042
 **FR/NFR:** NFR-10
 **Description.** Author `docs/runbooks/ticket-lifecycle.md` (analog
@@ -627,11 +627,11 @@ stuck tickets, manual transitions, cancellation, re-negotiation
 triggers.
 
 **Acceptance:**
-- [ ] Runbook covers each kind.
-- [ ] Links from `docs/runbooks/` index.
+- [x] Runbook covers each kind.
+- [x] Links from `docs/runbooks/` index.
 
 ### T045 — Update `docs/security/credential-lifecycle.md` for F04 cross-refs
-**Status:** 🔴 Blocked by T044 · **Effort:** 1h
+**Status:** 🟡 Ready · **Effort:** 1h
 **Description.** F04 introduces service-principal usage of
 `tickets.match.advance` (Parley) and `tickets.transition.operator`.
 Update F02's credential-lifecycle doc with these scope names in the
