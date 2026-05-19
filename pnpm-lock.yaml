@@ -83,6 +83,9 @@ importers:
       '@spyglass/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@spyglass/tickets':
+        specifier: workspace:*
+        version: link:../../packages/tickets
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2(@types/pg@8.20.0)(pg@8.20.0)
@@ -98,6 +101,9 @@ importers:
       svix:
         specifier: ^1.93.0
         version: 1.93.0
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@testing-library/dom':
         specifier: ^10

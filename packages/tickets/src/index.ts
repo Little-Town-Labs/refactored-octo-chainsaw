@@ -7,11 +7,10 @@
 //   - Package skeleton (T001)
 //   - State enums + transition catalogs + assertTransition (B3 / T011)
 //   - Typed error classes (B3 / T011)
-//
-// Coming in later F04 tasks:
 //   - Identifier allocator (B4)
 //   - Repositories per kind (B5)
 //   - Read primitives + cross-side isolation (B6)
+//   - Default projection adapter seam for F09 privacy filtering (B6 / T029)
 //
 // Constitutional refs: §I.2 (integrity), §I.5.1–§I.5.3 (AAA),
 // §I.6 (defense in depth), §I.A.1 (jurisdiction tagging),
@@ -108,13 +107,17 @@ export {
 } from "./repo/match.js";
 export {
   createReadRepo,
+  defaultTicketProjection,
   TICKET_READ_ALL_SCOPE,
   type MatchJoinGraph,
   type Page,
   type PageOptions,
   type ReadTicketKind,
   type ReducedTicketProjection,
+  type TicketProjection,
+  type TicketProjectionMap,
   type TicketReadRepo,
   type TicketReadRepoOptions,
   type TicketRow,
+  type TicketRowFor,
 } from "./repo/read.js";

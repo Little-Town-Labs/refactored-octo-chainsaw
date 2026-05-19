@@ -6,6 +6,11 @@ import type { TicketStore, TicketTransactionStore } from "./store.js";
 
 export type ReadTicketKind = "seeker" | "employer_req" | "match";
 export type TicketRow = SeekerTicketRow | EmployerReqTicketRow | MatchTicketRow;
+export type TicketRowFor<K extends ReadTicketKind> = K extends "seeker"
+  ? SeekerTicketRow
+  : K extends "employer_req"
+    ? EmployerReqTicketRow
+    : MatchTicketRow;
 export const TICKET_READ_ALL_SCOPE = "tickets.read.all" as const;
 
 export interface PageOptions {
@@ -28,6 +33,15 @@ export interface ReducedTicketProjection {
   readonly role_title?: string;
   readonly decision_locus_jurisdiction?: string;
 }
+
+export interface TicketProjection<K extends ReadTicketKind> {
+  readonly kind: K;
+  project(row: TicketRowFor<K>): ReducedTicketProjection;
+}
+
+export type TicketProjectionMap = {
+  readonly [K in ReadTicketKind]: TicketProjection<K>;
+};
 
 export interface MatchJoinGraph {
   readonly match: MatchTicketRow;
@@ -76,6 +90,7 @@ export interface TicketReadRepo {
 
 export interface TicketReadRepoOptions {
   readonly store: TicketStore;
+  readonly projection?: TicketProjectionMap;
 }
 
 function notImplemented(): never {
@@ -119,37 +134,46 @@ function ownsEmployerReq(principal: Principal, row: EmployerReqTicketRow): boole
   );
 }
 
-function seekerProjection(row: SeekerTicketRow): ReducedTicketProjection {
-  return {
-    ticket_id: row.seeker_ticket_id,
-    identifier: row.identifier,
+export const defaultTicketProjection: TicketProjectionMap = {
+  seeker: {
     kind: "seeker",
-    state: row.state,
-    jurisdictions: row.jurisdictions,
-    role_family: row.role_family,
-  };
-}
-
-function employerProjection(row: EmployerReqTicketRow): ReducedTicketProjection {
-  return {
-    ticket_id: row.employer_req_ticket_id,
-    identifier: row.identifier,
+    project(row) {
+      return {
+        ticket_id: row.seeker_ticket_id,
+        identifier: row.identifier,
+        kind: "seeker",
+        state: row.state,
+        jurisdictions: row.jurisdictions,
+        role_family: row.role_family,
+      };
+    },
+  },
+  employer_req: {
     kind: "employer_req",
-    state: row.state,
-    jurisdictions: row.jurisdictions,
-    role_title: row.role_title,
-  };
-}
-
-function matchProjection(row: MatchTicketRow): ReducedTicketProjection {
-  return {
-    ticket_id: row.match_ticket_id,
-    identifier: row.identifier,
+    project(row) {
+      return {
+        ticket_id: row.employer_req_ticket_id,
+        identifier: row.identifier,
+        kind: "employer_req",
+        state: row.state,
+        jurisdictions: row.jurisdictions,
+        role_title: row.role_title,
+      };
+    },
+  },
+  match: {
     kind: "match",
-    state: row.state,
-    decision_locus_jurisdiction: row.decision_locus_jurisdiction,
-  };
-}
+    project(row) {
+      return {
+        ticket_id: row.match_ticket_id,
+        identifier: row.identifier,
+        kind: "match",
+        state: row.state,
+        decision_locus_jurisdiction: row.decision_locus_jurisdiction,
+      };
+    },
+  },
+};
 
 async function canReadMatchSide(
   tx: TicketTransactionStore,
@@ -206,6 +230,8 @@ async function readMatchJoinGraph(
 }
 
 export function createReadRepo(options: TicketReadRepoOptions): TicketReadRepo {
+  const projection = options.projection ?? defaultTicketProjection;
+
   return {
     async listByPrincipal(principal, principalId, kind, opts) {
       return options.store.transaction(async (tx) => {
@@ -268,19 +294,23 @@ export function createReadRepo(options: TicketReadRepoOptions): TicketReadRepo {
         if (kind === "seeker") {
           const row = await tx.getSeeker(ticketId);
           if (!row) return null;
-          return canReadAll(principal) || ownsSeeker(principal, row) ? row : seekerProjection(row);
+          return canReadAll(principal) || ownsSeeker(principal, row)
+            ? row
+            : projection.seeker.project(row);
         }
         if (kind === "employer_req") {
           const row = await tx.getEmployerReq(ticketId);
           if (!row) return null;
           return canReadAll(principal) || ownsEmployerReq(principal, row)
             ? row
-            : employerProjection(row);
+            : projection.employer_req.project(row);
         }
         if (kind === "match") {
           const row = await tx.getMatch(ticketId);
           if (!row) return null;
-          return (await canReadMatchSide(tx, principal, row)) ? matchProjection(row) : null;
+          return (await canReadMatchSide(tx, principal, row))
+            ? projection.match.project(row)
+            : null;
         }
         return notImplemented();
       });
@@ -290,18 +320,20 @@ export function createReadRepo(options: TicketReadRepoOptions): TicketReadRepo {
         if (kind === "seeker") {
           const row = await tx.findSeekerByIdentifier(identifier);
           if (!row) return null;
-          return canReadAll(principal) || ownsSeeker(principal, row) ? row : seekerProjection(row);
+          return canReadAll(principal) || ownsSeeker(principal, row)
+            ? row
+            : projection.seeker.project(row);
         }
         if (kind === "employer_req") {
           const row = await tx.findEmployerReqByIdentifier(identifier);
           if (!row) return null;
           return canReadAll(principal) || ownsEmployerReq(principal, row)
             ? row
-            : employerProjection(row);
+            : projection.employer_req.project(row);
         }
         const row = await tx.findMatchByIdentifier(identifier);
         if (!row) return null;
-        return (await canReadMatchSide(tx, principal, row)) ? matchProjection(row) : null;
+        return (await canReadMatchSide(tx, principal, row)) ? projection.match.project(row) : null;
       });
     },
     async fetchMatchJoinGraph(principal, matchTicketId) {

@@ -1,5 +1,10 @@
 import { MissingScopeError } from "../../errors.js";
-import { createReadRepo, type TicketReadRepo } from "../../repo/read.js";
+import {
+  createReadRepo,
+  defaultTicketProjection,
+  type TicketProjectionMap,
+  type TicketReadRepo,
+} from "../../repo/read.js";
 import {
   employerPrincipal,
   employerReqRow,
@@ -126,6 +131,46 @@ describe("ticket read primitives", () => {
     });
     expect(result).not.toHaveProperty("comp_band_min");
     expect(result).not.toHaveProperty("comp_band_max");
+  });
+
+  it("exports a default projection adapter for F09 to replace", () => {
+    const projection = defaultTicketProjection.employer_req.project(
+      employerReqRow({ state: "matching" }),
+    );
+
+    expect(projection).toMatchObject({
+      ticket_id: testUuid(201),
+      identifier: "ER-2026-00001",
+      kind: "employer_req",
+      state: "matching",
+      jurisdictions: ["US-CA"],
+      role_title: "Senior Engineer",
+    });
+    expect(projection).not.toHaveProperty("comp_band_min");
+  });
+
+  it("accepts a projection adapter override", async () => {
+    const store = new MemoryTicketStore();
+    store.seedEmployerReq(employerReqRow({ state: "matching" }));
+    const projection: TicketProjectionMap = {
+      ...defaultTicketProjection,
+      employer_req: {
+        kind: "employer_req",
+        project(row) {
+          return {
+            ...defaultTicketProjection.employer_req.project(row),
+            role_title: "redacted-by-test-adapter",
+          };
+        },
+      },
+    };
+    const repo = createReadRepo({ store, projection });
+
+    await expect(
+      repo.fetchById(seekerPrincipal, "employer_req", testUuid(201)),
+    ).resolves.toMatchObject({
+      role_title: "redacted-by-test-adapter",
+    });
   });
 
   it("fetchByIdentifier applies the same access rules as fetchById", async () => {

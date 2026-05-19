@@ -20,7 +20,8 @@
     "type-check": "tsc --noEmit -p tsconfig.json",
     "test": "jest --passWithNoTests",
     "lint": "eslint .",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "bench:f04-tickets": "tsx scripts/f04-ticket-benchmark.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",

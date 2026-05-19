@@ -404,7 +404,7 @@ NFR-2.
 - [x] Cross-side leakage tests (NFR-9) green.
 
 ### T029 — F09 hand-off seam: projection adapter
-**Status:** 🟡 Ready · **Effort:** 1.5h
+**Status:** ✅ Complete · **Effort:** 1.5h
 **Description.** Define an interface
 `TicketProjection<K extends TicketKind>` that F09's privacy filter
 will implement. F04 ships a default "show all owned fields, hide all
@@ -412,21 +412,21 @@ cross-side fields" implementation. F09 will replace this seam with a
 filter-rule-driven projection.
 
 **Acceptance:**
-- [ ] Interface exported; default impl tested.
+- [x] Interface exported; default impl tested.
 
 ### T030 — Performance benchmarks against seeded dev DB
-**Status:** 🟡 Ready · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Story:** NFR-2, NFR-3, M-5
 **Description.** Seed 10k rows / kind via a script. Run benchmark
 suite: fetch-by-id, list-by-state, match-create. Capture p50/p90/p99
 latencies. Fail if p90 exceeds NFR-2/NFR-3 thresholds.
 
 **Acceptance:**
-- [ ] Benchmark suite exists.
-- [ ] p90 within thresholds (50ms / 200ms / 500ms).
+- [x] Benchmark suite exists.
+- [x] p90 within thresholds (50ms / 200ms / 500ms).
 
 ### T031 — Read-primitives documentation
-**Status:** 🟡 Ready · **Effort:** 1h
+**Status:** ✅ Complete · **Effort:** 1h
 **Parallel with:** T030
 **FR/NFR:** NFR-10
 **Description.** Author `packages/tickets/README.md` covering the
@@ -435,14 +435,14 @@ state-machine diagrams (linked from data-model.md), and the
 audit-event contract.
 
 **Acceptance:**
-- [ ] README present; covers every exported symbol.
+- [x] README present; covers every exported symbol.
 
 ---
 
 ## Phase B7 — Server actions / tRPC wiring (16h)
 
 ### T032 — Server action: submit seeker intent (US-1)
-**Status:** 🔴 Blocked by T020, T016 · **Effort:** 1.5h
+**Status:** ✅ Complete · **Effort:** 1.5h
 **Story:** US-1 · **FR/NFR:** FR-4
 **Description.** `apps/web/src/tickets/actions/submit-seeker.ts`
 with `"use server"`. Wrap in `withPrincipal` (F02). Validate input
@@ -450,11 +450,11 @@ via Zod schema mirroring FR-1 invariants. Call seeker repo to
 insert; return id + identifier.
 
 **Acceptance:**
-- [ ] principal-coverage gate green for the new file.
-- [ ] Action test exercises happy + bad-input paths.
+- [x] principal-coverage gate green for the new file.
+- [x] Action test exercises happy + bad-input paths.
 
 ### T033 — Server action: submit employer requisition (US-2)
-**Status:** 🔴 Blocked by T022, T016 · **Effort:** 1.5h
+**Status:** ✅ Complete · **Effort:** 1.5h
 **Parallel with:** T032, T034, T035, T036
 **Story:** US-2
 **Description.** As T032 for employer-req. Requires
@@ -532,7 +532,7 @@ surface (matcher + Parley harness).
 - [ ] `delivered` requires `dossier_id` (invariant test).
 
 ### T037 — Register new scopes in `@spyglass/auth/scopes`
-**Status:** 🔴 Blocked by T001 · **Effort:** 0.5h
+**Status:** ✅ Complete · **Effort:** 0.5h
 **Parallel with:** B7
 **Description.** Add `tickets.match.advance` and
 `tickets.transition.operator` to the scope registry (F02 pattern).
@@ -540,8 +540,8 @@ Add helper `OPERATOR_TICKET_TRANSITIONER` constant matching F02's
 operator-role helpers.
 
 **Acceptance:**
-- [ ] Scopes registered.
-- [ ] Smoke test: requireScope rejects without scope.
+- [x] Scopes registered.
+- [x] Smoke test: requireScope rejects without scope.
 
 ### T038 — Wire principal-coverage gate (F02 NFR-11) for new files
 **Status:** 🔴 Blocked by T032..T035b, T036 · **Effort:** 0.5h
