@@ -463,7 +463,7 @@ insert; return id + identifier.
 **Acceptance:** as T032.
 
 ### T034 — Server action: operator transition (US-4)
-**Status:** 🔴 Blocked by T020, T022, T024 · **Effort:** 1.5h
+**Status:** ✅ Complete · **Effort:** 1.5h
 **Parallel with:** T032, T033, T035, T036
 **Story:** US-4 · **FR/NFR:** FR-3, EC-4
 **Description.** `operator-transition.ts` requires
@@ -471,8 +471,8 @@ insert; return id + identifier.
 Routes to seeker / employer-req / match repo based on kind.
 
 **Acceptance:**
-- [ ] Missing reason_code → `MissingReasonCodeError`.
-- [ ] Wrong scope → `MissingScopeError`.
+- [x] Missing reason_code → `MissingReasonCodeError`.
+- [x] Wrong scope → `MissingScopeError`.
 
 ### T035 — Server action: withdraw seeker intent (US-5, EC-1)
 **Status:** 🔴 Blocked by T020, T024 · **Effort:** 2h
