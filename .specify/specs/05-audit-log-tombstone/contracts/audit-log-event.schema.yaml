@@ -1,0 +1,37 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "spyglass/audit-log-event.v1"
+title: "Canonical audit log event"
+type: object
+required:
+  - audit_event_id
+  - event_name
+  - principal_id
+  - principal_kind
+  - correlation_id
+  - payload
+  - payload_hash
+  - previous_hash
+  - event_hash
+  - chain_namespace
+  - hash_algorithm
+  - canonicalization_version
+  - created_at
+additionalProperties: false
+properties:
+  audit_event_id: { type: string, format: uuid }
+  source_table: { type: [string, "null"] }
+  source_event_id: { type: [string, "null"], format: uuid }
+  event_name: { type: string, minLength: 1 }
+  principal_id: { type: string, format: uuid }
+  principal_kind: { enum: [human, agent, service] }
+  role_or_scope: { type: [string, "null"] }
+  correlation_id: { type: string, minLength: 1 }
+  payload: { type: object }
+  payload_hash: { type: string, minLength: 64, maxLength: 64 }
+  previous_hash: { type: [string, "null"], minLength: 64, maxLength: 64 }
+  event_hash: { type: string, minLength: 64, maxLength: 64 }
+  chain_namespace: { type: string, minLength: 1 }
+  hash_algorithm: { const: "sha256" }
+  canonicalization_version: { type: string, minLength: 1 }
+  created_at: { type: string, format: date-time }
+  tombstoned_at: { type: [string, "null"], format: date-time }

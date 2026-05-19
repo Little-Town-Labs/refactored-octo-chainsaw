@@ -632,7 +632,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 - [ ] **Stage 1 gate:** CI green ✅, SBOM published ✅, signed releases ✅, MFA working for admin ✅, schema-lint gate ✅. Counsel review of `docs/data-governance/retention-policy.md` remains for Phase 1 jurisdictional admission (not gating Stage 1 sign-off).
 
 ### Stage 2 checklist
-- [ ] **F04** Ticket store + state machines
+- [x] **F04** Ticket store + state machines _(merged to `main` at `cbcbd56`, PR #38; post-merge handoff notes recorded)_
 - [ ] **F05** Hash-chained audit log + transcript store + tombstone procedure
 - [ ] **Stage 2 gate:** State transitions exhaustively tested; tombstone procedure tested in dev (counsel sign-off deferred to pre-Phase-2); transcript-store access controls distinct from dossier
 

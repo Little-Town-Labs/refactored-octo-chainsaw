@@ -1,0 +1,35 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "spyglass/transcript-turn.v1"
+title: "Canonical transcript turn"
+type: object
+required:
+  - transcript_turn_id
+  - match_ticket_id
+  - run_id
+  - side
+  - turn_index
+  - content_hash
+  - audit_event_id
+  - created_at
+additionalProperties: false
+properties:
+  transcript_turn_id: { type: string, format: uuid }
+  match_ticket_id: { type: string, format: uuid }
+  run_id: { type: string, format: uuid }
+  side: { enum: [seeker, employer] }
+  turn_index: { type: integer, minimum: 0 }
+  contract_id: { type: [string, "null"] }
+  contract_version: { type: [string, "null"] }
+  rubric_id: { type: [string, "null"] }
+  rubric_version: { type: [string, "null"] }
+  model_ref: { type: [string, "null"] }
+  tool_call_refs:
+    type: array
+    items: { type: string }
+  content:
+    type: [object, "null"]
+    description: "Null after tombstone"
+  content_hash: { type: string, minLength: 64, maxLength: 64 }
+  audit_event_id: { type: string, format: uuid }
+  created_at: { type: string, format: date-time }
+  tombstoned_at: { type: [string, "null"], format: date-time }
