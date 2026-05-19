@@ -52,6 +52,12 @@ export {
   OPERATOR_SCOPES,
 } from "./operator-roles.js";
 
+export {
+  OPERATOR_TICKET_TRANSITIONER,
+  TICKETS_MATCH_ADVANCE_SCOPE,
+  TICKET_SCOPES,
+} from "./ticket-scopes.js";
+
 // --- Materialization (B2) ------------------------------------------
 
 export type {

@@ -84,7 +84,7 @@ export const agentCredentials = pgTable(
     // Live revocation list — credentials revoked but not yet expired.
     index("agent_credentials_revoked_live_idx")
       .on(t.revoked_at, t.expires_at)
-      .where(sql`${t.revoked_at} IS NOT NULL AND ${t.expires_at} > now()`),
+      .where(sql`${t.revoked_at} IS NOT NULL`),
     index("agent_credentials_ticket_idx").on(t.ticket_id),
   ],
 );

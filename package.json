@@ -10,6 +10,12 @@
     "node": ">=24.0.0 <25",
     "pnpm": ">=9.0.0 <10"
   },
+  "pnpm": {
+    "overrides": {
+      "brace-expansion@5": "5.0.6",
+      "ws@8.20.0": "8.20.1"
+    }
+  },
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test",
@@ -17,6 +23,7 @@
     "lint": "turbo run lint",
     "schema:lint": "bash scripts/check-schema-conventions.sh",
     "schema:lint:test": "bash scripts/__tests__/check-schema-conventions.test.sh",
+    "tickets:coverage": "bash scripts/check-tickets-state-machine.sh",
     "type-check": "turbo run type-check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

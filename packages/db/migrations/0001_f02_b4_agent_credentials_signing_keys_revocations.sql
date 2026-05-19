@@ -43,8 +43,8 @@ ALTER TABLE "agent_credentials" ADD CONSTRAINT "agent_credentials_principal_id_p
 ALTER TABLE "agent_credentials" ADD CONSTRAINT "agent_credentials_revoked_by_principals_principal_id_fk" FOREIGN KEY ("revoked_by") REFERENCES "public"."principals"("principal_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "agent_credentials_idempotency_idx" ON "agent_credentials" USING btree ("run_id","side","contract_id","contract_version");--> statement-breakpoint
 CREATE INDEX "agent_credentials_active_idx" ON "agent_credentials" USING btree ("expires_at") WHERE "agent_credentials"."revoked_at" IS NULL;--> statement-breakpoint
-CREATE INDEX "agent_credentials_revoked_live_idx" ON "agent_credentials" USING btree ("revoked_at","expires_at") WHERE "agent_credentials"."revoked_at" IS NOT NULL AND "agent_credentials"."expires_at" > now();--> statement-breakpoint
+CREATE INDEX "agent_credentials_revoked_live_idx" ON "agent_credentials" USING btree ("revoked_at","expires_at") WHERE "agent_credentials"."revoked_at" IS NOT NULL;--> statement-breakpoint
 CREATE INDEX "agent_credentials_ticket_idx" ON "agent_credentials" USING btree ("ticket_id");--> statement-breakpoint
 CREATE INDEX "revocations_expires_at_idx" ON "revocations" USING btree ("expires_at");--> statement-breakpoint
 CREATE UNIQUE INDEX "signing_keys_active_per_purpose_idx" ON "signing_keys" USING btree ("purpose") WHERE "signing_keys"."activated_at" IS NOT NULL AND "signing_keys"."retired_at" IS NULL;--> statement-breakpoint
-CREATE INDEX "signing_keys_jwks_idx" ON "signing_keys" USING btree ("purpose","verify_until" DESC NULLS LAST) WHERE "signing_keys"."verify_until" IS NULL OR "signing_keys"."verify_until" > now();
+CREATE INDEX "signing_keys_jwks_idx" ON "signing_keys" USING btree ("purpose","verify_until" DESC NULLS LAST) WHERE "signing_keys"."verify_until" IS NULL;

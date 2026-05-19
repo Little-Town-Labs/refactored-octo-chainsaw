@@ -95,6 +95,37 @@ data_classes:
       GDPR Art. 6(1)(c) — accountability obligation (Constitution
       §I.5.3); notes redacted on subject erasure, row retained.
 
+  # ------------------------------------------------------------------
+  # F04 data classes (Ticket store + state machines)
+  # ------------------------------------------------------------------
+  - id: ticket_intent
+    description: >-
+      Seeker-side and employer-side ticket rows capturing an intent
+      to be matched: role spec, comp band, jurisdictions, work mode,
+      headcount. Joins to a principal (and on the employer side, an
+      organization). Personal data via the principal linkage even
+      when individual columns are operational.
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(b) — performance of contract (Spyglass matching
+      service); audit-retention obligation under §I.5.3 keeps row
+      metadata after tombstone.
+
+  - id: ticket_match
+    description: >-
+      Match-ticket rows pairing a seeker_ticket with an
+      employer_req_ticket and producing the run_id F02's
+      agent_credentials reference. Carries frozen contract /
+      privacy-ruleset refs (Parley SPEC §4.1.1), round counter,
+      decision-locus jurisdiction, and (post-F10) the dossier FK.
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(b) — performance of contract; row metadata
+      retained for audit (§I.5.3) and bias-audit-readiness (§I.2 +
+      NIST AI RMF Measure 2.11).
+
 # Tables — one entry per pgTable in packages/db/src/schema/.
 # Coverage is enforced by the lint (rule R3).
 tables:
@@ -237,6 +268,89 @@ tables:
       - { name: correlation_id, class: audit_record, erasure: tombstone }
       - { name: payload, class: audit_record, erasure: tombstone, notes: "May contain PII per event_name; payload-level redaction is applied at sink (apps/web/src/auth/audit-sink.ts) per F02 T069/MEDIUM-3." }
       - { name: created_at, class: audit_record, erasure: tombstone }
+
+  # ------------------------------------------------------------------
+  # F04 — Ticket store (seeker / employer-req / match)
+  # ------------------------------------------------------------------
+  - name: seeker_tickets
+    file: packages/db/src/schema/seeker-tickets.ts
+    migration: packages/db/migrations/0005_f04_ticket_store.sql
+    primary_class: ticket_intent
+    data_subject_linkage:
+      column: principal_id
+      role: self
+    columns:
+      - { name: seeker_ticket_id, class: ticket_intent, erasure: tombstone }
+      - { name: principal_id, class: ticket_intent, erasure: tombstone, fk: principals.principal_id, notes: "Owning seeker principal; the join target for subject erasure." }
+      - { name: identifier, class: ticket_intent, erasure: tombstone, notes: "ST-YYYY-NNNNN; human-readable; tombstoned with the row." }
+      - { name: state, class: ticket_intent, erasure: hard_delete, notes: "Structural; enum CHECK." }
+      - { name: role_family, class: ticket_intent, erasure: tombstone }
+      - { name: comp_band_min, class: ticket_intent, erasure: tombstone }
+      - { name: comp_band_max, class: ticket_intent, erasure: tombstone }
+      - { name: currency, class: ticket_intent, erasure: hard_delete }
+      - { name: jurisdictions, class: ticket_intent, erasure: tombstone, notes: "jsonb non-empty array of ISO-3166-2 codes." }
+      - { name: work_mode, class: ticket_intent, erasure: hard_delete }
+      - { name: flags, class: ticket_intent, erasure: tombstone, notes: "Lowercase string array; jsonb." }
+      - { name: created_at, class: ticket_intent, erasure: tombstone }
+      - { name: updated_at, class: ticket_intent, erasure: tombstone }
+      - { name: disabled_at, class: ticket_intent, erasure: tombstone, notes: "Soft-delete marker (F03 §2)." }
+
+  - name: employer_req_tickets
+    file: packages/db/src/schema/employer-req-tickets.ts
+    migration: packages/db/migrations/0005_f04_ticket_store.sql
+    primary_class: ticket_intent
+    data_subject_linkage:
+      column: principal_id
+      role: actor
+    columns:
+      - { name: employer_req_ticket_id, class: ticket_intent, erasure: tombstone }
+      - { name: principal_id, class: ticket_intent, erasure: tombstone, fk: principals.principal_id, notes: "Authoring employer-admin." }
+      - { name: org_id, class: ticket_intent, erasure: tombstone, fk: organizations.org_id, notes: "Owning employer Clerk Organization." }
+      - { name: identifier, class: ticket_intent, erasure: tombstone, notes: "ER-YYYY-NNNNN." }
+      - { name: state, class: ticket_intent, erasure: hard_delete }
+      - { name: role_title, class: ticket_intent, erasure: tombstone }
+      - { name: role_level, class: ticket_intent, erasure: hard_delete }
+      - { name: comp_band_min, class: ticket_intent, erasure: tombstone }
+      - { name: comp_band_max, class: ticket_intent, erasure: tombstone }
+      - { name: currency, class: ticket_intent, erasure: hard_delete }
+      - { name: jurisdictions, class: ticket_intent, erasure: tombstone }
+      - { name: work_mode, class: ticket_intent, erasure: hard_delete }
+      - { name: headcount_total, class: ticket_intent, erasure: tombstone }
+      - { name: headcount_filled, class: ticket_intent, erasure: tombstone }
+      - { name: flags, class: ticket_intent, erasure: tombstone }
+      - { name: created_at, class: ticket_intent, erasure: tombstone }
+      - { name: updated_at, class: ticket_intent, erasure: tombstone }
+      - { name: disabled_at, class: ticket_intent, erasure: tombstone }
+
+  - name: match_tickets
+    file: packages/db/src/schema/match-tickets.ts
+    migration: packages/db/migrations/0005_f04_ticket_store.sql
+    primary_class: ticket_match
+    data_subject_linkage:
+      column: seeker_ticket_id
+      role: target
+    columns:
+      - { name: match_ticket_id, class: ticket_match, erasure: tombstone }
+      - { name: identifier, class: ticket_match, erasure: tombstone, notes: "MT-YYYY-NNNNN per Parley SPEC §4.1.1." }
+      - { name: seeker_ticket_id, class: ticket_match, erasure: tombstone, fk: seeker_tickets.seeker_ticket_id }
+      - { name: employer_req_ticket_id, class: ticket_match, erasure: tombstone, fk: employer_req_tickets.employer_req_ticket_id }
+      - { name: state, class: ticket_match, erasure: hard_delete }
+      - { name: round, class: ticket_match, erasure: hard_delete }
+      - { name: round_cap, class: ticket_match, erasure: hard_delete }
+      - { name: run_id, class: ticket_match, erasure: tombstone, notes: "F02 agent_credentials.run_id linkage; nullable until negotiating." }
+      - { name: attempt, class: ticket_match, erasure: hard_delete, notes: "Bumped on re-negotiation (EC-7); always ≥1." }
+      - { name: seeker_contract_id, class: ticket_match, erasure: hard_delete }
+      - { name: seeker_contract_version, class: ticket_match, erasure: hard_delete }
+      - { name: employer_contract_id, class: ticket_match, erasure: hard_delete }
+      - { name: employer_contract_version, class: ticket_match, erasure: hard_delete }
+      - { name: privacy_ruleset_id, class: ticket_match, erasure: hard_delete }
+      - { name: privacy_ruleset_version, class: ticket_match, erasure: hard_delete }
+      - { name: decision_locus_jurisdiction, class: ticket_match, erasure: tombstone, notes: "ISO-3166-2; F06 policy-gate join target." }
+      - { name: flags, class: ticket_match, erasure: tombstone }
+      - { name: dossier_id, class: ticket_match, erasure: tombstone, notes: "Nullable until delivered; no FK constraint until F10 (per CL-2)." }
+      - { name: created_at, class: ticket_match, erasure: tombstone }
+      - { name: updated_at, class: ticket_match, erasure: tombstone }
+      - { name: disabled_at, class: ticket_match, erasure: tombstone }
 
   - name: revoke_all_sessions_approvals
     file: packages/db/src/schema/revoke-all-sessions-approvals.ts

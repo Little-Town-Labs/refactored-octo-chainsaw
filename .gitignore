@@ -99,8 +99,7 @@ drizzle/migrations/meta/_journal.json.bak
 tmp/
 
 # ── Claude / agent tooling state ───────────────────────────────────
-.claude/cache/
-.claude/.tmp/
+.claude/
 .speckit_ralph/
 
 # ── Local working files ────────────────────────────────────────────
