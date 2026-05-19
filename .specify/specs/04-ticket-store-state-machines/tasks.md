@@ -579,7 +579,7 @@ Verifies all expected audit events fire with valid payloads.
 ## Phase B8 — Quickstart + staged dev-run (12h)
 
 ### T041 — Quickstart Scenarios 1–11 walk through (dev environment)
-**Status:** 🔴 Blocked by T040 · **Effort:** 4h
+**Status:** 🟡 Ready · **Effort:** 4h
 **Story:** all · **FR/NFR:** M-2
 **Description.** Execute every quickstart.md scenario against a dev
 deploy. Capture results.
@@ -589,7 +589,7 @@ deploy. Capture results.
 - [ ] Result log captured in `.specify/specs/04-ticket-store-state-machines/quickstart-run-<date>.md`.
 
 ### T042 — M-2 staged dev-run: 100/100/50/25
-**Status:** 🔴 Blocked by T040 · **Effort:** 3h
+**Status:** 🟡 Ready · **Effort:** 3h
 **Parallel with:** T041
 **Story:** all · **FR/NFR:** M-2
 **Description.** Script that creates 100 seeker + 100 employer-req
@@ -618,7 +618,7 @@ Used by future performance work as the F04 baseline.
 - [ ] All p90 values within plan §8 targets.
 
 ### T044 — Operator runbook for ticket lifecycle
-**Status:** 🔴 Blocked by T040 · **Effort:** 2h
+**Status:** 🟡 Ready · **Effort:** 2h
 **Parallel with:** T041, T042
 **FR/NFR:** NFR-10
 **Description.** Author `docs/runbooks/ticket-lifecycle.md` (analog
