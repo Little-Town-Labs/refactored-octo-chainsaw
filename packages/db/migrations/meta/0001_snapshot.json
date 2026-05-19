@@ -162,7 +162,7 @@
             }
           ],
           "isUnique": false,
-          "where": "\"agent_credentials\".\"revoked_at\" IS NOT NULL AND \"agent_credentials\".\"expires_at\" > now()",
+          "where": "\"agent_credentials\".\"revoked_at\" IS NOT NULL",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -660,7 +660,7 @@
             }
           ],
           "isUnique": false,
-          "where": "\"signing_keys\".\"verify_until\" IS NULL OR \"signing_keys\".\"verify_until\" > now()",
+          "where": "\"signing_keys\".\"verify_until\" IS NULL",
           "concurrently": false,
           "method": "btree",
           "with": {}

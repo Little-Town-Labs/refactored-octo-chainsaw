@@ -19,4 +19,4 @@ ALTER TABLE "service_credentials" ADD CONSTRAINT "service_credentials_revoked_by
 CREATE UNIQUE INDEX "service_credentials_principal_generation_idx" ON "service_credentials" USING btree ("principal_id","rotation_generation");--> statement-breakpoint
 CREATE INDEX "service_credentials_principal_idx" ON "service_credentials" USING btree ("principal_id","expires_at" DESC NULLS LAST);--> statement-breakpoint
 CREATE INDEX "service_credentials_active_idx" ON "service_credentials" USING btree ("expires_at") WHERE "service_credentials"."revoked_at" IS NULL;--> statement-breakpoint
-CREATE INDEX "service_credentials_revoked_live_idx" ON "service_credentials" USING btree ("revoked_at","expires_at") WHERE "service_credentials"."revoked_at" IS NOT NULL AND "service_credentials"."expires_at" > now();
+CREATE INDEX "service_credentials_revoked_live_idx" ON "service_credentials" USING btree ("revoked_at","expires_at") WHERE "service_credentials"."revoked_at" IS NOT NULL;

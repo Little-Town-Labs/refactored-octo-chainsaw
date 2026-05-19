@@ -16,17 +16,19 @@
     "@spyglass/auth": "workspace:*",
     "@spyglass/db": "workspace:*",
     "@spyglass/shared": "workspace:*",
+    "@spyglass/tickets": "workspace:*",
     "drizzle-orm": "^0.45.2",
     "next": "^16.2.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "svix": "^1.93.0"
+    "svix": "^1.93.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@testing-library/dom": "^10",
     "@testing-library/jest-dom": "^6",
     "@testing-library/react": "^16",
-    "@types/node": "^24.12.3",
+    "@types/node": "^24.12.4",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "typescript": "^5.9.0"

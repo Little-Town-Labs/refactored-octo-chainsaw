@@ -45,7 +45,7 @@ export const signingKeys = pgTable(
     // JWKS query: fetch keys still within their verify window.
     index("signing_keys_jwks_idx")
       .on(t.purpose, t.verify_until.desc())
-      .where(sql`${t.verify_until} IS NULL OR ${t.verify_until} > now()`),
+      .where(sql`${t.verify_until} IS NULL`),
   ],
 );
 
