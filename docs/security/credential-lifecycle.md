@@ -35,8 +35,9 @@ tied to the responder's `principal_id`.
 
 Cross-cutting:
 - §5 Operator self-service surfaces (console URLs)
-- §6 Audit-event names emitted per action
-- §7 Time targets (SLAs) from spec §7
+- §6 F04 ticket-scope revocation impact
+- §7 Audit-event names emitted per action
+- §8 Time targets (SLAs) from spec §7
 
 ---
 
@@ -336,7 +337,34 @@ role (verified inside each action).
 
 ---
 
-## 6. Audit-event names
+## 6. F04 ticket-scope revocation impact
+
+F04 adds two ticket lifecycle capabilities that are not credential
+management surfaces themselves, but are part of the blast-radius review
+when credentials or operator sessions are revoked.
+
+| Scope or authority | Principal kind | Used by | If compromised or revoked | Audit events to review |
+| --- | --- | --- | --- | --- |
+| `tickets.match.advance` | Service principal | Match creation, Parley state advancement, delivered transition, renegotiation | Rotate or force-retire the affected service credential per §3.2/§3.3. Pause Parley dispatch until replacement credentials are issued. Review all match events emitted by the compromised `principal_id` since issuance. | `match_ticket.created`, `match_ticket.negotiating`, `match_ticket.delivered`, `match_ticket.accepted`, `match_ticket.rejected`, `match_ticket.expired`, `match_ticket.renegotiated` |
+| `tickets.transition.operator` | Operator authority | Manual seeker/employer closure through operator transition action | Revoke the operator's sessions per §1.3. Review ticket operator-transition events for unauthorized closure or policy changes. Reopen only through the ticket lifecycle runbook and a new audited transition. | `seeker_ticket.operator_transition`, `employer_req_ticket.operator_transition` |
+
+Operational cross-references:
+
+- Ticket lifecycle runbook: `docs/runbooks/ticket-lifecycle.md`
+- F04 performance/run evidence:
+  `.specify/specs/04-ticket-store-state-machines/quickstart-run-2026-05-19.md`
+- Ticket scope registry: `packages/auth/src/ticket-scopes.ts`
+
+These scopes follow the same revocation timelines as the underlying
+credential kind. Agent and service JWT revocation still targets ≤60s
+propagation (M-5); operator-session revocation still targets ≤60s for
+session invalidation. The ticket rows themselves are not deleted during
+credential revocation; remediation is by follow-up audited transition or
+incident response.
+
+---
+
+## 7. Audit-event names
 
 Per FR-40, every action emits a structured event:
 
@@ -356,6 +384,8 @@ Per FR-40, every action emits a structured event:
 | Service credential rotation denied | `service_credential.rotation_denied` | |
 | Principal materialized | `principal.materialized` | EC-1/EC-2 |
 | Principal disabled | `principal.disabled` | Member removal (Story 2) |
+| Match ticket advanced | `match_ticket.*` | F04 service-principal actions guarded by `tickets.match.advance`; see §6 |
+| Ticket operator transition | `seeker_ticket.operator_transition`, `employer_req_ticket.operator_transition` | F04 operator action guarded by `tickets.transition.operator`; see §6 |
 
 Names are defined as a discriminated union in
 `packages/auth/src/materialize/types.ts` — adding a new name
@@ -363,7 +393,7 @@ requires updating that union and the audit-sink writer.
 
 ---
 
-## 7. Time targets (from spec §7)
+## 8. Time targets (from spec §7)
 
 | Metric | Target | Source |
 |---|---|---|
@@ -373,7 +403,7 @@ requires updating that union and the audit-sink writer.
 | M-5 Revocation propagation (issue → verifier rejects) | ≤ 60s | spec §7 / FR-21 |
 | M-6 Member-removal session revoke | ≤ 60s | FR-34 |
 
-Compromise drill expectations (§2.4, §3.4, §4.4) are measured
+Compromise drill expectations (§2.4, §3.4, §4.4, §6) are measured
 against M-5. The "within 5 minutes" / "within 1 hour" timelines
 on the compromise rows are *operator-response* targets, not
 *system-propagation* targets — the system itself meets M-5 well
@@ -385,4 +415,5 @@ under the operator-response window in every drill.
 
 | Date | Author | Change |
 |---|---|---|
+| 2026-05-19 | F04 implementation team | Added ticket-scope revocation impact for `tickets.match.advance` and `tickets.transition.operator`, plus F04 audit-event cross-references. |
 | 2026-05-11 | F02 implementation team | Initial runbook for B7 (T063). Covers all four credential kinds per FR-39; cross-referenced with audit-event registry per FR-40 and operator surfaces from B6. |

@@ -631,21 +631,21 @@ triggers.
 - [x] Links from `docs/runbooks/` index.
 
 ### T045 — Update `docs/security/credential-lifecycle.md` for F04 cross-refs
-**Status:** 🟡 Ready · **Effort:** 1h
+**Status:** ✅ Complete · **Effort:** 1h
 **Description.** F04 introduces service-principal usage of
 `tickets.match.advance` (Parley) and `tickets.transition.operator`.
 Update F02's credential-lifecycle doc with these scope names in the
 revocation impact list.
 
 **Acceptance:**
-- [ ] Cross-reference table updated.
+- [x] Cross-reference table updated.
 
 ---
 
 ## Phase B9 — Analyze + review + PR + merge (6h)
 
 ### T046 — Run `/speckit-analyze`
-**Status:** 🔴 Blocked by T001..T045 · **Effort:** 0.5h
+**Status:** 🟡 Ready · **Effort:** 0.5h
 **Description.** Cross-artifact consistency gate; address any
 findings; rerun if needed. Output to `analyze-report.md`.
 
