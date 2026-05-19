@@ -677,7 +677,7 @@ resolutions or defer with explicit justification.
 - [x] principal-coverage clean.
 
 ### T049 — Open PR + reviewer pass
-**Status:** 🟡 Ready · **Effort:** 0.5h
+**Status:** ✅ Complete · **Effort:** 0.5h
 **FR/NFR:** M-4
 **Description.** `git push -u`; open PR titled "feat(f04):
 ticket store + state machines"; body summarizes the new tables,
@@ -686,22 +686,22 @@ state machines, governance amendments, deferred operator gates
 sign-off). Tag Austin for reviewer pass.
 
 **Acceptance:**
-- [ ] PR open against `main`.
-- [ ] CI green (all required checks, including the two new gates).
-- [ ] Reviewer approval recorded.
+- [x] PR open against `main`.
+- [x] CI green (all required checks, including the two new gates).
+- [x] Reviewer approval recorded.
 
 ### T050 — Squash-merge + roadmap update
-**Status:** 🔴 Blocked by T049 · **Effort:** 1h
+**Status:** ✅ Complete · **Effort:** 1h
 **Description.** Squash-merge per precedent. Bump roadmap v1.4.0
 ticking F04 in Stage 2. Delete branch (local + remote).
 
 **Acceptance:**
-- [ ] `main` HEAD shows merged commit.
-- [ ] Roadmap reflects F04 closed.
-- [ ] Branch deleted.
+- [x] `main` HEAD shows merged commit.
+- [x] Roadmap reflects F04 closed.
+- [x] Branch deleted.
 
 ### T051 — Post-merge: notify F05/F06/F08 owners that F04 hand-off seams are live
-**Status:** 🔴 Blocked by T050 · **Effort:** 1h
+**Status:** 🟡 Ready · **Effort:** 1h
 **Description.** Touch the following spec drafts (where they exist
 or will exist):
 - F05: audit-event payload shape is now stable at .v1; cutover plan
