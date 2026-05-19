@@ -645,15 +645,15 @@ revocation impact list.
 ## Phase B9 — Analyze + review + PR + merge (6h)
 
 ### T046 — Run `/speckit-analyze`
-**Status:** 🟡 Ready · **Effort:** 0.5h
+**Status:** ✅ Complete · **Effort:** 0.5h
 **Description.** Cross-artifact consistency gate; address any
 findings; rerun if needed. Output to `analyze-report.md`.
 
 **Acceptance:**
-- [ ] No CRITICAL/HIGH; all MEDIUM resolved or deferred with rationale.
+- [x] No CRITICAL/HIGH; all MEDIUM resolved or deferred with rationale.
 
 ### T047 — Run `/code-review` + `/security-review`
-**Status:** 🔴 Blocked by T046 · **Effort:** 1.5h
+**Status:** 🟡 Ready · **Effort:** 1.5h
 **Delegate suggestion:** security-reviewer (F04 has real auth surface)
 **Description.** Run code-review across the F04 diff. Then run
 security-review specifically focused on FR-4 (principal coverage),

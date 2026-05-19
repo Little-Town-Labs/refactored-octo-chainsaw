@@ -110,7 +110,7 @@ stateDiagram-v2
     closed --> [*]
 ```
 
-**Allowed transitions (FR-2.1):** 9 named edges. Terminal states:
+**Allowed transitions (FR-2.1):** 8 named edges. Terminal states:
 `matched`, `closed`, `withdrawn`.
 
 ### 2.2 Employer-req state machine
@@ -131,7 +131,7 @@ stateDiagram-v2
     withdrawn --> [*]
 ```
 
-**Allowed transitions (FR-2.2):** 9 named edges (including the
+**Allowed transitions (FR-2.2):** 8 named edges (including the
 `matching → matching` self-loop for multi-headcount). Terminal states:
 `filled`, `closed`, `withdrawn`.
 
