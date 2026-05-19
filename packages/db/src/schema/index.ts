@@ -28,3 +28,30 @@ export {
   type RevokeAllSessionsApprovalRow,
   type NewRevokeAllSessionsApprovalRow,
 } from "./revoke-all-sessions-approvals.js";
+
+// F04 — Ticket store + state machines.
+export {
+  seekerTickets,
+  type NewSeekerTicketRow,
+  type SeekerTicketRow,
+  type SeekerTicketState,
+  SEEKER_STATES,
+  WORK_MODES,
+  type WorkMode,
+} from "./seeker-tickets.js";
+export {
+  employerReqTickets,
+  type NewEmployerReqTicketRow,
+  type EmployerReqTicketRow,
+  type EmployerReqTicketState,
+  EMPLOYER_REQ_STATES,
+  ROLE_LEVELS,
+  type RoleLevel,
+} from "./employer-req-tickets.js";
+export {
+  matchTickets,
+  type NewMatchTicketRow,
+  type MatchTicketRow,
+  type MatchTicketState,
+  MATCH_STATES,
+} from "./match-tickets.js";

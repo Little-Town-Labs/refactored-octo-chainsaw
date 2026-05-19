@@ -36,6 +36,13 @@
       "when": 1778438614550,
       "tag": "0004_f02_b6_revoke_all_sessions_approvals",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1778631809597,
+      "tag": "0005_f04_ticket_store",
+      "breakpoints": true
     }
   ]
 }

@@ -1,3 +1,22 @@
+-- F02/F04 compatibility prelude.
+-- PostgreSQL 18+ provides uuidv7() natively. Neon dev branches may
+-- still run an earlier PostgreSQL version, so install pgcrypto and a
+-- compatible uuidv7() generator before any table default references it.
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+--> statement-breakpoint
+CREATE OR REPLACE FUNCTION uuidv7()
+RETURNS uuid
+LANGUAGE SQL
+VOLATILE
+AS $$
+	SELECT encode(
+		substring(int8send((extract(epoch from clock_timestamp()) * 1000)::bigint) from 3) ||
+		int2send(((7 << 12) | floor(random() * 4096)::int)::int2) ||
+		substring(uuid_send(gen_random_uuid()) from 9 for 8),
+		'hex'
+	)::uuid;
+$$;
+--> statement-breakpoint
 CREATE TABLE "organizations" (
 	"org_id" uuid PRIMARY KEY DEFAULT uuidv7() NOT NULL,
 	"clerk_org_id" text NOT NULL,

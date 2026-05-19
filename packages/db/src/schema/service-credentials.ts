@@ -87,7 +87,7 @@ export const serviceCredentials = pgTable(
     // Live revocation list (verifier cross-process refresh, FR-21 by analogy).
     index("service_credentials_revoked_live_idx")
       .on(t.revoked_at, t.expires_at)
-      .where(sql`${t.revoked_at} IS NOT NULL AND ${t.expires_at} > now()`),
+      .where(sql`${t.revoked_at} IS NOT NULL`),
   ],
 );
 
