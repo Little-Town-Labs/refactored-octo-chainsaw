@@ -1,0 +1,29 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "spyglass/tombstone-record.v1"
+title: "Redaction by tombstone record"
+type: object
+required:
+  - tombstone_id
+  - target_kind
+  - target_id
+  - subject_ref
+  - lawful_basis
+  - procedure_version
+  - operator_principal_id
+  - original_hash
+  - replacement_hash
+  - audit_event_id
+  - created_at
+additionalProperties: false
+properties:
+  tombstone_id: { type: string, format: uuid }
+  target_kind: { enum: [audit_event, transcript_turn] }
+  target_id: { type: string, format: uuid }
+  subject_ref: { type: string, minLength: 1 }
+  lawful_basis: { type: string, minLength: 1 }
+  procedure_version: { type: string, minLength: 1 }
+  operator_principal_id: { type: string, format: uuid }
+  original_hash: { type: string, minLength: 64, maxLength: 64 }
+  replacement_hash: { type: string, minLength: 64, maxLength: 64 }
+  audit_event_id: { type: string, format: uuid }
+  created_at: { type: string, format: date-time }

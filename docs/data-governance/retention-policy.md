@@ -1,7 +1,7 @@
 # Spyglass retention policy
 
-**Version:** 1.0 (2026-05-12)
-**Last reviewed:** 2026-05-12
+**Version:** 1.1 (2026-05-19)
+**Last reviewed:** 2026-05-19
 **Owner:** Gary
 **Counsel review:** `pending`
 
@@ -32,7 +32,7 @@ class in the register has a section here (M-3).
 | Horizon (human) | Until linked principal is tombstoned, then 30 days |
 | Horizon (ISO-8601) | `tombstone-driven:identity_principal+P30D` |
 | Lawful basis | GDPR Art. 5(1)(e) storage limitation, cascaded from Art. 17 right-to-erasure obligation on the linked principal |
-| Erasure mode | `tombstone` (see [§2 Tombstone procedure](#2-tombstone-procedure-pending-f05)) |
+| Erasure mode | `tombstone` (see [§2 Tombstone procedure](#2-tombstone-procedure-f05)) |
 | Notes | The 30-day grace covers in-flight audit reconciliation; pre-grace tombstones are valid but should reference an active erasure ticket |
 
 ### 1.2 `identity_principal`
@@ -42,7 +42,7 @@ class in the register has a section here (M-3).
 | Horizon (human) | 7 years after principal is disabled or tombstoned |
 | Horizon (ISO-8601) | `disabled-driven:principals.disabled_at+P7Y` |
 | Lawful basis | GDPR Art. 6(1)(c) audit-retention obligation joined with platform accountability (Constitution §I.5.3); NYC LL 144 §5-301 7-year audit floor |
-| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-pending-f05)) |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
 | Notes | Structural id is retained so audit chains referencing the principal remain joinable. Identity_humanref columns on the same row are tombstoned per §1.1's shorter horizon |
 
 ### 1.3 `operational_credential`
@@ -72,7 +72,7 @@ class in the register has a section here (M-3).
 | Horizon (human) | 7 years from `created_at` |
 | Horizon (ISO-8601) | `P7Y` |
 | Lawful basis | GDPR Art. 6(1)(c) legal obligation; NYC LL 144 §5-301 audit-retention floor; SOC 2 CC7 trail retention |
-| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-pending-f05)) |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
 | Notes | Hash-chain integrity (Constitution §I.2) means rows cannot be deleted; subject erasure requests redact payload and replace with a tombstone row |
 | **Special case — `audit_events_buffer`** | Transitional. See §1.5.1 |
 
@@ -80,11 +80,11 @@ class in the register has a section here (M-3).
 
 | Field | Value |
 |---|---|
-| Horizon (human) | Retained until F05 cutover, then migrated to F05's hash-chained log |
+| Horizon (human) | Retained until F05 canonical replay and cutover complete, then migrated to `audit_log_events` or archived read-only until removal |
 | Horizon (ISO-8601) | `transitional:f05` |
 | Lawful basis | Inherits from `audit_record` |
 | Erasure mode | `tombstone` (inherited) |
-| Notes | F05's hash-chained log replaces this table; cutover removes this transitional entry. Per CL-3 in spec.md §8 |
+| Notes | F05 replay writes one canonical event per buffered source row using `(source_table, source_event_id)` for exact-once cutover. After replay back-checks pass, new audit writes go to `audit_log_events`; this transitional entry expires when the buffer is read-only or removed. Per CL-3 in spec.md §8 |
 
 ### 1.7 `ticket_intent`
 
@@ -93,7 +93,7 @@ class in the register has a section here (M-3).
 | Horizon (human) | 7 years after `disabled_at` |
 | Horizon (ISO-8601) | `disabled_at+P7Y` |
 | Lawful basis | GDPR Art. 6(1)(b) performance of contract; audit-retention obligation under §I.5.3; NYC LL 144 §5-301 audit-retention floor where applicable to the employer side |
-| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-pending-f05)) |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
 | Notes | Tombstones the personal-data linkage (principal_id, identifier) but retains structural metadata for bias-audit re-derivation (Constitution §I.2 + NIST AI RMF Measure 2.11). F-TBD per-class sweeper executes the tombstone after the horizon |
 
 ### 1.8 `ticket_match`
@@ -116,26 +116,64 @@ class in the register has a section here (M-3).
 | Erasure mode | `redact_in_place` |
 | Notes | Row metadata (who/when/reason_code) retained for the 7-year accountability horizon; free-text `notes` redacted on subject erasure per the F02 T069/MEDIUM-3 redaction pattern. Pruner job F-TBD |
 
+### 1.9 `transcript_record`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years after the related match reaches a terminal state or the transcript run completes, whichever retention trigger is later |
+| Horizon (ISO-8601) | `terminal-state-driven:match_tickets.state+P7Y` |
+| Lawful basis | GDPR Art. 6(1)(b) performance of contract; audit-retention obligation under §I.5.3; NIST AI RMF Measure 2.11 bias-audit reconstruction |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Raw turn content and tool-call references are tombstoned on subject erasure; content hashes, contract refs, rubric refs, model refs, and append metadata remain for audit reconstruction |
+
+### 1.10 `tombstone_evidence`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | Same horizon as the target canonical record, with a 7-year minimum from tombstone execution |
+| Horizon (ISO-8601) | `target-record-horizon:min-P7Y` |
+| Lawful basis | GDPR Art. 6(1)(c) accountability obligation; GDPR Art. 17 erasure evidence; NYC LL 144 §5-301 audit-retention floor where the target relates to employment decisions |
+| Erasure mode | `hard_delete` after target horizon and counsel-approved evidence-retention review |
+| Notes | Tombstone evidence stores hashes, opaque subject references, lawful basis, procedure version, and operator attribution. It MUST NOT store raw personal data. Operational deletion remains counsel-review pending because deleting evidence can affect non-repudiation |
+
+### 1.11 `evidence_export`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years from `created_at`; incident exports may inherit a longer incident-retention horizon if counsel designates one |
+| Horizon (ISO-8601) | `P7Y` |
+| Lawful basis | GDPR Art. 6(1)(c) accountability obligation; SOC 2 CC7 forensic evidence retention; NYC LL 144 §5-301 audit-retention floor for covered employment-decision evidence |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Export manifests retain deterministic hashes and filter metadata. Any raw export artifact is outside this relational table and must follow the runbook storage location's evidence-retention controls |
+
 ---
 
-## 2. Tombstone procedure (pending F05)
+## 2. Tombstone procedure (F05)
 
-**Placeholder per NFR-6.** Columns whose erasure mode is `tombstone`
-will route through the hash-chained audit log + tombstone procedure
-shipped by F05. Until F05 lands:
+Columns whose erasure mode is `tombstone` route through F05's
+redaction-by-tombstone procedure. The procedure is the only permitted
+mutation path for canonical audit and transcript records that are
+otherwise append-only.
 
-- **Credential-bearing tables** (agent_credentials, service_credentials,
-  revocations, signing_keys): follow the runbook at
+- **Scope.** Eligible targets are canonical audit events and transcript
+  turns whose class or column erasure mode is `tombstone`.
+- **Required evidence.** Each execution creates a `tombstone_records`
+  row with target kind/id, opaque subject reference, lawful basis,
+  procedure version, operator principal, original payload/content hash,
+  replacement tombstone-envelope hash, linked tombstone audit event, and
+  execution timestamp.
+- **Hash-chain preservation.** Canonical records replace raw payload or
+  content with a versioned tombstone envelope and retain enough digest
+  material for chain verification. The tombstone action itself is
+  appended to `audit_log_events`.
+- **Operational gate.** Code, tests, and development verification ship in
+  F05. Production execution requires counsel sign-off before Phase 2/NYC
+  use because procedure scope can affect legal evidence.
+- **Credential-bearing tables** (`agent_credentials`,
+  `service_credentials`, `revocations`, `signing_keys`) continue to
+  follow the credential lifecycle runbook at
   [`docs/security/credential-lifecycle.md`](../security/credential-lifecycle.md)
-  (shipped by F02 B7).
-- **Audit + identity tables**: operators escalate to the owner of
-  this policy (Gary) for manual procedure. No erasure requests against
-  these tables have been received in Phase 0; the procedure
-  formalization is gated on F05 closing.
-
-When F05 closes, this section is replaced with the canonical
-tombstone-procedure link, and §1.1, §1.2, §1.5 links update to point
-at the F05 procedure.
+  and are not routed through the canonical tombstone table.
 
 ---
 
@@ -155,13 +193,21 @@ in §1 above. (M-3 mechanical check.)
 | `approval_workflow` | §1.6 | `P7Y` (notes: `redact:notes:P30D`) | redact_in_place |
 | `ticket_intent` | §1.7 | `disabled_at+P7Y` | tombstone |
 | `ticket_match` | §1.8 | `terminal-state-driven:match_tickets.state+P7Y` | tombstone |
+| `transcript_record` | §1.9 | `terminal-state-driven:match_tickets.state+P7Y` | tombstone |
+| `tombstone_evidence` | §1.10 | `target-record-horizon:min-P7Y` | hard_delete |
+| `evidence_export` | §1.11 | `P7Y` | tombstone |
 
-**8 classes declared · 8 classes covered · M-3 ✅**
+**11 classes declared · 11 classes covered · M-3 ✅**
 
 ---
 
 ## 4. Changelog
 
+- **v1.1 (2026-05-19)** — Replaced the F03 tombstone placeholder with
+  the F05 procedure, documented the audit buffer cutover path, and added
+  retention coverage for `transcript_record`, `tombstone_evidence`, and
+  `evidence_export`. Counsel review remains pending for operational
+  execution and evidence-deletion decisions.
 - **v1.0 (2026-05-12)** — Initial declaration. Authored under F03
   T007/T008. Counsel review pending; horizons reflect
   engineer-best-judgment against Constitution §I.4.2 + cited

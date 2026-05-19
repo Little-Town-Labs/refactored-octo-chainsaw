@@ -701,7 +701,7 @@ ticking F04 in Stage 2. Delete branch (local + remote).
 - [x] Branch deleted.
 
 ### T051 — Post-merge: notify F05/F06/F08 owners that F04 hand-off seams are live
-**Status:** 🟡 Ready · **Effort:** 1h
+**Status:** ✅ Complete · **Effort:** 1h
 **Description.** Touch the following spec drafts (where they exist
 or will exist):
 - F05: audit-event payload shape is now stable at .v1; cutover plan
@@ -713,7 +713,7 @@ or will exist):
 - F09: `TicketProjection` interface exported; F09 implements.
 
 **Acceptance:**
-- [ ] Per-feature hand-off notes recorded in
+- [x] Per-feature hand-off notes recorded in
       `.specify/notes/f04-handoffs.md` for future owners.
 
 ---

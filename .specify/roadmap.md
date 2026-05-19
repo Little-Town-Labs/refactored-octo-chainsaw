@@ -39,7 +39,8 @@ modeling per `.specify/memory/constitution.md` §V.3.
 | **F02** Identity & Auth | ✅ **Complete** (merged to `main` at `1d5e4ca`, PR #25) | B1–B9 closed; 384 tests green; 17/18 CI gates passing. Operator-run gates deferred: B6 (Scenarios 10+11 + NVDA), B7 (Scenario 6 + drill), B8 (T071 metrics + T072 end-to-end). |
 | **F03** Database schema umbrella | ✅ **Complete** (merged to `main` at `0ab3b69`, PR #26) | Governance envelope over F02's shipped schema: data-classification register (6 classes · 8 tables · 73 cols), retention-policy (per-class horizons), schema-conventions (10 sections), integrity-invariants catalog (46 rows), schema-lint CI gate (19/19 checks green). Counsel review of `retention-policy.md` flagged pending; not blocking merge, blocks Phase 1 jurisdictional admission. |
 | **F04** Ticket store + state machines | ✅ **Complete** (merged to `main` at `cbcbd56`, PR #38) | Seeker, employer-req, and match ticket tables/state machines shipped with ticket scopes, server actions/tRPC wiring, CI state-machine/principal gates, benchmark baseline, operator runbook, and F04 closure reviews. Follow-up dependency cleanup landed through PRs #28, #30, #31, #34, #35, #36, #37, and #39. |
-| F05–F25 | ⏳ Not started | F05 (hash-chained audit log + canonical transcript store + redaction-by-tombstone) is next on the critical path. |
+| **F05** Audit log + transcript store + tombstone | ✅ **Complete** (local branch `05-audit-log-tombstone`) | Canonical hash-chained audit package, replay, transcript append/read primitives, redaction-by-tombstone with denial audit events, evidence export manifests, runbooks, quickstart evidence, and final package gates are complete. Operational tombstone use still requires counsel/legal-hold wiring before Phase 2 use. |
+| F06–F25 | ⏳ Not started | F06 jurisdiction tagging, policy gates, and geographic kill switches are next on the critical path. |
 
 ### F02 sub-slice progress (branch `02-identity-auth-aaa`)
 
@@ -632,7 +633,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 - [ ] **Stage 1 gate:** CI green ✅, SBOM published ✅, signed releases ✅, MFA working for admin ✅, schema-lint gate ✅. Counsel review of `docs/data-governance/retention-policy.md` remains for Phase 1 jurisdictional admission (not gating Stage 1 sign-off).
 
 ### Stage 2 checklist
-- [ ] **F04** Ticket store + state machines
+- [x] **F04** Ticket store + state machines _(merged to `main` at `cbcbd56`, PR #38; post-merge handoff notes recorded)_
 - [ ] **F05** Hash-chained audit log + transcript store + tombstone procedure
 - [ ] **Stage 2 gate:** State transitions exhaustively tested; tombstone procedure tested in dev (counsel sign-off deferred to pre-Phase-2); transcript-store access controls distinct from dossier
 

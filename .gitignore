@@ -100,6 +100,7 @@ tmp/
 
 # ── Claude / agent tooling state ───────────────────────────────────
 .claude/
+.codex/
 .speckit_ralph/
 
 # ── Local working files ────────────────────────────────────────────
