@@ -7,7 +7,7 @@ import {
   principalScopes,
   type BuildTransitionEventArgs,
 } from "../audit.js";
-import { assertTransition } from "../transitions.js";
+import { assertTransition, OPERATOR_TRANSITION_SCOPE } from "../transitions.js";
 import type { TicketStore } from "./store.js";
 
 export interface SeekerDraftFields {
@@ -71,6 +71,8 @@ export function createSeekerRepo(options: SeekerRepoOptions) {
           state: args.to,
           updated_at: new Date(),
         });
+        const scopes = principalScopes(args.principal, args.scopes);
+        const isOperatorTransition = scopes.includes(OPERATOR_TRANSITION_SCOPE);
         const eventArgs: BuildTransitionEventArgs = {
           kind: "seeker_ticket",
           ticketId: updated.seeker_ticket_id,
@@ -80,6 +82,12 @@ export function createSeekerRepo(options: SeekerRepoOptions) {
           principal: args.principal,
           ...(args.reason_code ? { reason_code: args.reason_code } : {}),
           ...(args.notes !== undefined ? { notes: args.notes } : {}),
+          ...(isOperatorTransition
+            ? {
+                transitionName: "operator_transition",
+                extra: { actor_principal_id: args.principal.principal_id },
+              }
+            : {}),
         };
         await emitTransitionAuditEvent(tx, buildTransitionAuditEvent(eventArgs));
         return updated;

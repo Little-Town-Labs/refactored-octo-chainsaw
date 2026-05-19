@@ -579,17 +579,17 @@ Verifies all expected audit events fire with valid payloads.
 ## Phase B8 — Quickstart + staged dev-run (12h)
 
 ### T041 — Quickstart Scenarios 1–11 walk through (dev environment)
-**Status:** 🟡 Ready · **Effort:** 4h
+**Status:** ✅ Complete · **Effort:** 4h
 **Story:** all · **FR/NFR:** M-2
 **Description.** Execute every quickstart.md scenario against a dev
 deploy. Capture results.
 
 **Acceptance:**
-- [ ] All 11 scenarios pass.
-- [ ] Result log captured in `.specify/specs/04-ticket-store-state-machines/quickstart-run-<date>.md`.
+- [x] All 11 scenarios pass.
+- [x] Result log captured in `.specify/specs/04-ticket-store-state-machines/quickstart-run-<date>.md`.
 
 ### T042 — M-2 staged dev-run: 100/100/50/25
-**Status:** 🟡 Ready · **Effort:** 3h
+**Status:** ✅ Complete · **Effort:** 3h
 **Parallel with:** T041
 **Story:** all · **FR/NFR:** M-2
 **Description.** Script that creates 100 seeker + 100 employer-req
@@ -598,12 +598,12 @@ tickets, pairs them into 50 match_tickets, advances 25 through
 events fired; latencies within NFR-2/NFR-3.
 
 **Acceptance:**
-- [ ] Script runs to completion.
-- [ ] Audit-payload sample audited for PII leakage (0 findings).
-- [ ] Latency report appended to quickstart-run log.
+- [x] Script runs to completion.
+- [x] Audit-payload sample audited for PII leakage (0 findings).
+- [x] Latency report appended to quickstart-run log.
 
 ### T043 — Performance benchmark capture (NFR-2, NFR-3, M-5)
-**Status:** 🔴 Blocked by T030, T042 · **Effort:** 2h
+**Status:** 🟡 Ready · **Effort:** 2h
 **Description.** Compile T030 + T042 latency captures into a single
 `docs/performance/f04-baseline.md` documenting:
 - fetch-by-id p50/p90/p99

@@ -21,7 +21,8 @@
     "test": "jest --passWithNoTests",
     "lint": "eslint .",
     "db:generate": "drizzle-kit generate",
-    "bench:f04-tickets": "tsx scripts/f04-ticket-benchmark.ts"
+    "bench:f04-tickets": "tsx scripts/f04-ticket-benchmark.ts",
+    "dev-run:f04": "tsx scripts/f04-staged-dev-run.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",

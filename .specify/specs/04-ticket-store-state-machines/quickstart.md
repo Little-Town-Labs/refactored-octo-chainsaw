@@ -55,7 +55,7 @@ Org.
 
 **Steps:**
 1. As the matcher service principal (with scope
-   `tickets.match.advance`), call `createMatchTicket(seeker_id,
+   `tickets.match.advance`), call `createMatch(seeker_id,
    employer_req_id)`.
 2. Verify a single DB transaction:
    - `match_tickets` row inserted with state `created`, identifier
@@ -73,7 +73,7 @@ Org.
 **Pre:** A match ticket exists for (seeker_id, employer_req_id) pair.
 
 **Steps:**
-1. Call `createMatchTicket(seeker_id, employer_req_id)` a second time.
+1. Call `createMatch(seeker_id, employer_req_id)` a second time.
 2. Expect `IdempotencyConflictError`. Response payload identifies the
    existing `match_ticket_id`.
 
@@ -88,10 +88,10 @@ progression).
 
 **Steps:**
 1. Operator (`tickets.transition.operator` scope) calls
-   `operatorTransition(seeker_id, 'closed', reason_code='stalled_screening')`.
+   `operatorTransition(seeker_id, 'closed', reason_code='stale')`.
 2. Verify row state advances to `closed`.
 3. Verify audit event `seeker_ticket.operator_transition` carries
-   `reason_code='stalled_screening'` and `actor_principal_id` =
+   `reason_code='stale'` and `actor_principal_id` =
    operator's principal_id.
 
 **Pre B (negative):** Operator omits `reason_code`.
@@ -127,7 +127,7 @@ with scope `tickets.match.advance`.
 
 **Steps:**
 1. Parley calls `advanceMatch(match_id, to='negotiating')` —
-   allocates `run_id`.
+   passes the run id for the active Parley run.
 2. Verify state = `negotiating`, `round = 0`, `run_id` non-null.
 3. Parley increments `round` up to `round_cap`. Each increment is
    exposed as a typed mutation (`advanceRound`) guarded by
@@ -149,7 +149,7 @@ with scope `tickets.match.advance`.
 1. Service principal calls `renegotiate(match_id)`.
 2. Verify single transaction:
    - `attempt` incremented.
-   - `run_id` cleared (set to NULL).
+   - `run_id` replaced with the new Parley run id.
    - `dossier_id` cleared (already NULL on `expired`).
    - `round` reset to 0.
    - state set to `negotiating`.

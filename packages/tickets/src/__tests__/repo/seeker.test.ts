@@ -1,8 +1,8 @@
 import { IllegalTransitionError } from "../../errors.js";
 import { createSeekerRepo } from "../../repo/seeker.js";
 import { AuditShapeError, assertValidTransitionEvent } from "../audit-shape.helper.js";
-import { seekerPrincipal } from "./fixtures.js";
-import { MemoryTicketStore } from "./memory-store.js";
+import { operatorPrincipal, seekerPrincipal, seekerRow } from "./fixtures.js";
+import { MemoryTicketStore, testUuid } from "./memory-store.js";
 
 const draftFields = {
   role_family: "engineering",
@@ -96,5 +96,31 @@ describe("seeker repo", () => {
 
     expect(store.seekers[0].state).toBe("draft");
     expect(store.audits).toHaveLength(0);
+  });
+
+  it("marks operator-scoped transitions with actor audit metadata", async () => {
+    const store = new MemoryTicketStore();
+    store.seedSeeker(seekerRow({ state: "screening" }));
+    const repo = createSeekerRepo({
+      store,
+      allocateIdentifier: async () => "ST-2026-00001",
+    });
+
+    await repo.transition({
+      seeker_ticket_id: testUuid(101),
+      to: "closed",
+      principal: operatorPrincipal,
+      reason_code: "stale",
+      scopes: ["tickets.transition.operator"],
+    });
+
+    expect(store.audits[0]).toMatchObject({
+      event_name: "seeker_ticket.operator_transition",
+      principal_id: operatorPrincipal.principal_id,
+    });
+    expect(store.audits[0].payload).toMatchObject({
+      reason_code: "stale",
+      actor_principal_id: operatorPrincipal.principal_id,
+    });
   });
 });

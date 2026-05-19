@@ -11,7 +11,7 @@ import {
   principalScopes,
   type BuildTransitionEventArgs,
 } from "../audit.js";
-import { assertTransition } from "../transitions.js";
+import { assertTransition, OPERATOR_TRANSITION_SCOPE } from "../transitions.js";
 import type { TicketStore } from "./store.js";
 
 export interface EmployerReqDraftFields {
@@ -91,6 +91,8 @@ export function createEmployerReqRepo(options: EmployerReqRepoOptions) {
           state: args.to,
           updated_at: new Date(),
         });
+        const scopes = principalScopes(args.principal, args.scopes);
+        const isOperatorTransition = scopes.includes(OPERATOR_TRANSITION_SCOPE);
         const eventArgs: BuildTransitionEventArgs = {
           kind: "employer_req_ticket",
           ticketId: updated.employer_req_ticket_id,
@@ -100,6 +102,12 @@ export function createEmployerReqRepo(options: EmployerReqRepoOptions) {
           principal: args.principal,
           ...(args.reason_code ? { reason_code: args.reason_code } : {}),
           ...(args.notes !== undefined ? { notes: args.notes } : {}),
+          ...(isOperatorTransition
+            ? {
+                transitionName: "operator_transition",
+                extra: { actor_principal_id: args.principal.principal_id },
+              }
+            : {}),
         };
         await emitTransitionAuditEvent(tx, buildTransitionAuditEvent(eventArgs));
         return updated;
