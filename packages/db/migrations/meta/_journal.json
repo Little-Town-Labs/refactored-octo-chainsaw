@@ -43,6 +43,13 @@
       "when": 1778631809597,
       "tag": "0005_f04_ticket_store",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1779214239150,
+      "tag": "0006_f05_audit_log_tombstone",
+      "breakpoints": true
     }
   ]
 }

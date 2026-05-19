@@ -10,110 +10,110 @@ Status legend: 🟡 Ready · 🔴 Blocked · 🟢 In Progress · ✅ Complete ·
 ## Phase B1 — Governance + contracts (4h)
 
 ### T001 — Register F05 data classes and canonical tables
-**Status:** 🟡 Ready · **Effort:** 1h · **Blocked by:** none
+**Status:** ✅ Complete · **Effort:** 1h · **Blocked by:** none
 **Description.** Update `docs/data-governance/data-classification.yaml` for `audit_log_events`, `transcript_turns`, `tombstone_records`, and `evidence_exports`.
 
 **Acceptance:**
-- [ ] All new tables and personal-data columns have class and erasure modes.
-- [ ] `pnpm schema:lint` remains clean.
+- [x] All new tables and personal-data columns have class and erasure modes.
+- [x] `pnpm schema:lint` remains clean.
 
 ### T002 — Replace F03 "pending F05" retention placeholders
-**Status:** 🔴 Blocked by T001 · **Effort:** 1h
+**Status:** ✅ Complete · **Effort:** 1h
 **Description.** Update `docs/data-governance/retention-policy.md` so tombstone references point to the F05 procedure and transitional `audit_events_buffer` notes name the cutover path.
 
 **Acceptance:**
-- [ ] No unresolved "pending F05" tombstone placeholder remains.
-- [ ] Counsel-review pending markers remain where operational sign-off is required.
+- [x] No unresolved "pending F05" tombstone placeholder remains.
+- [x] Counsel-review pending markers remain where operational sign-off is required.
 
 ### T003 — Add F05 invariants to governance docs
-**Status:** 🔴 Blocked by T001 · **Effort:** 1h
+**Status:** ✅ Complete · **Effort:** 1h
 **Description.** Update `docs/data-governance/integrity-invariants.md` for hash-chain uniqueness, source replay uniqueness, transcript idempotency, and tombstone uniqueness.
 
 **Acceptance:**
-- [ ] Every planned CHECK/UNIQUE/FK/index invariant is documented.
+- [x] Every planned CHECK/UNIQUE/FK/index invariant is documented.
 
 ### T004 — Validate F05 JSON Schema contracts
-**Status:** 🟡 Ready · **Effort:** 1h
+**Status:** ✅ Complete · **Effort:** 1h
 **Description.** Add schema validation tests for `.specify/specs/05-audit-log-tombstone/contracts/*.schema.yaml`.
 
 **Acceptance:**
-- [ ] Contract fixtures pass validation.
-- [ ] Deliberately invalid fixtures fail.
+- [x] Contract fixtures pass validation.
+- [x] Deliberately invalid fixtures fail.
 
 ---
 
 ## Phase B2 — Canonical audit schema + hash chain (14h)
 
 ### T005 — Hash-chain verifier tests (RED)
-**Status:** 🔴 Blocked by T004 · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Description.** Add tests for deterministic canonical serialization, event hashing, previous-hash linking, and mutation detection.
 
-**Acceptance:** tests compile and fail before implementation.
+**Acceptance:** tests compile and fail before implementation. ✅
 
 ### T006 — Add F05 audit schema and migration
-**Status:** 🔴 Blocked by T003 · **Effort:** 3h
+**Status:** ✅ Complete · **Effort:** 3h
 **Description.** Add `audit_log_events`, `tombstone_records`, and `evidence_exports` schema modules plus migration `0006_f05_audit_log_tombstone.sql`.
 
 **Acceptance:**
-- [ ] Migration applies cleanly.
-- [ ] Governance docs match schema columns.
+- [x] Migration applies cleanly.
+- [x] Governance docs match schema columns.
 
 ### T007 — Implement hash-chain serializer and verifier
-**Status:** 🔴 Blocked by T005, T006 · **Effort:** 3h
+**Status:** ✅ Complete · **Effort:** 3h
 **Description.** Implement canonical serialization, `computeEventHash`, and chain verification.
 
 **Acceptance:**
-- [ ] T005 tests pass.
-- [ ] Deliberate mutation fixture fails verification at the expected row.
+- [x] T005 tests pass.
+- [x] Deliberate mutation fixture fails verification at the expected row.
 
 ### T008 — Canonical audit writer
-**Status:** 🔴 Blocked by T007 · **Effort:** 3h
+**Status:** ✅ Complete · **Effort:** 3h
 **Description.** Implement writer that appends canonical events transactionally and computes hash links.
 
 **Acceptance:**
-- [ ] Append emits valid chain links.
-- [ ] Concurrent append behavior is deterministic or safely serialized.
+- [x] Append emits valid chain links.
+- [x] Concurrent append behavior is deterministic or safely serialized.
 
 ### T009 — Audit-chain performance baseline
-**Status:** 🔴 Blocked by T007 · **Effort:** 3h
+**Status:** ✅ Complete · **Effort:** 3h
 **Description.** Seed 10,000 events and record verification timing.
 
 **Acceptance:**
-- [ ] Verification completes under 30 seconds.
-- [ ] Results captured in F05 quickstart-run artifact.
+- [x] Verification completes under 30 seconds.
+- [x] Results captured in F05 quickstart-run artifact.
 
 ---
 
 ## Phase B3 — Buffer replay and cutover (8h)
 
 ### T010 — Replay idempotency tests (RED)
-**Status:** 🔴 Blocked by T008 · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Description.** Test exact-once replay from `audit_events_buffer` using `source_table/source_event_id`.
 
-**Acceptance:** duplicate replay does not create duplicate canonical rows.
+**Acceptance:** duplicate replay does not create duplicate canonical rows. ✅
 
 ### T011 — Implement replay command
-**Status:** 🔴 Blocked by T010 · **Effort:** 3h
+**Status:** ✅ Complete · **Effort:** 3h
 **Description.** Add `packages/db/scripts/f05-audit-replay.ts` or package equivalent.
 
 **Acceptance:**
-- [ ] Replay succeeds after partial failure retry.
-- [ ] Source references are preserved.
+- [x] Replay succeeds after partial failure retry.
+- [x] Source references are preserved.
 
 ### T012 — Wire post-cutover audit sink path
-**Status:** 🔴 Blocked by T008, T011 · **Effort:** 3h
+**Status:** ✅ Complete · **Effort:** 3h
 **Description.** Update DB-backed audit sink or adapter so post-cutover canonical writes preserve F02/F04 event semantics.
 
 **Acceptance:**
-- [ ] Existing F02/F04 audit tests remain green.
-- [ ] Canonical audit rows appear for new emitted events.
+- [x] Existing F02/F04 audit tests remain green.
+- [x] Canonical audit rows appear for new emitted events.
 
 ---
 
 ## Phase B4 — Transcript store (10h)
 
 ### T013 — Transcript schema and idempotency tests (RED)
-**Status:** 🔴 Blocked by T006 · **Effort:** 2h
+**Status:** 🟡 Ready · **Effort:** 2h
 **Description.** Test transcript append, duplicate `(run_id, side, turn_index)`, audit linkage, and denied read access.
 
 **Acceptance:** tests fail before implementation.

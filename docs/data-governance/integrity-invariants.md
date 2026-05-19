@@ -1,7 +1,7 @@
 # Spyglass integrity-invariant catalog
 
-**Version:** 1.0 (2026-05-12)
-**Last reviewed:** 2026-05-12
+**Version:** 1.2 (2026-05-19)
+**Last reviewed:** 2026-05-19
 **Owner:** Gary
 
 Every CHECK constraint, unique index, partial index, and foreign-key
@@ -29,7 +29,7 @@ Invariant **kind** legend:
 - `FK` — foreign-key reference
 - `PK` — primary key
 
-Total: **47 invariants across 8 tables.**
+Total: **119 invariants across 15 tables.**
 
 ---
 
@@ -237,6 +237,76 @@ Migration: [`0005_f04_ticket_store.sql`](../../packages/db/migrations/0005_f04_t
 
 ---
 
+## audit_log_events
+File: [`packages/db/src/schema/audit-log.ts`](../../packages/db/src/schema/audit-log.ts) ·
+Migration: [`0006_f05_audit_log_tombstone.sql`](../../packages/db/migrations/0006_f05_audit_log_tombstone.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `audit_log_events_pkey` | PK | `audit_event_id uuid` default `uuidv7()` | Duplicate / missing canonical audit row | `packages/audit-log/src/__tests__/hash-chain.test.ts` (F05 T005/T007) |
+| `audit_log_events_principal_kind_check` | CHECK | `principal_kind IN ('human','agent','service')` | Invalid actor kind drift | `packages/audit-log/src/__tests__/writer.test.ts` (F05 T008) |
+| `audit_log_events_source_pair_check` | CHECK | `(source_table IS NULL) = (source_event_id IS NULL)` | Half-linked replay source references | `packages/audit-log/src/__tests__/replay.test.ts` (F05 T010/T011) |
+| `audit_log_events_hash_algorithm_check` | CHECK | `hash_algorithm IN ('sha256')` | Mixed hash algorithm drift before a versioned migration | `packages/audit-log/src/__tests__/hash-chain.test.ts` |
+| `audit_log_events_canonicalization_version_check` | CHECK | `canonicalization_version <> ''` | Unversioned canonical serializer rows | `packages/audit-log/src/__tests__/hash-chain.test.ts` |
+| `audit_log_events_tombstone_payload_check` | CHECK | `tombstoned_at IS NULL OR payload ? 'tombstone'` | Marking a row tombstoned without a tombstone envelope | `packages/audit-log/src/__tests__/tombstone.test.ts` (F05 T017/T019) |
+| `audit_log_events_hash_idx` | UNIQUE | `UNIQUE (event_hash)` | Duplicate event digest / chain collision acceptance | `packages/audit-log/src/__tests__/hash-chain.test.ts` |
+| `audit_log_events_source_replay_idx` | PARTIAL_UNIQUE | `UNIQUE (source_table, source_event_id) WHERE source_table IS NOT NULL` | Duplicate replay from `audit_events_buffer` or later source tables | `packages/audit-log/src/__tests__/replay.test.ts` |
+| `audit_log_events_chain_order_idx` | INDEX | `(chain_namespace, created_at, audit_event_id)` | (perf) deterministic chain verification scan | `packages/audit-log/src/__tests__/hash-chain.test.ts` |
+| `audit_log_events_principal_idx` | INDEX | `(principal_id, created_at DESC)` | (perf) principal-scoped evidence review | — |
+| `audit_log_events_correlation_idx` | PARTIAL | `(correlation_id, created_at DESC) WHERE correlation_id IS NOT NULL` | (perf) request/workflow evidence reconstruction | — |
+| `audit_log_events_principal_fk` | FK | `principal_id → principals.principal_id` | Orphaned canonical audit attribution | `packages/audit-log/src/__tests__/writer.test.ts` |
+
+---
+
+## transcript_turns
+File: [`packages/db/src/schema/transcript-store.ts`](../../packages/db/src/schema/transcript-store.ts) ·
+Migration: [`0006_f05_audit_log_tombstone.sql`](../../packages/db/migrations/0006_f05_audit_log_tombstone.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `transcript_turns_pkey` | PK | `transcript_turn_id uuid` default `uuidv7()` | Duplicate / missing transcript row | `packages/audit-log/src/__tests__/transcripts.test.ts` (F05 T013/T015) |
+| `transcript_turns_side_check` | CHECK | `side IN ('seeker','employer')` | Cross-side label drift | `packages/audit-log/src/__tests__/transcripts.test.ts` |
+| `transcript_turns_tombstone_content_check` | CHECK | `tombstoned_at IS NULL OR content IS NULL` | Retaining raw transcript content after tombstone | `packages/audit-log/src/__tests__/tombstone.test.ts` |
+| `transcript_turns_idempotency_idx` | UNIQUE | `UNIQUE (run_id, side, turn_index)` | Duplicate turn append for the same negotiation side/order | `packages/audit-log/src/__tests__/transcripts.test.ts` |
+| `transcript_turns_match_idx` | INDEX | `(match_ticket_id, created_at)` | (perf) match-scoped transcript read path | — |
+| `transcript_turns_audit_event_idx` | UNIQUE | `UNIQUE (audit_event_id)` | Multiple transcript rows claiming one append audit event | `packages/audit-log/src/__tests__/transcripts.test.ts` |
+| `transcript_turns_match_fk` | FK | `match_ticket_id → match_tickets.match_ticket_id` | Orphan transcript without a match ticket | `packages/audit-log/src/__tests__/transcripts.test.ts` |
+| `transcript_turns_audit_event_fk` | FK | `audit_event_id → audit_log_events.audit_event_id` | Transcript append without canonical audit event | `packages/audit-log/src/__tests__/transcripts.test.ts` |
+
+---
+
+## tombstone_records
+File: [`packages/db/src/schema/audit-log.ts`](../../packages/db/src/schema/audit-log.ts) ·
+Migration: [`0006_f05_audit_log_tombstone.sql`](../../packages/db/migrations/0006_f05_audit_log_tombstone.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `tombstone_records_pkey` | PK | `tombstone_id uuid` default `uuidv7()` | Duplicate / missing tombstone evidence row | `packages/audit-log/src/__tests__/tombstone.test.ts` |
+| `tombstone_records_target_kind_check` | CHECK | `target_kind IN ('audit_event','transcript_turn')` | Tombstone rows targeting unsupported stores | `packages/audit-log/src/__tests__/tombstone.test.ts` |
+| `tombstone_records_hashes_differ_check` | CHECK | `original_hash <> replacement_hash` | No-op tombstone evidence | `packages/audit-log/src/__tests__/tombstone.test.ts` |
+| `tombstone_records_target_idx` | UNIQUE | `UNIQUE (target_kind, target_id)` | Double tombstone of the same canonical record | `packages/audit-log/src/__tests__/tombstone.test.ts` |
+| `tombstone_records_audit_event_idx` | UNIQUE | `UNIQUE (audit_event_id)` | Reusing one audit event for multiple tombstone actions | `packages/audit-log/src/__tests__/tombstone.test.ts` |
+| `tombstone_records_operator_idx` | INDEX | `(operator_principal_id, created_at DESC)` | (perf) operator-action evidence review | — |
+| `tombstone_records_operator_fk` | FK | `operator_principal_id → principals.principal_id` | Tombstone without attributable operator | `packages/audit-log/src/__tests__/tombstone.test.ts` |
+| `tombstone_records_audit_event_fk` | FK | `audit_event_id → audit_log_events.audit_event_id` | Tombstone evidence without linked audit event | `packages/audit-log/src/__tests__/tombstone.test.ts` |
+
+---
+
+## evidence_exports
+File: [`packages/db/src/schema/audit-log.ts`](../../packages/db/src/schema/audit-log.ts) ·
+Migration: [`0006_f05_audit_log_tombstone.sql`](../../packages/db/migrations/0006_f05_audit_log_tombstone.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `evidence_exports_pkey` | PK | `export_id uuid` default `uuidv7()` | Duplicate / missing export manifest row | `packages/audit-log/src/__tests__/export.test.ts` (F05 T021/T022) |
+| `evidence_exports_purpose_check` | CHECK | `purpose IN ('incident','counsel','audit','operator_review')` | Ambiguous export purpose drift | `packages/audit-log/src/__tests__/export.test.ts` |
+| `evidence_exports_chain_status_check` | CHECK | `chain_verification_status IN ('valid','invalid') OR chain_verification_status LIKE 'invalid:%'` | Export manifest without machine-readable chain result | `packages/audit-log/src/__tests__/export.test.ts` |
+| `evidence_exports_manifest_hash_idx` | UNIQUE | `UNIQUE (manifest_hash)` | Duplicate deterministic export manifest rows | `packages/audit-log/src/__tests__/export.test.ts` |
+| `evidence_exports_requested_by_idx` | INDEX | `(requested_by_principal_id, created_at DESC)` | (perf) operator/counsel export review | — |
+| `evidence_exports_requested_by_fk` | FK | `requested_by_principal_id → principals.principal_id` | Export without attributable requester | `packages/audit-log/src/__tests__/export.test.ts` |
+
+---
+
 ## Changelog
 
 - **v1.0 (2026-05-12)** — Authored under F03 T010–T013. 47 invariants
@@ -248,3 +318,9 @@ Migration: [`0005_f04_ticket_store.sql`](../../packages/db/migrations/0005_f04_t
   with 38 new invariants. Test refs point at `packages/tickets/`
   test files (RED until F04 B3/B5 land). Total invariants:
   47 + 38 = 85.
+- **v1.2 (2026-05-19)** — F05 T003 amendment. Added planned
+  invariant sections for `audit_log_events`, `transcript_turns`,
+  `tombstone_records`, and `evidence_exports`: 34 new CHECK/UNIQUE/FK
+  and index rules covering hash-chain uniqueness, source replay
+  uniqueness, transcript idempotency, tombstone uniqueness, and
+  evidence-export attribution. Total invariants: 85 + 34 = 119.

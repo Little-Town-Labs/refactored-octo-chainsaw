@@ -55,3 +55,29 @@ export {
   type MatchTicketState,
   MATCH_STATES,
 } from "./match-tickets.js";
+
+// F05 — Canonical audit log, transcript store, and tombstones.
+export {
+  auditLogEvents,
+  evidenceExports,
+  tombstoneRecords,
+  type AuditLogEventRow,
+  type EvidenceExportPurpose,
+  EVIDENCE_EXPORT_PURPOSES,
+  type EvidenceExportRow,
+  type NewAuditLogEventRow,
+  type NewEvidenceExportRow,
+  type NewTombstoneRecordRow,
+  PRINCIPAL_KINDS,
+  type PrincipalKind,
+  TOMBSTONE_TARGET_KINDS,
+  type TombstoneRecordRow,
+  type TombstoneTargetKind,
+} from "./audit-log.js";
+export {
+  transcriptTurns,
+  type NewTranscriptTurnRow,
+  TRANSCRIPT_SIDES,
+  type TranscriptSide,
+  type TranscriptTurnRow,
+} from "./transcript-store.js";

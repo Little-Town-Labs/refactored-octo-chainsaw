@@ -78,6 +78,9 @@ importers:
       '@clerk/nextjs':
         specifier: 7.3.7
         version: 7.3.7(next@16.2.6(@babel/core@7.29.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      '@spyglass/audit-log':
+        specifier: workspace:*
+        version: link:../../packages/audit-log
       '@spyglass/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -138,6 +141,15 @@ importers:
   packages/ai: {}
 
   packages/api-contracts: {}
+
+  packages/audit-log:
+    dependencies:
+      '@spyglass/db':
+        specifier: workspace:*
+        version: link:../db
+      drizzle-orm:
+        specifier: ^0.45.2
+        version: 0.45.2(@types/pg@8.20.0)(pg@8.21.0)
 
   packages/auth:
     dependencies:

@@ -126,6 +126,48 @@ data_classes:
       retained for audit (§I.5.3) and bias-audit-readiness (§I.2 +
       NIST AI RMF Measure 2.11).
 
+  # ------------------------------------------------------------------
+  # F05 data classes (Audit log + transcript store + tombstone)
+  # ------------------------------------------------------------------
+  - id: transcript_record
+    description: >-
+      Canonical Parley negotiation turns and associated run metadata.
+      Raw turn content may contain seeker PII, employer-confidential
+      context, tool-returned text, or model outputs. Stored separately
+      from dossiers with stricter access controls.
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(b) — performance of contract for negotiation
+      execution; GDPR Art. 6(1)(c) / Art. 6(1)(f) for auditability,
+      dispute handling, and AEDT compliance evidence.
+
+  - id: tombstone_evidence
+    description: >-
+      Versioned redaction metadata that proves personal data was
+      removed without breaking the audit chain: target reference,
+      lawful basis, operator principal, original/replacement hashes,
+      procedure version, and timestamp. MUST NOT contain raw personal
+      data; subject references are opaque or pseudonymous.
+    sensitivity: high
+    erasure_mode: hard_delete
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — legal obligation to preserve erasure and
+      audit evidence; Constitution §I.4.3 requires tombstones to
+      remain visible as evidence the redacted entry existed.
+
+  - id: evidence_export
+    description: >-
+      Deterministic manifests for scoped incident, counsel, operator,
+      or audit-review packages. Filters and manifests may reference
+      principals, matches, runs, correlations, and tombstone markers.
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — legal and regulatory evidence obligations;
+      GDPR Art. 6(1)(f) — legitimate interest in incident response,
+      forensic readiness, and controlled counsel review.
+
 # Tables — one entry per pgTable in packages/db/src/schema/.
 # Coverage is enforced by the lint (rule R3).
 tables:
@@ -370,3 +412,93 @@ tables:
       - { name: approved_by, class: approval_workflow, erasure: redact_in_place, fk: principals.principal_id }
       - { name: approved_at, class: approval_workflow, erasure: redact_in_place }
       - { name: executed_at, class: approval_workflow, erasure: redact_in_place }
+
+  # ------------------------------------------------------------------
+  # F05 — Canonical audit log + transcript store + tombstone
+  # ------------------------------------------------------------------
+  - name: audit_log_events
+    file: packages/db/src/schema/audit-log.ts
+    migration: packages/db/migrations/0006_f05_audit_log_tombstone.sql
+    primary_class: audit_record
+    data_subject_linkage:
+      column: principal_id
+      role: actor
+    columns:
+      - { name: audit_event_id, class: audit_record, erasure: tombstone }
+      - { name: source_table, class: audit_record, erasure: hard_delete, notes: "Replay origin table name, e.g. audit_events_buffer." }
+      - { name: source_event_id, class: audit_record, erasure: tombstone, notes: "Replay origin id; traceability link to pre-F05 buffer." }
+      - { name: event_name, class: audit_record, erasure: tombstone }
+      - { name: principal_id, class: audit_record, erasure: tombstone, fk: principals.principal_id, notes: "Actor of the audit event; data-subject join for erasure." }
+      - { name: principal_kind, class: audit_record, erasure: hard_delete }
+      - { name: role_or_scope, class: audit_record, erasure: tombstone }
+      - { name: correlation_id, class: audit_record, erasure: tombstone }
+      - { name: payload, class: audit_record, erasure: tombstone, notes: "Structured event payload or tombstone envelope; may contain PII until tombstoned." }
+      - { name: payload_hash, class: audit_record, erasure: hard_delete, notes: "Digest retained for chain verification; no raw payload." }
+      - { name: previous_hash, class: audit_record, erasure: hard_delete }
+      - { name: event_hash, class: audit_record, erasure: hard_delete }
+      - { name: chain_namespace, class: audit_record, erasure: hard_delete }
+      - { name: hash_algorithm, class: audit_record, erasure: hard_delete }
+      - { name: canonicalization_version, class: audit_record, erasure: hard_delete }
+      - { name: created_at, class: audit_record, erasure: tombstone }
+      - { name: tombstoned_at, class: audit_record, erasure: tombstone }
+
+  - name: transcript_turns
+    file: packages/db/src/schema/transcript-store.ts
+    migration: packages/db/migrations/0006_f05_audit_log_tombstone.sql
+    primary_class: transcript_record
+    data_subject_linkage:
+      column: match_ticket_id
+      role: target
+    columns:
+      - { name: transcript_turn_id, class: transcript_record, erasure: tombstone }
+      - { name: match_ticket_id, class: transcript_record, erasure: tombstone, fk: match_tickets.match_ticket_id, notes: "Joins to source seeker/employer subjects through F04 match ticket." }
+      - { name: run_id, class: transcript_record, erasure: tombstone }
+      - { name: side, class: transcript_record, erasure: hard_delete }
+      - { name: turn_index, class: transcript_record, erasure: hard_delete }
+      - { name: contract_id, class: transcript_record, erasure: hard_delete }
+      - { name: contract_version, class: transcript_record, erasure: hard_delete }
+      - { name: rubric_id, class: transcript_record, erasure: hard_delete }
+      - { name: rubric_version, class: transcript_record, erasure: hard_delete }
+      - { name: model_ref, class: transcript_record, erasure: hard_delete }
+      - { name: tool_call_refs, class: transcript_record, erasure: tombstone, notes: "May reference tool outputs that contain personal or employer-confidential context." }
+      - { name: content, class: transcript_record, erasure: tombstone, notes: "Canonical turn content; null after tombstone." }
+      - { name: content_hash, class: transcript_record, erasure: hard_delete, notes: "Digest retained for proof of prior content; no raw text." }
+      - { name: audit_event_id, class: transcript_record, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: transcript_record, erasure: tombstone }
+      - { name: tombstoned_at, class: transcript_record, erasure: tombstone }
+
+  - name: tombstone_records
+    file: packages/db/src/schema/audit-log.ts
+    migration: packages/db/migrations/0006_f05_audit_log_tombstone.sql
+    primary_class: tombstone_evidence
+    data_subject_linkage:
+      column: operator_principal_id
+      role: actor
+    columns:
+      - { name: tombstone_id, class: tombstone_evidence, erasure: hard_delete }
+      - { name: target_kind, class: tombstone_evidence, erasure: hard_delete }
+      - { name: target_id, class: tombstone_evidence, erasure: hard_delete, notes: "References audit_log_events.audit_event_id or transcript_turns.transcript_turn_id by target_kind." }
+      - { name: subject_ref, class: tombstone_evidence, erasure: hard_delete, notes: "Opaque or pseudonymous subject reference; MUST NOT store raw personal data." }
+      - { name: lawful_basis, class: tombstone_evidence, erasure: hard_delete }
+      - { name: procedure_version, class: tombstone_evidence, erasure: hard_delete }
+      - { name: operator_principal_id, class: tombstone_evidence, erasure: hard_delete, fk: principals.principal_id, notes: "Operator executing the redaction; retained for non-repudiation." }
+      - { name: original_hash, class: tombstone_evidence, erasure: hard_delete }
+      - { name: replacement_hash, class: tombstone_evidence, erasure: hard_delete }
+      - { name: audit_event_id, class: tombstone_evidence, erasure: hard_delete, fk: audit_log_events.audit_event_id, notes: "Audit event recording the tombstone action." }
+      - { name: created_at, class: tombstone_evidence, erasure: hard_delete }
+
+  - name: evidence_exports
+    file: packages/db/src/schema/audit-log.ts
+    migration: packages/db/migrations/0006_f05_audit_log_tombstone.sql
+    primary_class: evidence_export
+    data_subject_linkage:
+      column: requested_by_principal_id
+      role: actor
+    columns:
+      - { name: export_id, class: evidence_export, erasure: tombstone }
+      - { name: requested_by_principal_id, class: evidence_export, erasure: tombstone, fk: principals.principal_id }
+      - { name: purpose, class: evidence_export, erasure: hard_delete }
+      - { name: filters, class: evidence_export, erasure: tombstone, notes: "May include match, run, principal, correlation, and date-range review filters." }
+      - { name: manifest_hash, class: evidence_export, erasure: hard_delete }
+      - { name: chain_verification_status, class: evidence_export, erasure: hard_delete }
+      - { name: created_at, class: evidence_export, erasure: tombstone }
