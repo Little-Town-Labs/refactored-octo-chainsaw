@@ -6,9 +6,14 @@ import {
   OPERATOR_TRANSITION_SCOPE,
 } from "@spyglass/tickets";
 
+import {
+  amendEmployerRequisitionForPrincipal,
+  amendSeekerIntentForPrincipal,
+} from "../amend-source-core";
 import { operatorTransitionForPrincipal } from "../operator-transition-core";
 import { submitEmployerRequisitionForPrincipal } from "../submit-employer-core";
 import { submitSeekerIntentForPrincipal } from "../submit-seeker-core";
+import { withdrawSeekerIntentForPrincipal } from "../withdraw-seeker-core";
 
 const seekerPrincipal: HumanPrincipal = {
   kind: "human",
@@ -149,6 +154,40 @@ function operatorTransitionForm(overrides: Record<string, string> = {}): FormDat
     ticket_id: "11111111-1111-4111-8111-000000000201",
     to: "closed",
     reason_code: "policy",
+    ...overrides,
+  };
+  for (const [key, value] of Object.entries(values)) formData.set(key, value);
+  return formData;
+}
+
+function withdrawSeekerForm(overrides: Record<string, string> = {}): FormData {
+  const formData = new FormData();
+  const values = {
+    seeker_ticket_id: "11111111-1111-4111-8111-000000000201",
+    ...overrides,
+  };
+  for (const [key, value] of Object.entries(values)) formData.set(key, value);
+  return formData;
+}
+
+function amendSeekerForm(overrides: Record<string, string> = {}): FormData {
+  const formData = new FormData();
+  const values = {
+    seeker_ticket_id: "11111111-1111-4111-8111-000000000201",
+    comp_band_min: "110000",
+    jurisdictions: "US-CA,US-NY",
+    ...overrides,
+  };
+  for (const [key, value] of Object.entries(values)) formData.set(key, value);
+  return formData;
+}
+
+function amendEmployerForm(overrides: Record<string, string> = {}): FormData {
+  const formData = new FormData();
+  const values = {
+    employer_req_ticket_id: "11111111-1111-4111-8111-000000000301",
+    work_mode: "hybrid",
+    flags: "priority,manual-review",
     ...overrides,
   };
   for (const [key, value] of Object.entries(values)) formData.set(key, value);
@@ -302,5 +341,71 @@ describe("ticket submit action cores", () => {
       ]),
     ).rejects.toThrow(MissingReasonCodeError);
     expect(repos.seeker.transition).not.toHaveBeenCalled();
+  });
+
+  it("withdraws a seeker intent through the workflow repo", async () => {
+    const repo = {
+      withdrawSeekerIntent: jest.fn().mockResolvedValue({ seeker: seekerRow("withdrawn") }),
+    };
+
+    await expect(
+      withdrawSeekerIntentForPrincipal(seekerPrincipal, withdrawSeekerForm(), repo),
+    ).resolves.toMatchObject({
+      status: "success",
+      ticket_id: "11111111-1111-4111-8111-000000000201",
+      state: "withdrawn",
+    });
+    expect(repo.withdrawSeekerIntent).toHaveBeenCalledWith(
+      seekerPrincipal,
+      "11111111-1111-4111-8111-000000000201",
+    );
+  });
+
+  it("amends seeker and employer source tickets with parsed patch fields", async () => {
+    const repo = {
+      amendSeekerIntent: jest.fn().mockResolvedValue({ seeker: seekerRow("matching") }),
+      amendEmployerRequisition: jest.fn().mockResolvedValue({
+        employerReq: employerRow("matching"),
+      }),
+    };
+
+    await expect(
+      amendSeekerIntentForPrincipal(seekerPrincipal, amendSeekerForm(), repo),
+    ).resolves.toMatchObject({ status: "success", state: "matching" });
+    expect(repo.amendSeekerIntent).toHaveBeenCalledWith(
+      seekerPrincipal,
+      "11111111-1111-4111-8111-000000000201",
+      {
+        comp_band_min: 110000,
+        jurisdictions: ["US-CA", "US-NY"],
+      },
+    );
+
+    await expect(
+      amendEmployerRequisitionForPrincipal(employerPrincipal, amendEmployerForm(), repo),
+    ).resolves.toMatchObject({ status: "success", state: "matching" });
+    expect(repo.amendEmployerRequisition).toHaveBeenCalledWith(
+      employerPrincipal,
+      "11111111-1111-4111-8111-000000000301",
+      {
+        work_mode: "hybrid",
+        flags: ["priority", "manual-review"],
+      },
+    );
+  });
+
+  it("rejects cross-tier amendment actions before repo calls", async () => {
+    const repo = {
+      amendSeekerIntent: jest.fn(),
+      amendEmployerRequisition: jest.fn(),
+    };
+
+    await expect(
+      amendEmployerRequisitionForPrincipal(seekerPrincipal, amendEmployerForm(), repo),
+    ).resolves.toMatchObject({
+      status: "error",
+      serverError: "Employer admin role required.",
+    });
+    expect(repo.amendEmployerRequisition).not.toHaveBeenCalled();
   });
 });

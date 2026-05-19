@@ -106,6 +106,12 @@ export {
   type MatchRepoOptions,
 } from "./repo/match.js";
 export {
+  createSourceWorkflowRepo,
+  TicketAuthorizationError,
+  type AmendTicketPatch,
+  type SourceWorkflowRepoOptions,
+} from "./repo/source-workflows.js";
+export {
   createReadRepo,
   defaultTicketProjection,
   TICKET_READ_ALL_SCOPE,

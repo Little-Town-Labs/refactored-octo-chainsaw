@@ -23,6 +23,7 @@ cd "$ROOT"
 # Shapes that must pass through @spyglass/auth before mutating state.
 # - apps/web App Router route handlers: app/**/route.ts(x)
 # - apps/web server actions: any "use server" file under app/
+# - apps/web tRPC/server procedures: src/server/**/*.ts
 # - Inngest functions: packages/agents/**/*.inngest.ts
 CANDIDATES=()
 while IFS= read -r f; do CANDIDATES+=("$f"); done < <(
@@ -34,6 +35,9 @@ while IFS= read -r f; do CANDIDATES+=("$f"); done < <(
   # so files that merely mention the directive in a comment are not
   # flagged.
   grep -rlE '^"use server"' --include='*.ts' --include='*.tsx' apps 2>/dev/null || true
+)
+while IFS= read -r f; do CANDIDATES+=("$f"); done < <(
+  find apps/web/src/server -type f -name "*.ts" ! -path "*/__tests__/*" 2>/dev/null || true
 )
 while IFS= read -r f; do CANDIDATES+=("$f"); done < <(
   find packages -type f -name "*.inngest.ts" 2>/dev/null || true

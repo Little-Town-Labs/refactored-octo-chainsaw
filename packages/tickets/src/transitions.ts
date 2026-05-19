@@ -83,6 +83,7 @@ export const MATCH_TRANSITIONS: ReadonlyArray<MatchTransition> = [
   { from: "created", to: "negotiating" },
   { from: "created", to: "rejected" },
   { from: "negotiating", to: "delivered", requiresDossier: true },
+  { from: "negotiating", to: "rejected" },
   { from: "negotiating", to: "expired" },
   { from: "delivered", to: "accepted" },
   { from: "delivered", to: "rejected" },

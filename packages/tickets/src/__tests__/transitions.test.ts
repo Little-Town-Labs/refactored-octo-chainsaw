@@ -5,7 +5,7 @@
 // tickets (plan §3 R-1; data-model §2.1–§2.3).
 //
 // Coverage:
-//   - Positive: one test per named transition (8 + 8 + 8 = 24).
+//   - Positive: one test per named transition (8 + 8 + 9 = 25).
 //   - Negative: every illegal (from, to) pair within each kind.
 //   - Scope rejection: operator-only transitions without
 //     `tickets.transition.operator` scope → MissingScopeError.
@@ -99,6 +99,7 @@ const MATCH_LEGAL: ReadonlyArray<{
   { from: "created", to: "negotiating" },
   { from: "created", to: "rejected" },
   { from: "negotiating", to: "delivered", needsDossier: true },
+  { from: "negotiating", to: "rejected" },
   { from: "negotiating", to: "expired" },
   { from: "delivered", to: "accepted" },
   { from: "delivered", to: "rejected" },
@@ -132,7 +133,7 @@ describe("transition catalogs (data-model parity)", () => {
     expect(EMPLOYER_REQ_TRANSITIONS.length).toBe(EMPLOYER_REQ_LEGAL.length);
   });
 
-  test("MATCH_TRANSITIONS exports all 8 documented edges", () => {
+  test("MATCH_TRANSITIONS exports all 9 documented edges", () => {
     const pairs = new Set(
       MATCH_TRANSITIONS.map((t: { from: string; to: string }) => `${t.from}->${t.to}`),
     );

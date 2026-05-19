@@ -143,6 +143,7 @@ stateDiagram-v2
     created --> negotiating: parley:start_run
     created --> rejected: system:source_withdrawn
     negotiating --> delivered: parley:complete_run
+    negotiating --> rejected: system:source_withdrawn
     negotiating --> expired: parley:round_cap_exhausted
     delivered --> accepted: consumer:accept
     delivered --> rejected: consumer:reject

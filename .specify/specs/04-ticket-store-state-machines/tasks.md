@@ -475,7 +475,7 @@ Routes to seeker / employer-req / match repo based on kind.
 - [x] Wrong scope → `MissingScopeError`.
 
 ### T035 — Server action: withdraw seeker intent (US-5, EC-1)
-**Status:** 🔴 Blocked by T020, T024 · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Parallel with:** T032, T033, T034, T036
 **Story:** US-5 · **FR/NFR:** EC-1
 **Description.** `withdraw-seeker.ts`. When the seeker has a linked
@@ -483,11 +483,11 @@ match in `negotiating`, also transitions the match to `rejected`
 with `reason_code='source_withdrawn'`. Atomic across both rows.
 
 **Acceptance:**
-- [ ] Atomic withdrawal verified by integration test.
-- [ ] Two audit events emitted with same `correlation_id`.
+- [x] Atomic withdrawal verified by integration test.
+- [x] Two audit events emitted with same `correlation_id`.
 
 ### T035b — Server action: amend seeker / employer-req intent (EC-8)
-**Status:** 🔴 Blocked by T020, T022, T024 · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Parallel with:** T032, T033, T034, T035, T036
 **Story:** US-5 sibling · **FR/NFR:** FR-6, EC-8
 **Description.** Two server actions:
@@ -511,25 +511,25 @@ transaction. Multi-event correlation_id propagation per T039.
   correlation_id and `reason_code='jurisdiction_changed'`.
 
 **Acceptance:**
-- [ ] Amendment without jurisdiction change: 1 audit event.
-- [ ] Amendment with decision-locus change: 2 audit events
+- [x] Amendment without jurisdiction change: 1 audit event.
+- [x] Amendment with decision-locus change: 2 audit events
       (`*_ticket.amended` + `match_ticket.rejected`), same
       correlation_id, atomic.
-- [ ] Audit payload schema-validates (no raw prior values).
-- [ ] Cross-tier authorization: seeker calling
+- [x] Audit payload schema-validates (no raw prior values).
+- [x] Cross-tier authorization: seeker calling
       `amendEmployerRequisition` rejected.
 
 ### T036 — tRPC procedures: createMatch + advanceMatch + renegotiate (US-3, US-6)
-**Status:** 🔴 Blocked by T024 · **Effort:** 3h
+**Status:** ✅ Complete · **Effort:** 3h
 **Story:** US-3, US-6 · **FR/NFR:** FR-4, FR-8, FR-11
 **Description.** tRPC procedures in `apps/web/src/server/tickets.ts`
 guarded by `tickets.match.advance` scope. Service-principal-only
 surface (matcher + Parley harness).
 
 **Acceptance:**
-- [ ] Service-principal scope check enforced.
-- [ ] Idempotency conflict mapped to 409.
-- [ ] `delivered` requires `dossier_id` (invariant test).
+- [x] Service-principal scope check enforced.
+- [x] Idempotency conflict mapped to 409.
+- [x] `delivered` requires `dossier_id` (invariant test).
 
 ### T037 — Register new scopes in `@spyglass/auth/scopes`
 **Status:** ✅ Complete · **Effort:** 0.5h
@@ -544,7 +544,7 @@ operator-role helpers.
 - [x] Smoke test: requireScope rejects without scope.
 
 ### T038 — Wire principal-coverage gate (F02 NFR-11) for new files
-**Status:** 🔴 Blocked by T032..T035b, T036 · **Effort:** 0.5h
+**Status:** ✅ Complete · **Effort:** 0.5h
 **Description.** No code change expected — verify
 `scripts/check-principal-coverage.sh` recognizes the new server
 actions and tRPC procedures (it scans by App Router conventions +
@@ -552,27 +552,27 @@ actions and tRPC procedures (it scans by App Router conventions +
 `withPrincipal`/`getPrincipal` import.
 
 **Acceptance:**
-- [ ] Gate green on the F04 branch.
+- [x] Gate green on the F04 branch.
 
 ### T039 — Correlation-id propagation through actions
-**Status:** 🔴 Blocked by T032..T035b, T036 · **Effort:** 1.5h
+**Status:** ✅ Complete · **Effort:** 1.5h
 **Description.** Ensure every action accepts a parent `correlation_id`
 or generates one and propagates into audit emissions. Test covers
 the propagation across multi-event transitions (e.g., EC-1 emits
 2 events under one correlation_id).
 
 **Acceptance:**
-- [ ] Multi-event scenarios share correlation_id.
+- [x] Multi-event scenarios share correlation_id.
 
 ### T040 — Integration smoke: full lifecycle in one test
-**Status:** 🔴 Blocked by T032..T039 · **Effort:** 2h
+**Status:** ✅ Complete · **Effort:** 2h
 **Description.** End-to-end Jest covering: seeker submits → screening →
 matching → match created → Parley advances → delivered → accepted.
 Verifies all expected audit events fire with valid payloads.
 
 **Acceptance:**
-- [ ] Test passes.
-- [ ] Audit event count and shapes verified.
+- [x] Test passes.
+- [x] Audit event count and shapes verified.
 
 ---
 
