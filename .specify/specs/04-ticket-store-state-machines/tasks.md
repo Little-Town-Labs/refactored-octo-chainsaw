@@ -666,18 +666,18 @@ resolutions or defer with explicit justification.
 - [x] No CRITICAL/HIGH outstanding.
 
 ### T048 — Final back-check against schema-lint + principal-coverage gates
-**Status:** 🟡 Ready · **Effort:** 0.5h
+**Status:** ✅ Complete · **Effort:** 0.5h
 **FR/NFR:** M-6
 **Description.** Run all CI gates locally. Confirm green.
 
 **Acceptance:**
-- [ ] `pnpm schema:lint` clean.
-- [ ] `pnpm tickets:coverage` clean.
-- [ ] `pnpm -r run test` clean (existing F02/F03 tests + F04's new suite).
-- [ ] principal-coverage clean.
+- [x] `pnpm schema:lint` clean.
+- [x] `pnpm tickets:coverage` clean.
+- [x] `pnpm -r run test` clean (existing F02/F03 tests + F04's new suite).
+- [x] principal-coverage clean.
 
 ### T049 — Open PR + reviewer pass
-**Status:** 🔴 Blocked by T048 · **Effort:** 0.5h
+**Status:** 🟡 Ready · **Effort:** 0.5h
 **FR/NFR:** M-4
 **Description.** `git push -u`; open PR titled "feat(f04):
 ticket store + state machines"; body summarizes the new tables,
