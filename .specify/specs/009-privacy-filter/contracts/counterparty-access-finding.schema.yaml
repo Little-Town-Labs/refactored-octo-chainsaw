@@ -1,0 +1,32 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/counterparty-access-finding.schema.yaml"
+title: CounterpartyAccessFinding
+type: object
+additionalProperties: false
+required:
+  - finding_id
+  - source_path
+  - forbidden_access
+  - detected_by
+  - status
+  - created_at
+properties:
+  finding_id:
+    type: string
+    minLength: 1
+  source_path:
+    type: string
+    minLength: 1
+  forbidden_access:
+    type: string
+    minLength: 1
+  detected_by:
+    type: string
+    minLength: 1
+  status:
+    enum: [open, resolved, expected_fixture]
+  audit_event_id:
+    type: [string, "null"]
+  created_at:
+    type: string
+    format: date-time

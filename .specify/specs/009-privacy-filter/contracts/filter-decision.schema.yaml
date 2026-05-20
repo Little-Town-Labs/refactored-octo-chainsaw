@@ -1,0 +1,52 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/filter-decision.schema.yaml"
+title: FilterDecision
+type: object
+additionalProperties: false
+required:
+  - filter_decision_id
+  - run_id
+  - ruleset_id
+  - ruleset_version
+  - audience
+  - disclosure_stage
+  - decision
+  - reason_code
+  - redaction_summary
+  - source_content_hash
+  - created_at
+properties:
+  filter_decision_id:
+    type: string
+    minLength: 1
+  run_id:
+    type: string
+    minLength: 1
+  ruleset_id:
+    type: string
+  ruleset_version:
+    type: string
+  audience:
+    enum: [seeker, employer, platform]
+  disclosure_stage:
+    type: string
+  decision:
+    enum: [allow, redact, refuse]
+  reason_code:
+    type: string
+    minLength: 1
+  redaction_summary:
+    type: object
+    additionalProperties:
+      type: integer
+      minimum: 0
+  source_content_hash:
+    type: string
+    pattern: "^sha256:[a-f0-9]{64}$"
+  filtered_view_ref:
+    type: [string, "null"]
+  audit_event_id:
+    type: [string, "null"]
+  created_at:
+    type: string
+    format: date-time

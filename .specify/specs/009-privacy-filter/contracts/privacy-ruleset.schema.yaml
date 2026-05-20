@@ -1,0 +1,88 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/privacy-ruleset.schema.yaml"
+title: PrivacyRulesetVersion
+type: object
+additionalProperties: false
+required:
+  - ruleset_id
+  - version
+  - audience
+  - status
+  - disclosure_stages
+  - allowed_fields
+  - redaction_rules
+  - refusal_rules
+  - max_input_chars
+  - content_hash
+properties:
+  ruleset_id:
+    type: string
+    minLength: 1
+  version:
+    type: string
+    pattern: "^\\d+\\.\\d+\\.\\d+$"
+  audience:
+    enum: [seeker, employer, platform]
+  status:
+    enum: [draft, published, deprecated]
+  disclosure_stages:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required: [stage, order, allowed_fields]
+      properties:
+        stage:
+          type: string
+          minLength: 1
+        order:
+          type: integer
+          minimum: 0
+        allowed_fields:
+          type: array
+          items:
+            type: string
+  allowed_fields:
+    type: array
+    items:
+      type: string
+  redaction_rules:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [category, pattern]
+      properties:
+        category:
+          type: string
+        pattern:
+          type: string
+  refusal_rules:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [category, reason_code]
+      properties:
+        category:
+          type: string
+        reason_code:
+          type: string
+  max_input_chars:
+    type: integer
+    minimum: 1
+  content_hash:
+    type: string
+    pattern: "^sha256:[a-f0-9]{64}$"
+  audit_event_id:
+    type: [string, "null"]
+  published_at:
+    type: [string, "null"]
+    format: date-time
+  deprecated_at:
+    type: [string, "null"]
+    format: date-time
+  created_at:
+    type: string
+    format: date-time
