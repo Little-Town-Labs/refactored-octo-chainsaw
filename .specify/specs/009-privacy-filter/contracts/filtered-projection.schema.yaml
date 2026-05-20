@@ -1,0 +1,47 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/filtered-projection.schema.yaml"
+title: FilteredProjection
+type: object
+additionalProperties: false
+required:
+  - filtered_view_ref
+  - run_id
+  - audience
+  - disclosure_stage
+  - ruleset_ref
+  - output
+  - redaction_summary
+  - created_at
+properties:
+  filtered_view_ref:
+    type: string
+    minLength: 1
+  run_id:
+    type: string
+    minLength: 1
+  audience:
+    enum: [seeker, employer, platform]
+  disclosure_stage:
+    type: string
+    minLength: 1
+  ruleset_ref:
+    type: object
+    additionalProperties: false
+    required: [ruleset_id, version]
+    properties:
+      ruleset_id:
+        type: string
+      version:
+        type: string
+  output:
+    type: object
+    additionalProperties:
+      type: [string, number, boolean, "null", object, array]
+  redaction_summary:
+    type: object
+    additionalProperties:
+      type: integer
+      minimum: 0
+  created_at:
+    type: string
+    format: date-time

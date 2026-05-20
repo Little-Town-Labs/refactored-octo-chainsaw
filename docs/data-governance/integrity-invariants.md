@@ -510,10 +510,56 @@ Migration: [`0010_f08_5_tool_surface_dispatcher.sql`](../../packages/db/migratio
 | `dispatcher_bypass_findings_pkey` | PK | `finding_id uuid` default `uuidv7()` | Duplicate / missing bypass finding | `packages/tool-dispatcher/src/__tests__/import-boundary.test.ts` |
 | `dispatcher_bypass_findings_audit_event_id_fk` | FK | audit ref, when present, must exist | Unattributable bypass evidence | `packages/tool-dispatcher/src/__tests__/review-auth.test.ts` |
 
+## privacy_ruleset_versions
+File: [`packages/db/src/schema/privacy-filter.ts`](../../packages/db/src/schema/privacy-filter.ts) ·
+Migration: [`0011_f09_privacy_filter.sql`](../../packages/db/migrations/0011_f09_privacy_filter.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `privacy_ruleset_versions_pkey` | PK | `privacy_ruleset_version_id uuid` default `uuidv7()` | Duplicate / missing privacy ruleset version | `packages/privacy-filter/src/__tests__/publish.test.ts` |
+| `privacy_ruleset_versions_ref_unique_idx` | UNIQUE | `UNIQUE (ruleset_id, version)` | Mutable or ambiguous privacy ruleset refs | `packages/privacy-filter/src/__tests__/publish.test.ts` |
+| `privacy_ruleset_versions_audience_check` | CHECK | `audience IN ('seeker','employer','platform')` | Invalid audience drift | `packages/privacy-filter/src/__tests__/filter.test.ts` |
+| `privacy_ruleset_versions_status_check` | CHECK | `status IN ('draft','published','deprecated')` | Invalid publication status drift | `packages/privacy-filter/src/__tests__/publish.test.ts` |
+| `privacy_ruleset_versions_stages_check` | CHECK | disclosure stages array is non-empty | Rulesets without active disclosure stages | `packages/privacy-filter/src/__tests__/publish.test.ts` |
+
+## privacy_filter_decisions
+File: [`packages/db/src/schema/privacy-filter.ts`](../../packages/db/src/schema/privacy-filter.ts) ·
+Migration: [`0011_f09_privacy_filter.sql`](../../packages/db/migrations/0011_f09_privacy_filter.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `privacy_filter_decisions_pkey` | PK | `filter_decision_id uuid` default `uuidv7()` | Duplicate / missing filter decision | `packages/privacy-filter/src/__tests__/filter.test.ts` |
+| `privacy_filter_decisions_decision_check` | CHECK | `decision IN ('allow','redact','refuse')` | Ambiguous privacy filter outcome | `packages/privacy-filter/src/__tests__/filter.test.ts` |
+| `privacy_filter_decisions_run_idx` | INDEX | `(run_id, created_at DESC)` | (perf) review listing by run | `packages/privacy-filter/src/__tests__/review.test.ts` |
+| `privacy_filter_decisions_reason_idx` | INDEX | `(reason_code, created_at DESC)` | (perf) reason-code review | — |
+
+## sentinel_failures
+File: [`packages/db/src/schema/privacy-filter.ts`](../../packages/db/src/schema/privacy-filter.ts) ·
+Migration: [`0011_f09_privacy_filter.sql`](../../packages/db/migrations/0011_f09_privacy_filter.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `sentinel_failures_pkey` | PK | `sentinel_failure_id uuid` default `uuidv7()` | Duplicate / missing sentinel failure evidence | `packages/privacy-filter/src/__tests__/sentinel.test.ts` |
+| `sentinel_failures_input_class_check` | CHECK | closed-list untrusted input classes | Unsupported prompt-construction input class | `packages/privacy-filter/src/__tests__/sentinel.test.ts` |
+| `sentinel_failures_run_idx` | INDEX | `(run_id, created_at DESC)` | (perf) review listing by run | `packages/privacy-filter/src/__tests__/review.test.ts` |
+
+## counterparty_access_findings
+File: [`packages/db/src/schema/privacy-filter.ts`](../../packages/db/src/schema/privacy-filter.ts) ·
+Migration: [`0011_f09_privacy_filter.sql`](../../packages/db/migrations/0011_f09_privacy_filter.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `counterparty_access_findings_pkey` | PK | `finding_id uuid` default `uuidv7()` | Duplicate / missing access-boundary finding | `packages/privacy-filter/src/__tests__/access-boundary.test.ts` |
+| `counterparty_access_findings_status_check` | CHECK | `status IN ('open','resolved','expected_fixture')` | Ambiguous access-boundary finding state | `packages/privacy-filter/src/__tests__/access-boundary.test.ts` |
+| `counterparty_access_findings_status_idx` | INDEX | `(status, created_at DESC)` | (perf) finding review by status | `packages/privacy-filter/src/__tests__/review.test.ts` |
+
 ---
 
 ## Changelog
 
+- **v1.7 (2026-05-20)** — F09 T008 amendment. Added invariants
+  for privacy ruleset versions, privacy filter decisions, sentinel
+  failures, and counterparty access findings.
 - **v1.6 (2026-05-20)** — F08.5 T008 amendment. Added invariants
   for tool descriptor versions, tool surface versions, dispatch events,
   disclosure routing evidence, and dispatcher bypass findings.

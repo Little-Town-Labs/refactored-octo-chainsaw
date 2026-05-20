@@ -1,0 +1,30 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/untrusted-input-envelope.schema.yaml"
+title: UntrustedInputEnvelope
+type: object
+additionalProperties: false
+required:
+  - run_id
+  - nonce
+  - input_class
+  - source_ref
+  - wrapped_text
+  - content_hash
+properties:
+  run_id:
+    type: string
+    minLength: 1
+  nonce:
+    type: string
+    minLength: 8
+  input_class:
+    enum: [seeker_resume, employer_req, ats_import, tool_returned, a2a_received]
+  source_ref:
+    type: string
+    minLength: 1
+  wrapped_text:
+    type: string
+    minLength: 1
+  content_hash:
+    type: string
+    pattern: "^sha256:[a-f0-9]{64}$"

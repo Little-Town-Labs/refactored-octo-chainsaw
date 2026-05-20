@@ -313,6 +313,47 @@ data_classes:
       Art. 6(1)(f) — legitimate interest in proving fail-closed
       disclosure routing.
 
+  # ------------------------------------------------------------------
+  # F09 data classes (Privacy filter)
+  # ------------------------------------------------------------------
+  - id: privacy_ruleset_policy
+    description: >-
+      Immutable versioned privacy filter rulesets, including disclosure
+      stages, allowed fields, redaction/refusal rules, content hashes,
+      publication state, and audit refs. These are policy artifacts,
+      not raw seeker or employer content.
+    sensitivity: medium
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — accountability and employment-decision audit
+      obligation; GDPR Art. 6(1)(f) — legitimate interest in preserving
+      privacy-policy provenance and run reconstruction.
+
+  - id: privacy_filter_evidence
+    description: >-
+      Review-safe privacy filter decisions and sentinel failures,
+      including run refs, ruleset refs, reason codes, redaction counts,
+      content hashes, and audit links. Raw sensitive payloads are not
+      stored here by default.
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — privacy and compliance evidence; GDPR Art.
+      6(1)(f) — legitimate interest in proving fail-closed privacy
+      filtering and prompt-injection containment.
+
+  - id: privacy_boundary_evidence
+    description: >-
+      Counterparty access boundary findings from CI/type guards,
+      including source paths, forbidden access patterns, detector refs,
+      status, and audit links.
+    sensitivity: medium
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — compliance gate evidence; GDPR Art. 6(1)(f) —
+      legitimate interest in proving non-bypassable counterparty
+      disclosure controls.
+
 # Tables — one entry per pgTable in packages/db/src/schema/.
 # Coverage is enforced by the lint (rule R3).
 tables:
@@ -953,3 +994,81 @@ tables:
       - { name: status, class: tool_dispatch_evidence, erasure: hard_delete }
       - { name: audit_event_id, class: tool_dispatch_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
       - { name: created_at, class: tool_dispatch_evidence, erasure: tombstone }
+
+  - name: privacy_ruleset_versions
+    file: packages/db/src/schema/privacy-filter.ts
+    migration: packages/db/migrations/0011_f09_privacy_filter.sql
+    primary_class: privacy_ruleset_policy
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: privacy_ruleset_version_id, class: privacy_ruleset_policy, erasure: tombstone }
+      - { name: ruleset_id, class: privacy_ruleset_policy, erasure: hard_delete }
+      - { name: version, class: privacy_ruleset_policy, erasure: hard_delete }
+      - { name: audience, class: privacy_ruleset_policy, erasure: hard_delete }
+      - { name: status, class: privacy_ruleset_policy, erasure: hard_delete }
+      - { name: disclosure_stages, class: privacy_ruleset_policy, erasure: hard_delete }
+      - { name: allowed_fields, class: privacy_ruleset_policy, erasure: hard_delete }
+      - { name: redaction_rules, class: privacy_ruleset_policy, erasure: hard_delete }
+      - { name: refusal_rules, class: privacy_ruleset_policy, erasure: hard_delete }
+      - { name: max_input_chars, class: privacy_ruleset_policy, erasure: hard_delete }
+      - { name: content_hash, class: privacy_ruleset_policy, erasure: hard_delete }
+      - { name: audit_event_id, class: privacy_ruleset_policy, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: published_at, class: privacy_ruleset_policy, erasure: hard_delete }
+      - { name: deprecated_at, class: privacy_ruleset_policy, erasure: hard_delete }
+      - { name: created_at, class: privacy_ruleset_policy, erasure: tombstone }
+
+  - name: privacy_filter_decisions
+    file: packages/db/src/schema/privacy-filter.ts
+    migration: packages/db/migrations/0011_f09_privacy_filter.sql
+    primary_class: privacy_filter_evidence
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: filter_decision_id, class: privacy_filter_evidence, erasure: tombstone }
+      - { name: run_id, class: privacy_filter_evidence, erasure: tombstone }
+      - { name: ruleset_id, class: privacy_filter_evidence, erasure: hard_delete }
+      - { name: ruleset_version, class: privacy_filter_evidence, erasure: hard_delete }
+      - { name: audience, class: privacy_filter_evidence, erasure: hard_delete }
+      - { name: disclosure_stage, class: privacy_filter_evidence, erasure: hard_delete }
+      - { name: decision, class: privacy_filter_evidence, erasure: hard_delete }
+      - { name: reason_code, class: privacy_filter_evidence, erasure: hard_delete }
+      - { name: redaction_summary, class: privacy_filter_evidence, erasure: tombstone }
+      - { name: source_content_hash, class: privacy_filter_evidence, erasure: tombstone }
+      - { name: filtered_view_ref, class: privacy_filter_evidence, erasure: tombstone }
+      - { name: audit_event_id, class: privacy_filter_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: privacy_filter_evidence, erasure: tombstone }
+
+  - name: sentinel_failures
+    file: packages/db/src/schema/privacy-filter.ts
+    migration: packages/db/migrations/0011_f09_privacy_filter.sql
+    primary_class: privacy_filter_evidence
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: sentinel_failure_id, class: privacy_filter_evidence, erasure: tombstone }
+      - { name: run_id, class: privacy_filter_evidence, erasure: tombstone }
+      - { name: input_class, class: privacy_filter_evidence, erasure: hard_delete }
+      - { name: reason_code, class: privacy_filter_evidence, erasure: hard_delete }
+      - { name: source_content_hash, class: privacy_filter_evidence, erasure: tombstone }
+      - { name: audit_event_id, class: privacy_filter_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: privacy_filter_evidence, erasure: tombstone }
+
+  - name: counterparty_access_findings
+    file: packages/db/src/schema/privacy-filter.ts
+    migration: packages/db/migrations/0011_f09_privacy_filter.sql
+    primary_class: privacy_boundary_evidence
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: finding_id, class: privacy_boundary_evidence, erasure: tombstone }
+      - { name: source_path, class: privacy_boundary_evidence, erasure: tombstone }
+      - { name: forbidden_access, class: privacy_boundary_evidence, erasure: hard_delete }
+      - { name: detected_by, class: privacy_boundary_evidence, erasure: hard_delete }
+      - { name: status, class: privacy_boundary_evidence, erasure: hard_delete }
+      - { name: audit_event_id, class: privacy_boundary_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: privacy_boundary_evidence, erasure: tombstone }
