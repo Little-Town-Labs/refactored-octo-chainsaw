@@ -176,6 +176,26 @@ class in the register has a section here (M-3).
 | Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
 | Notes | Kill-switch evidence is privileged operator/compliance action history. It retains jurisdiction status transitions, reason codes, and audit links; principal linkages can be tombstoned according to the F05 procedure |
 
+### 1.15 `agent_contract_policy`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years after contract version is retired or after the last run referencing it reaches terminal retention, whichever is later |
+| Horizon (ISO-8601) | `max(retired-driven:agent_contract_versions.status+P7Y, referenced-run-horizon)` |
+| Lawful basis | GDPR Art. 6(1)(c) accountability and employment-decision audit obligation; GDPR Art. 6(1)(f) legitimate interest in policy-artifact provenance |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Contract definitions do not contain raw transcript content, prompt bodies, or rubric bodies. Principal linkages may be tombstoned while structural refs, hashes, and version metadata remain for audit reconstruction |
+
+### 1.16 `agent_contract_evidence`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years from event, or inherited longer incident/counsel horizon if attached to an evidence package |
+| Horizon (ISO-8601) | `P7Y` |
+| Lawful basis | GDPR Art. 6(1)(c) accountability and compliance evidence; GDPR Art. 6(1)(f) legitimate interest in forensic readiness and non-repudiation |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Publication/deprecation evidence retains reason codes, contract refs, correlation ids, and audit links. Actor/reviewer principal links can be tombstoned through the F05 procedure |
+
 ---
 
 ## 2. Tombstone procedure (F05)

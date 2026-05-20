@@ -1,0 +1,61 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/schemas/f07a/agent-contract-version.schema.yaml"
+title: AgentContractVersion
+type: object
+required:
+  - contract_id
+  - version
+  - side
+  - prompt_template_ref
+  - rubric_ref
+  - tool_surface_ref
+  - model_ref
+  - runtime_settings
+  - description
+properties:
+  contract_id:
+    type: string
+    minLength: 1
+  version:
+    type: string
+    minLength: 1
+  side:
+    enum: [seeker, employer]
+  status:
+    enum: [draft, published, deprecated, retired]
+  prompt_template_ref:
+    $ref: "#/$defs/versioned_ref"
+  rubric_ref:
+    $ref: "#/$defs/versioned_ref"
+  tool_surface_ref:
+    $ref: "#/$defs/versioned_ref"
+  model_ref:
+    type: object
+    required: [provider, model_id, version]
+    additionalProperties: false
+    properties:
+      provider: { type: string, minLength: 1 }
+      model_id: { type: string, minLength: 1 }
+      version: { type: string, minLength: 1 }
+  runtime_settings:
+    type: object
+    additionalProperties: false
+    properties:
+      max_rounds: { type: integer, minimum: 1 }
+      timeout_ms: { type: integer, minimum: 1 }
+      max_tool_calls_per_turn: { type: integer, minimum: 0 }
+  description:
+    type: string
+    minLength: 1
+  deprecated_after:
+    type: [string, "null"]
+    format: date-time
+additionalProperties: true
+$defs:
+  versioned_ref:
+    type: object
+    required: [id, version]
+    additionalProperties: false
+    properties:
+      id: { type: string, minLength: 1 }
+      version: { type: string, minLength: 1 }

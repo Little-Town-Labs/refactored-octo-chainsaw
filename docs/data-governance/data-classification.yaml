@@ -208,6 +208,34 @@ data_classes:
       GDPR Art. 6(1)(f) — legitimate interest in incident response,
       operational safety, and non-repudiation.
 
+  # ------------------------------------------------------------------
+  # F07a data classes (Agent contract registry)
+  # ------------------------------------------------------------------
+  - id: agent_contract_policy
+    description: >-
+      Immutable versioned agent contract definitions: side, prompt,
+      rubric, tool-surface, model, runtime setting refs, descriptions,
+      content hashes, and review provenance. These are policy artifacts,
+      not raw negotiation content.
+    sensitivity: medium
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — accountability and employment-decision audit
+      obligation; GDPR Art. 6(1)(f) — legitimate interest in preserving
+      policy-artifact provenance and run reconstruction.
+
+  - id: agent_contract_evidence
+    description: >-
+      Append-only publication and deprecation events for agent contract
+      versions, including actor/reviewer attribution, reason codes,
+      correlation ids, and canonical audit-event links.
+    sensitivity: medium
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — accountability and compliance evidence;
+      GDPR Art. 6(1)(f) — legitimate interest in forensic readiness and
+      non-repudiation for policy release events.
+
 # Tables — one entry per pgTable in packages/db/src/schema/.
 # Coverage is enforced by the lint (rule R3).
 tables:
@@ -602,3 +630,49 @@ tables:
       - { name: correlation_id, class: jurisdiction_kill_switch_evidence, erasure: tombstone }
       - { name: audit_event_id, class: jurisdiction_kill_switch_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
       - { name: created_at, class: jurisdiction_kill_switch_evidence, erasure: tombstone }
+
+  - name: agent_contract_versions
+    file: packages/db/src/schema/agent-contracts.ts
+    migration: packages/db/migrations/0008_f07a_agent_contract_registry.sql
+    primary_class: agent_contract_policy
+    data_subject_linkage:
+      column: author_principal_id
+      role: actor
+    columns:
+      - { name: agent_contract_version_id, class: agent_contract_policy, erasure: tombstone }
+      - { name: contract_id, class: agent_contract_policy, erasure: hard_delete }
+      - { name: version, class: agent_contract_policy, erasure: hard_delete }
+      - { name: side, class: agent_contract_policy, erasure: hard_delete }
+      - { name: status, class: agent_contract_policy, erasure: hard_delete }
+      - { name: prompt_template_ref, class: agent_contract_policy, erasure: hard_delete }
+      - { name: rubric_ref, class: agent_contract_policy, erasure: hard_delete }
+      - { name: tool_surface_ref, class: agent_contract_policy, erasure: hard_delete }
+      - { name: model_ref, class: agent_contract_policy, erasure: hard_delete }
+      - { name: runtime_settings, class: agent_contract_policy, erasure: hard_delete }
+      - { name: extension_fields, class: agent_contract_policy, erasure: hard_delete }
+      - { name: content_hash, class: agent_contract_policy, erasure: hard_delete }
+      - { name: description, class: agent_contract_policy, erasure: hard_delete }
+      - { name: author_principal_id, class: agent_contract_policy, erasure: tombstone, fk: principals.principal_id }
+      - { name: reviewer_principal_id, class: agent_contract_policy, erasure: tombstone, fk: principals.principal_id }
+      - { name: published_at, class: agent_contract_policy, erasure: hard_delete }
+      - { name: deprecated_after, class: agent_contract_policy, erasure: hard_delete }
+      - { name: audit_event_id, class: agent_contract_policy, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: agent_contract_policy, erasure: tombstone }
+
+  - name: agent_contract_events
+    file: packages/db/src/schema/agent-contracts.ts
+    migration: packages/db/migrations/0008_f07a_agent_contract_registry.sql
+    primary_class: agent_contract_evidence
+    data_subject_linkage:
+      column: principal_id
+      role: actor
+    columns:
+      - { name: agent_contract_event_id, class: agent_contract_evidence, erasure: tombstone }
+      - { name: agent_contract_version_id, class: agent_contract_evidence, erasure: tombstone, fk: agent_contract_versions.agent_contract_version_id }
+      - { name: event_type, class: agent_contract_evidence, erasure: hard_delete }
+      - { name: reason_code, class: agent_contract_evidence, erasure: hard_delete }
+      - { name: principal_id, class: agent_contract_evidence, erasure: tombstone, fk: principals.principal_id }
+      - { name: reviewer_principal_id, class: agent_contract_evidence, erasure: tombstone, fk: principals.principal_id }
+      - { name: correlation_id, class: agent_contract_evidence, erasure: tombstone }
+      - { name: audit_event_id, class: agent_contract_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: agent_contract_evidence, erasure: tombstone }
