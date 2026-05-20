@@ -232,3 +232,31 @@ export {
   type NewDossierSignatureRow,
   type NewDossierVerificationEventRow,
 } from "./dossiers.js";
+
+// F11 — Candidate notification artifacts.
+export {
+  candidateNotificationArtifacts,
+  type CandidateNotificationArtifactRow,
+  candidateNotificationDeliveryCommands,
+  candidateNotificationGateEvents,
+  candidateNoticeTemplateVersions,
+  CHANNEL_INTENTS,
+  type ChannelIntent,
+  NOTIFICATION_ARTIFACT_STATUSES,
+  type NotificationArtifactStatus,
+  NOTIFICATION_DELIVERY_STATUSES,
+  type NotificationDeliveryStatus,
+  NOTIFICATION_GATE_DECISIONS,
+  type NotificationGateDecision,
+  NOTICE_CATEGORIES,
+  type NoticeCategory,
+  NOTICE_TEMPLATE_STATUSES,
+  type NoticeTemplateStatus,
+  type NewCandidateNotificationArtifactRow,
+  type NewCandidateNotificationDeliveryCommandRow,
+  type NewCandidateNotificationGateEventRow,
+  type NewCandidateNoticeTemplateVersionRow,
+  type NotificationDeliveryCommandRow,
+  type NotificationGateEventRow,
+  type NoticeTemplateVersionRow,
+} from "./candidate-notifications.js";

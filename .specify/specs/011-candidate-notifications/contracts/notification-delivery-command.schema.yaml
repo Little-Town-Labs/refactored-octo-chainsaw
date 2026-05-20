@@ -1,0 +1,58 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/f11/notification-delivery-command.schema.yaml"
+title: NotificationDeliveryCommand
+type: object
+required:
+  - command_id
+  - artifact_id
+  - candidate_principal_id
+  - notice_category
+  - channel_intent
+  - idempotency_key
+  - content_hash
+  - delivery_window
+  - status
+  - created_at
+properties:
+  command_id:
+    type: string
+    format: uuid
+  artifact_id:
+    type: string
+    format: uuid
+  candidate_principal_id:
+    type: string
+    format: uuid
+  notice_category:
+    type: string
+    enum: [advance_aedt_notice, outcome_transparency, inconclusive_outcome, policy_update]
+  channel_intent:
+    type: string
+    enum: [email, telegram, web, a2a, unspecified]
+  idempotency_key:
+    type: string
+    minLength: 1
+  content_hash:
+    type: string
+    pattern: "^sha256:[a-f0-9]{64}$"
+  delivery_window:
+    type: object
+    required: [earliest_delivery_at, latest_delivery_at]
+    properties:
+      earliest_delivery_at:
+        type: [string, "null"]
+        format: date-time
+      latest_delivery_at:
+        type: [string, "null"]
+        format: date-time
+    additionalProperties: false
+  status:
+    type: string
+    enum: [pending, claimed, sent, cancelled, failed]
+  created_at:
+    type: string
+    format: date-time
+  audit_event_id:
+    type: [string, "null"]
+    format: uuid
+additionalProperties: false

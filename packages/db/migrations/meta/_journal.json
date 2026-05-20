@@ -92,6 +92,13 @@
       "when": 1779307200000,
       "tag": "0012_f10_dossier_builder_signer",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1779310800000,
+      "tag": "0013_f11_candidate_notifications",
+      "breakpoints": true
     }
   ]
 }

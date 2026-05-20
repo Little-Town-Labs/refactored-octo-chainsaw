@@ -594,10 +594,56 @@ Migration: [`0012_f10_dossier_builder_signer.sql`](../../packages/db/migrations/
 | `dossier_verification_events_decision_check` | CHECK | `decision IN ('valid','invalid')` | Ambiguous verification outcome | `packages/dossiers/src/__tests__/verify.test.ts` |
 | `dossier_verification_events_reason_code_check` | CHECK | closed-list verification reasons | Non-machine-readable verification failure | `packages/dossiers/src/__tests__/verify.test.ts` |
 
+## candidate_notice_template_versions
+File: [`packages/db/src/schema/candidate-notifications.ts`](../../packages/db/src/schema/candidate-notifications.ts) ·
+Migration: [`0013_f11_candidate_notifications.sql`](../../packages/db/migrations/0013_f11_candidate_notifications.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `candidate_notice_template_versions_pkey` | PK | `notice_template_version_id uuid` default `uuidv7()` | Duplicate / missing notice template version | `packages/notifications/src/__tests__/templates.test.ts` |
+| `candidate_notice_template_versions_ref_unique_idx` | UNIQUE | `UNIQUE (template_id, version)` | Mutable or ambiguous notice template refs | `packages/notifications/src/__tests__/templates.test.ts` |
+| `candidate_notice_template_versions_status_check` | CHECK | `status IN ('draft','published','retired','superseded')` | Invalid template publication state | `packages/notifications/src/__tests__/templates.test.ts` |
+| `candidate_notice_template_versions_category_check` | CHECK | closed-list notice categories | Unsupported notice category drift | `packages/notifications/src/__tests__/contracts.test.ts` |
+
+## candidate_notification_artifacts
+File: [`packages/db/src/schema/candidate-notifications.ts`](../../packages/db/src/schema/candidate-notifications.ts) ·
+Migration: [`0013_f11_candidate_notifications.sql`](../../packages/db/migrations/0013_f11_candidate_notifications.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `candidate_notification_artifacts_pkey` | PK | `artifact_id uuid` default `uuidv7()` | Duplicate / missing notification artifact | `packages/notifications/src/__tests__/artifacts.test.ts` |
+| `candidate_notification_artifacts_dossier_category_idx` | UNIQUE | `UNIQUE (dossier_id, notice_category, template_id, template_version)` | Duplicate notice artifacts for one dossier/category/version | `packages/notifications/src/__tests__/artifacts.test.ts` |
+| `candidate_notification_artifacts_status_check` | CHECK | `status IN ('ready','blocked','superseded','delivered_intent_created')` | Ambiguous artifact status | `packages/notifications/src/__tests__/artifacts.test.ts` |
+| `candidate_notification_artifacts_hash_check` | CHECK | `content_hash <> ''` | Artifact without canonical content hash | `packages/notifications/src/__tests__/artifacts.test.ts` |
+
+## candidate_notification_gate_events
+File: [`packages/db/src/schema/candidate-notifications.ts`](../../packages/db/src/schema/candidate-notifications.ts) ·
+Migration: [`0013_f11_candidate_notifications.sql`](../../packages/db/migrations/0013_f11_candidate_notifications.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `candidate_notification_gate_events_pkey` | PK | `gate_event_id uuid` default `uuidv7()` | Duplicate / missing delivery gate event | `packages/notifications/src/__tests__/gate.test.ts` |
+| `candidate_notification_gate_events_decision_check` | CHECK | `decision IN ('allowed','refused')` | Ambiguous gate decision | `packages/notifications/src/__tests__/gate.test.ts` |
+| `candidate_notification_gate_events_reason_code_check` | CHECK | closed-list delivery gate reasons | Non-machine-readable gate refusal | `packages/notifications/src/__tests__/gate.test.ts` |
+
+## candidate_notification_delivery_commands
+File: [`packages/db/src/schema/candidate-notifications.ts`](../../packages/db/src/schema/candidate-notifications.ts) ·
+Migration: [`0013_f11_candidate_notifications.sql`](../../packages/db/migrations/0013_f11_candidate_notifications.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `candidate_notification_delivery_commands_pkey` | PK | `command_id uuid` default `uuidv7()` | Duplicate / missing delivery command | `packages/notifications/src/__tests__/delivery.test.ts` |
+| `candidate_notification_delivery_commands_idempotency_idx` | UNIQUE | `UNIQUE (idempotency_key)` | Duplicate channel delivery intents | `packages/notifications/src/__tests__/delivery.test.ts` |
+| `candidate_notification_delivery_commands_channel_check` | CHECK | `channel_intent IN ('email','telegram','web','a2a','unspecified')` | Unsupported channel intent drift | `packages/notifications/src/__tests__/delivery.test.ts` |
+| `candidate_notification_delivery_commands_status_check` | CHECK | `status IN ('pending','claimed','sent','cancelled','failed')` | Ambiguous delivery command state | `packages/notifications/src/__tests__/delivery.test.ts` |
+
 ---
 
 ## Changelog
 
+- **v1.9 (2026-05-20)** — F11 T008 amendment. Added invariants
+  for candidate notice templates, notification artifacts, delivery gate
+  events, and delivery commands.
 - **v1.7 (2026-05-20)** — F09 T008 amendment. Added invariants
   for privacy ruleset versions, privacy filter decisions, sentinel
   failures, and counterparty access findings.

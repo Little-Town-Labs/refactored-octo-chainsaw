@@ -390,6 +390,43 @@ data_classes:
       GDPR Art. 6(1)(c) — integrity and non-repudiation evidence; GDPR
       Art. 6(1)(f) — legitimate interest in tamper-evident delivery.
 
+  # ------------------------------------------------------------------
+  # F11 data classes (Candidate notification artifacts)
+  # ------------------------------------------------------------------
+  - id: candidate_notice_template
+    description: >-
+      Immutable candidate notice template versions, including notice
+      category, jurisdiction scope, approved content refs, content hashes,
+      effective windows, publication status, and audit refs.
+    sensitivity: medium
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — AEDT transparency and notice obligations;
+      GDPR Art. 6(1)(f) — legitimate interest in stable compliance
+      policy evidence.
+
+  - id: candidate_notification_artifact
+    description: >-
+      Structured candidate notification artifacts tied to match tickets,
+      runs, dossiers, candidate principals, jurisdiction refs, timing
+      evidence, policy refs, content refs, and audit refs.
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(b) — performance of contract for candidate
+      transparency; GDPR Art. 6(1)(c) — legal notice obligations.
+
+  - id: candidate_notification_delivery_evidence
+    description: >-
+      Candidate notification delivery gate and channel-agnostic command
+      evidence, including delivery readiness decisions, reason codes,
+      idempotency keys, content hashes, delivery windows, and audit refs.
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — notice compliance evidence; GDPR Art. 6(1)(f)
+      — legitimate interest in proving delivery controls were enforced.
+
 # Tables — one entry per pgTable in packages/db/src/schema/.
 # Coverage is enforced by the lint (rule R3).
 tables:
@@ -1188,3 +1225,89 @@ tables:
       - { name: content_hash, class: dossier_signature_evidence, erasure: tombstone }
       - { name: audit_event_id, class: dossier_signature_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
       - { name: created_at, class: dossier_signature_evidence, erasure: tombstone }
+
+  - name: candidate_notice_template_versions
+    file: packages/db/src/schema/candidate-notifications.ts
+    migration: packages/db/migrations/0013_f11_candidate_notifications.sql
+    primary_class: candidate_notice_template
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: notice_template_version_id, class: candidate_notice_template, erasure: tombstone }
+      - { name: template_id, class: candidate_notice_template, erasure: hard_delete }
+      - { name: version, class: candidate_notice_template, erasure: hard_delete }
+      - { name: status, class: candidate_notice_template, erasure: hard_delete }
+      - { name: notice_category, class: candidate_notice_template, erasure: hard_delete }
+      - { name: jurisdiction_scope, class: candidate_notice_template, erasure: tombstone }
+      - { name: content_ref, class: candidate_notice_template, erasure: tombstone }
+      - { name: content_hash, class: candidate_notice_template, erasure: tombstone }
+      - { name: effective_from, class: candidate_notice_template, erasure: hard_delete }
+      - { name: effective_until, class: candidate_notice_template, erasure: hard_delete }
+      - { name: published_at, class: candidate_notice_template, erasure: tombstone }
+      - { name: audit_event_id, class: candidate_notice_template, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: candidate_notice_template, erasure: tombstone }
+
+  - name: candidate_notification_artifacts
+    file: packages/db/src/schema/candidate-notifications.ts
+    migration: packages/db/migrations/0013_f11_candidate_notifications.sql
+    primary_class: candidate_notification_artifact
+    data_subject_linkage:
+      column: candidate_principal_id
+      role: candidate
+    columns:
+      - { name: artifact_id, class: candidate_notification_artifact, erasure: tombstone }
+      - { name: match_id, class: candidate_notification_artifact, erasure: tombstone }
+      - { name: run_id, class: candidate_notification_artifact, erasure: tombstone }
+      - { name: dossier_id, class: candidate_notification_artifact, erasure: tombstone }
+      - { name: candidate_principal_id, class: candidate_notification_artifact, erasure: tombstone, fk: principals.principal_id }
+      - { name: notice_category, class: candidate_notification_artifact, erasure: hard_delete }
+      - { name: status, class: candidate_notification_artifact, erasure: hard_delete }
+      - { name: template_id, class: candidate_notice_template, erasure: tombstone }
+      - { name: template_version, class: candidate_notice_template, erasure: tombstone }
+      - { name: jurisdiction_refs, class: candidate_notification_artifact, erasure: tombstone }
+      - { name: policy_ref, class: candidate_notification_artifact, erasure: tombstone }
+      - { name: timing, class: candidate_notification_artifact, erasure: tombstone }
+      - { name: content_refs, class: candidate_notification_artifact, erasure: tombstone }
+      - { name: content_hash, class: candidate_notification_artifact, erasure: tombstone }
+      - { name: reason_code, class: candidate_notification_artifact, erasure: hard_delete }
+      - { name: audit_event_id, class: candidate_notification_artifact, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: candidate_notification_artifact, erasure: tombstone }
+
+  - name: candidate_notification_gate_events
+    file: packages/db/src/schema/candidate-notifications.ts
+    migration: packages/db/migrations/0013_f11_candidate_notifications.sql
+    primary_class: candidate_notification_delivery_evidence
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: gate_event_id, class: candidate_notification_delivery_evidence, erasure: tombstone }
+      - { name: artifact_id, class: candidate_notification_delivery_evidence, erasure: tombstone, fk: candidate_notification_artifacts.artifact_id }
+      - { name: match_id, class: candidate_notification_delivery_evidence, erasure: tombstone }
+      - { name: decision, class: candidate_notification_delivery_evidence, erasure: hard_delete }
+      - { name: reason_code, class: candidate_notification_delivery_evidence, erasure: hard_delete }
+      - { name: evaluated_at, class: candidate_notification_delivery_evidence, erasure: tombstone }
+      - { name: policy_ref, class: candidate_notification_delivery_evidence, erasure: tombstone }
+      - { name: audit_event_id, class: candidate_notification_delivery_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: candidate_notification_delivery_evidence, erasure: tombstone }
+
+  - name: candidate_notification_delivery_commands
+    file: packages/db/src/schema/candidate-notifications.ts
+    migration: packages/db/migrations/0013_f11_candidate_notifications.sql
+    primary_class: candidate_notification_delivery_evidence
+    data_subject_linkage:
+      column: candidate_principal_id
+      role: candidate
+    columns:
+      - { name: command_id, class: candidate_notification_delivery_evidence, erasure: tombstone }
+      - { name: artifact_id, class: candidate_notification_delivery_evidence, erasure: tombstone, fk: candidate_notification_artifacts.artifact_id }
+      - { name: candidate_principal_id, class: candidate_notification_delivery_evidence, erasure: tombstone, fk: principals.principal_id }
+      - { name: notice_category, class: candidate_notification_delivery_evidence, erasure: hard_delete }
+      - { name: channel_intent, class: candidate_notification_delivery_evidence, erasure: hard_delete }
+      - { name: idempotency_key, class: candidate_notification_delivery_evidence, erasure: tombstone }
+      - { name: content_hash, class: candidate_notification_delivery_evidence, erasure: tombstone }
+      - { name: delivery_window, class: candidate_notification_delivery_evidence, erasure: tombstone }
+      - { name: status, class: candidate_notification_delivery_evidence, erasure: hard_delete }
+      - { name: audit_event_id, class: candidate_notification_delivery_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: candidate_notification_delivery_evidence, erasure: tombstone }

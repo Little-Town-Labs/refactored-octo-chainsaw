@@ -1,0 +1,87 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/f11/candidate-notification-artifact.schema.yaml"
+title: CandidateNotificationArtifact
+type: object
+required:
+  - artifact_id
+  - match_id
+  - run_id
+  - dossier_id
+  - candidate_principal_id
+  - notice_category
+  - status
+  - template_id
+  - template_version
+  - jurisdiction_refs
+  - policy_ref
+  - timing
+  - content_refs
+  - content_hash
+  - reason_code
+  - created_at
+properties:
+  artifact_id:
+    type: string
+    format: uuid
+  match_id:
+    type: string
+    format: uuid
+  run_id:
+    type: string
+    minLength: 1
+  dossier_id:
+    type: string
+    format: uuid
+  candidate_principal_id:
+    type: string
+    format: uuid
+  notice_category:
+    type: string
+    enum: [advance_aedt_notice, outcome_transparency, inconclusive_outcome, policy_update]
+  status:
+    type: string
+    enum: [ready, blocked, superseded, delivered_intent_created]
+  template_id:
+    type: string
+    minLength: 1
+  template_version:
+    type: string
+    minLength: 1
+  jurisdiction_refs:
+    type: array
+    minItems: 1
+    items:
+      type: string
+      minLength: 1
+  policy_ref:
+    type: object
+    required: [policy_id, version]
+    properties:
+      policy_id:
+        type: string
+        minLength: 1
+      version:
+        type: string
+        minLength: 1
+    additionalProperties: false
+  timing:
+    $ref: "./notice-timing-evidence.schema.yaml"
+  content_refs:
+    type: array
+    minItems: 1
+    items:
+      type: string
+      minLength: 1
+  content_hash:
+    type: string
+    pattern: "^sha256:[a-f0-9]{64}$"
+  reason_code:
+    type: string
+    minLength: 1
+  audit_event_id:
+    type: [string, "null"]
+    format: uuid
+  created_at:
+    type: string
+    format: date-time
+additionalProperties: false

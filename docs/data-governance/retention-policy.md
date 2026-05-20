@@ -316,6 +316,36 @@ class in the register has a section here (M-3).
 | Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
 | Notes | Signature and verification evidence stores key ids, algorithms, hashes, signatures, decisions, and reason codes |
 
+### 1.29 `candidate_notice_template`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years after the template version is retired or after the last referenced artifact reaches terminal retention, whichever is later |
+| Horizon (ISO-8601) | `max(retired-driven:candidate_notice_template_versions.status+P7Y, referenced-artifact-horizon)` |
+| Lawful basis | GDPR Art. 6(1)(c) AEDT transparency and notice obligations; GDPR Art. 6(1)(f) legitimate interest in compliance policy evidence |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Template versions preserve notice category, jurisdiction scope, content refs, content hashes, effective windows, and publication evidence |
+
+### 1.30 `candidate_notification_artifact`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | Same as related match ticket, with a 7-year minimum from artifact creation |
+| Horizon (ISO-8601) | `terminal-state-driven:match_tickets.state+P7Y` |
+| Lawful basis | GDPR Art. 6(1)(b) performance of contract for candidate transparency; GDPR Art. 6(1)(c) legal notice obligations |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Candidate notification artifacts preserve match, run, dossier, candidate, policy, timing, and content-ref evidence without expanding raw transcript content |
+
+### 1.31 `candidate_notification_delivery_evidence`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | Same as parent candidate notification artifact |
+| Horizon (ISO-8601) | `parent-driven:candidate_notification_artifacts` |
+| Lawful basis | GDPR Art. 6(1)(c) notice compliance evidence; GDPR Art. 6(1)(f) legitimate interest in proving delivery controls were enforced |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Delivery evidence preserves gate decisions, reason codes, idempotency keys, delivery windows, command status, and audit refs |
+
 ---
 
 ## 2. Tombstone procedure (F05)
@@ -383,8 +413,11 @@ in §1 above. (M-3 mechanical check.)
 | `dossier_artifact` | §1.26 | `terminal-state-driven:match_tickets.state+P7Y` | tombstone |
 | `dossier_projection` | §1.27 | `parent-driven:dossier_artifacts` | tombstone |
 | `dossier_signature_evidence` | §1.28 | `parent-record-horizon:min-P7Y` | tombstone |
+| `candidate_notice_template` | §1.29 | `max(retired-driven:candidate_notice_template_versions.status+P7Y, referenced-artifact-horizon)` | tombstone |
+| `candidate_notification_artifact` | §1.30 | `terminal-state-driven:match_tickets.state+P7Y` | tombstone |
+| `candidate_notification_delivery_evidence` | §1.31 | `parent-driven:candidate_notification_artifacts` | tombstone |
 
-**28 classes declared · 28 classes covered · M-3 ✅**
+**31 classes declared · 31 classes covered · M-3 ✅**
 
 ---
 
@@ -415,6 +448,11 @@ in §1 above. (M-3 mechanical check.)
   `dossier_artifact`, `dossier_projection`, and
   `dossier_signature_evidence`. These classes preserve terminal dossier
   artifacts, pre-computed audience projections, and tamper-evidence.
+- **v1.7 (2026-05-20)** — Added F11 retention coverage for
+  `candidate_notice_template`, `candidate_notification_artifact`, and
+  `candidate_notification_delivery_evidence`. These classes preserve
+  notice templates, candidate notice artifacts, and delivery-gate
+  evidence.
 - **v1.0 (2026-05-12)** — Initial declaration. Authored under F03
   T007/T008. Counsel review pending; horizons reflect
   engineer-best-judgment against Constitution §I.4.2 + cited
