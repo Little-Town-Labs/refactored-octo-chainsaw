@@ -1,7 +1,7 @@
 # Spyglass integrity-invariant catalog
 
-**Version:** 1.2 (2026-05-19)
-**Last reviewed:** 2026-05-19
+**Version:** 1.3 (2026-05-20)
+**Last reviewed:** 2026-05-20
 **Owner:** Gary
 
 Every CHECK constraint, unique index, partial index, and foreign-key
@@ -29,7 +29,7 @@ Invariant **kind** legend:
 - `FK` — foreign-key reference
 - `PK` — primary key
 
-Total: **119 invariants across 15 tables.**
+Total: **156 invariants across 18 tables.**
 
 ---
 
@@ -307,6 +307,70 @@ Migration: [`0006_f05_audit_log_tombstone.sql`](../../packages/db/migrations/000
 
 ---
 
+## jurisdiction_policies
+File: [`packages/db/src/schema/jurisdiction-policy.ts`](../../packages/db/src/schema/jurisdiction-policy.ts) ·
+Migration: [`0007_f06_jurisdiction_policy_gates.sql`](../../packages/db/migrations/0007_f06_jurisdiction_policy_gates.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `jurisdiction_policies_pkey` | PK | `jurisdiction_policy_id uuid` default `uuidv7()` | Duplicate / missing policy revision | `packages/policy-gates/src/__tests__/kill-switch.test.ts` (F06 T020/T023) |
+| `jurisdiction_policies_status_check` | CHECK | `status IN ('allowed','unsupported','disabled','review_required','retired')` | Unsupported posture drift | `packages/policy-gates/src/__tests__/evaluator.test.ts` (F06 T012/T015) |
+| `jurisdiction_policies_jurisdiction_code_check` | CHECK | `jurisdiction_code ~ '^[A-Z]{2}(-[A-Z0-9]{1,3})?$'` | Ambiguous or free-form jurisdiction codes | `packages/policy-gates/src/__tests__/evaluator.test.ts` |
+| `jurisdiction_policies_policy_version_check` | CHECK | `policy_version <> ''` | Unversioned policy posture | `packages/policy-gates/src/__tests__/review.test.ts` (F06 T033/T035) |
+| `jurisdiction_policies_effective_window_check` | CHECK | `effective_until IS NULL OR effective_until > effective_from` | Empty / inverted policy windows | `packages/policy-gates/src/__tests__/review.test.ts` |
+| `jurisdiction_policies_operational_reason_check` | CHECK | `operational_reason <> ''` | Posture changes without operator rationale | `packages/policy-gates/src/__tests__/kill-switch.test.ts` |
+| `jurisdiction_policies_active_unique_idx` | PARTIAL_UNIQUE | `UNIQUE (jurisdiction_code) WHERE effective_until IS NULL` | Multiple active posture rows for one jurisdiction | `packages/policy-gates/src/__tests__/kill-switch.test.ts` |
+| `jurisdiction_policies_effective_idx` | INDEX | `(jurisdiction_code, effective_from DESC)` | (perf) active posture lookup | — |
+| `jurisdiction_policies_created_by_fk` | FK | `created_by_principal_id → principals.principal_id` | Policy rows without attributable creator | `packages/policy-gates/src/__tests__/kill-switch.test.ts` |
+| `jurisdiction_policies_reviewer_fk` | FK | `reviewer_principal_id → principals.principal_id` (nullable) | Review metadata pointing at missing principals | `packages/policy-gates/src/__tests__/review.test.ts` |
+
+---
+
+## jurisdiction_gate_decisions
+File: [`packages/db/src/schema/jurisdiction-policy.ts`](../../packages/db/src/schema/jurisdiction-policy.ts) ·
+Migration: [`0007_f06_jurisdiction_policy_gates.sql`](../../packages/db/migrations/0007_f06_jurisdiction_policy_gates.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `jurisdiction_gate_decisions_pkey` | PK | `gate_decision_id uuid` default `uuidv7()` | Duplicate / missing gate decision | `packages/policy-gates/src/__tests__/evaluator.test.ts` |
+| `jurisdiction_gate_decisions_subject_kind_check` | CHECK | `subject_kind IN ('seeker_ticket','employer_req_ticket','match_ticket','run_dispatch')` | Gate evidence for unsupported subjects | `packages/policy-gates/src/__tests__/evaluator.test.ts` |
+| `jurisdiction_gate_decisions_decision_check` | CHECK | `decision IN ('allow','deny')` | Ambiguous gate outcomes | `packages/policy-gates/src/__tests__/evaluator.test.ts` |
+| `jurisdiction_gate_decisions_reason_code_check` | CHECK | `reason_code IN ('all_allowed','missing_jurisdiction','unknown_jurisdiction','unsupported_jurisdiction','disabled_jurisdiction','review_required','expired_policy','conflicting_jurisdictions','unauthorized')` | Non-machine-readable gate denial reasons | `packages/policy-gates/src/__tests__/failure-artifact.test.ts` (F06 T027/T029) |
+| `jurisdiction_gate_decisions_allow_reason_check` | CHECK | `decision <> 'allow' OR reason_code = 'all_allowed'` | Allowed decisions carrying denial reasons | `packages/policy-gates/src/__tests__/evaluator.test.ts` |
+| `jurisdiction_gate_decisions_deny_reason_check` | CHECK | `decision <> 'deny' OR reason_code <> 'all_allowed'` | Denied decisions marked allowed | `packages/policy-gates/src/__tests__/evaluator.test.ts` |
+| `jurisdiction_gate_decisions_jurisdictions_nonempty` | CHECK | `jsonb_typeof(jurisdiction_codes) = 'array' AND jsonb_array_length(jurisdiction_codes) >= 1` | Decisions with no jurisdiction evidence | `packages/policy-gates/src/__tests__/evaluator.test.ts` |
+| `jurisdiction_gate_decisions_policy_revision_ids_array` | CHECK | `jsonb_typeof(policy_revision_ids) = 'array'` | Non-array policy-revision evidence | `packages/policy-gates/src/__tests__/decision-audit.test.ts` (F06 T013/T016) |
+| `jurisdiction_gate_decisions_correlation_idx` | INDEX | `(correlation_id, created_at DESC)` | (perf) workflow evidence reconstruction | — |
+| `jurisdiction_gate_decisions_subject_idx` | INDEX | `(subject_kind, subject_id, created_at DESC)` | (perf) subject decision history | `packages/policy-gates/src/__tests__/review.test.ts` |
+| `jurisdiction_gate_decisions_jurisdictions_idx` | INDEX | `USING GIN (jurisdiction_codes)` | (perf) jurisdiction-scoped history review | — |
+| `jurisdiction_gate_decisions_principal_idx` | PARTIAL | `(principal_id, created_at DESC) WHERE principal_id IS NOT NULL` | (perf) scoped principal review | — |
+| `jurisdiction_gate_decisions_audit_event_idx` | UNIQUE | `UNIQUE (audit_event_id)` | Reusing one audit event for multiple gate decisions | `packages/policy-gates/src/__tests__/decision-audit.test.ts` |
+| `jurisdiction_gate_decisions_principal_fk` | FK | `principal_id → principals.principal_id` (nullable) | Decision attribution pointing at missing principals | `packages/policy-gates/src/__tests__/decision-audit.test.ts` |
+| `jurisdiction_gate_decisions_audit_event_fk` | FK | `audit_event_id → audit_log_events.audit_event_id` | Gate decision without canonical audit evidence | `packages/policy-gates/src/__tests__/decision-audit.test.ts` |
+
+---
+
+## jurisdiction_kill_switch_events
+File: [`packages/db/src/schema/jurisdiction-policy.ts`](../../packages/db/src/schema/jurisdiction-policy.ts) ·
+Migration: [`0007_f06_jurisdiction_policy_gates.sql`](../../packages/db/migrations/0007_f06_jurisdiction_policy_gates.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `jurisdiction_kill_switch_events_pkey` | PK | `kill_switch_event_id uuid` default `uuidv7()` | Duplicate / missing kill-switch evidence row | `packages/policy-gates/src/__tests__/kill-switch.test.ts` |
+| `jurisdiction_kill_switch_events_jurisdiction_code_check` | CHECK | `jurisdiction_code ~ '^[A-Z]{2}(-[A-Z0-9]{1,3})?$'` | Ambiguous or free-form switch targets | `packages/policy-gates/src/__tests__/kill-switch.test.ts` |
+| `jurisdiction_kill_switch_events_from_status_check` | CHECK | `from_status IN ('allowed','unsupported','disabled','review_required','retired')` | Invalid previous posture evidence | `packages/policy-gates/src/__tests__/kill-switch.test.ts` |
+| `jurisdiction_kill_switch_events_to_status_check` | CHECK | `to_status IN ('allowed','unsupported','disabled','review_required','retired')` | Invalid new posture evidence | `packages/policy-gates/src/__tests__/kill-switch.test.ts` |
+| `jurisdiction_kill_switch_events_status_changed_check` | CHECK | `from_status <> to_status` | No-op switch events polluting audit history | `packages/policy-gates/src/__tests__/kill-switch.test.ts` |
+| `jurisdiction_kill_switch_events_reason_code_check` | CHECK | `reason_code IN ('new_regulation','counsel_directive','incident_response','bias_audit_gap','launch_posture','manual_reenable')` | Non-machine-readable switch reasons | `packages/policy-gates/src/__tests__/kill-switch.test.ts` |
+| `jurisdiction_kill_switch_events_jurisdiction_idx` | INDEX | `(jurisdiction_code, created_at DESC)` | (perf) jurisdiction switch history | `packages/policy-gates/src/__tests__/review.test.ts` |
+| `jurisdiction_kill_switch_events_operator_idx` | INDEX | `(operator_principal_id, created_at DESC)` | (perf) operator action review | — |
+| `jurisdiction_kill_switch_events_audit_event_idx` | UNIQUE | `UNIQUE (audit_event_id)` | Reusing one audit event for multiple switch actions | `packages/policy-gates/src/__tests__/kill-switch.test.ts` |
+| `jurisdiction_kill_switch_events_operator_fk` | FK | `operator_principal_id → principals.principal_id` | Switch events without attributable operator | `packages/policy-gates/src/__tests__/kill-switch.test.ts` |
+| `jurisdiction_kill_switch_events_reviewer_fk` | FK | `reviewer_principal_id → principals.principal_id` (nullable) | Review metadata pointing at missing principals | `packages/policy-gates/src/__tests__/review.test.ts` |
+| `jurisdiction_kill_switch_events_audit_event_fk` | FK | `audit_event_id → audit_log_events.audit_event_id` | Switch event without canonical audit evidence | `packages/policy-gates/src/__tests__/kill-switch.test.ts` |
+
+---
+
 ## Changelog
 
 - **v1.0 (2026-05-12)** — Authored under F03 T010–T013. 47 invariants
@@ -324,3 +388,9 @@ Migration: [`0006_f05_audit_log_tombstone.sql`](../../packages/db/migrations/000
   and index rules covering hash-chain uniqueness, source replay
   uniqueness, transcript idempotency, tombstone uniqueness, and
   evidence-export attribution. Total invariants: 85 + 34 = 119.
+- **v1.3 (2026-05-20)** — F06 T005 amendment. Added planned
+  invariant sections for `jurisdiction_policies`,
+  `jurisdiction_gate_decisions`, and `jurisdiction_kill_switch_events`:
+  37 new CHECK/UNIQUE/FK and index rules covering jurisdiction posture,
+  fail-safe gate evidence, scoped kill-switch evidence, and canonical
+  audit linkage. Total invariants: 119 + 37 = 156.

@@ -1,5 +1,5 @@
 {
-  "name": "@spyglass/auth",
+  "name": "@spyglass/policy-gates",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -7,10 +7,6 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    },
-    "./scopes": {
-      "types": "./dist/scopes.d.ts",
-      "default": "./dist/scopes.js"
     }
   },
   "main": "./dist/index.js",
@@ -22,15 +18,21 @@
     "build": "tsc -b",
     "type-check": "tsc --noEmit -p tsconfig.json",
     "test": "jest --passWithNoTests",
-    "test:integration": "jest --passWithNoTests -c jest.config.integration.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "dev-run:f06": "tsx scripts/f06-staged-dev-run.ts"
   },
   "dependencies": {
-    "jose": "^6.1.0",
-    "svix": "^1.93.0",
+    "@spyglass/audit-log": "workspace:*",
+    "@spyglass/auth": "workspace:*",
+    "@spyglass/db": "workspace:*",
+    "@spyglass/tickets": "workspace:*",
+    "drizzle-orm": "^0.45.2",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@spyglass/test-harness": "workspace:*"
+    "@types/js-yaml": "^4.0.9",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "js-yaml": "^4.1.1"
   }
 }

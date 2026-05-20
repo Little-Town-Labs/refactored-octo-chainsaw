@@ -146,6 +146,36 @@ class in the register has a section here (M-3).
 | Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
 | Notes | Export manifests retain deterministic hashes and filter metadata. Any raw export artifact is outside this relational table and must follow the runbook storage location's evidence-retention controls |
 
+### 1.12 `jurisdiction_policy`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years after policy revision is retired or superseded |
+| Horizon (ISO-8601) | `retired-driven:jurisdiction_policies.effective_until+P7Y` |
+| Lawful basis | GDPR Art. 6(1)(c) legal and regulatory compliance obligation; GDPR Art. 6(1)(f) legitimate interest in launch-posture enforcement |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Policy posture rows contain operator/reviewer attribution and compliance reasons. Structural jurisdiction status is retained for audit reconstruction; principal linkages can be tombstoned through the F05 procedure |
+
+### 1.13 `jurisdiction_gate_evidence`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years from gate decision, or inherited longer incident/counsel horizon if attached to an evidence package |
+| Horizon (ISO-8601) | `P7Y` |
+| Lawful basis | GDPR Art. 6(1)(c) accountability and AEDT compliance evidence; GDPR Art. 6(1)(f) legitimate interest in forensic readiness and fail-safe workflow enforcement |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Gate evidence stores non-PII reason codes, jurisdiction codes, subject references, correlation ids, and audit-event links. Subject references may be tombstoned while decision/reason metadata remains reviewable |
+
+### 1.14 `jurisdiction_kill_switch_evidence`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years from kill-switch event, or inherited longer incident/counsel horizon if related to an incident |
+| Horizon (ISO-8601) | `P7Y` |
+| Lawful basis | GDPR Art. 6(1)(c) legal and regulatory compliance obligation; GDPR Art. 6(1)(f) legitimate interest in incident response, operational safety, and non-repudiation |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Kill-switch evidence is privileged operator/compliance action history. It retains jurisdiction status transitions, reason codes, and audit links; principal linkages can be tombstoned according to the F05 procedure |
+
 ---
 
 ## 2. Tombstone procedure (F05)
@@ -196,8 +226,11 @@ in §1 above. (M-3 mechanical check.)
 | `transcript_record` | §1.9 | `terminal-state-driven:match_tickets.state+P7Y` | tombstone |
 | `tombstone_evidence` | §1.10 | `target-record-horizon:min-P7Y` | hard_delete |
 | `evidence_export` | §1.11 | `P7Y` | tombstone |
+| `jurisdiction_policy` | §1.12 | `retired-driven:jurisdiction_policies.effective_until+P7Y` | tombstone |
+| `jurisdiction_gate_evidence` | §1.13 | `P7Y` | tombstone |
+| `jurisdiction_kill_switch_evidence` | §1.14 | `P7Y` | tombstone |
 
-**11 classes declared · 11 classes covered · M-3 ✅**
+**14 classes declared · 14 classes covered · M-3 ✅**
 
 ---
 
@@ -208,6 +241,12 @@ in §1 above. (M-3 mechanical check.)
   retention coverage for `transcript_record`, `tombstone_evidence`, and
   `evidence_export`. Counsel review remains pending for operational
   execution and evidence-deletion decisions.
+- **v1.2 (2026-05-20)** — Added F06 retention coverage for
+  `jurisdiction_policy`, `jurisdiction_gate_evidence`, and
+  `jurisdiction_kill_switch_evidence`. These classes preserve policy
+  posture, gate decisions, and no-deploy kill-switch actions for
+  compliance review while routing principal linkages through the F05
+  tombstone procedure.
 - **v1.0 (2026-05-12)** — Initial declaration. Authored under F03
   T007/T008. Counsel review pending; horizons reflect
   engineer-best-judgment against Constitution §I.4.2 + cited

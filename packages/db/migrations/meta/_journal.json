@@ -50,6 +50,13 @@
       "when": 1779214239150,
       "tag": "0006_f05_audit_log_tombstone",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1779274667790,
+      "tag": "0007_f06_jurisdiction_policy_gates",
+      "breakpoints": true
     }
   ]
 }
