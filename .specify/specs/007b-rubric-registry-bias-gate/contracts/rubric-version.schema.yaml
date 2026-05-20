@@ -1,0 +1,113 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/f07b/rubric-version.schema.yaml"
+title: RubricVersion
+type: object
+required:
+  - rubric_id
+  - version
+  - side
+  - status
+  - dimensions
+  - aggregation_policy
+  - content_hash
+  - description
+  - author_principal_id
+  - created_at
+properties:
+  rubric_id:
+    type: string
+    minLength: 1
+  version:
+    type: string
+    minLength: 1
+  side:
+    type: string
+    enum: [seeker, employer, both]
+  status:
+    type: string
+    enum: [draft, published, deprecated, retired]
+  dimensions:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required:
+        - dimension_id
+        - label
+        - description
+        - min_score
+        - max_score
+        - weight
+        - required
+      properties:
+        dimension_id:
+          type: string
+          minLength: 1
+        label:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          minLength: 1
+        min_score:
+          type: number
+        max_score:
+          type: number
+        weight:
+          type: number
+          minimum: 0
+        evidence_expectations:
+          type: string
+        required:
+          type: boolean
+      additionalProperties: false
+  aggregation_policy:
+    type: object
+    required:
+      - kind
+      - weight_normalization
+      - rounding
+    properties:
+      kind:
+        type: string
+        enum: [weighted_sum]
+      weight_normalization:
+        type: string
+        enum: [sum_to_one]
+      rounding:
+        type: string
+        enum: [half_away_from_zero_4dp]
+    additionalProperties: false
+  bias_test_ref:
+    type: object
+    required: [bias_test_artifact_id]
+    properties:
+      bias_test_artifact_id:
+        type: string
+        minLength: 1
+    additionalProperties: false
+  content_hash:
+    type: string
+    minLength: 1
+  description:
+    type: string
+    minLength: 1
+  author_principal_id:
+    type: string
+    minLength: 1
+  reviewer_principal_id:
+    type: string
+    minLength: 1
+  published_at:
+    type: string
+    format: date-time
+  deprecated_after:
+    type: string
+    format: date-time
+  audit_event_id:
+    type: string
+    minLength: 1
+  created_at:
+    type: string
+    format: date-time
+additionalProperties: false
