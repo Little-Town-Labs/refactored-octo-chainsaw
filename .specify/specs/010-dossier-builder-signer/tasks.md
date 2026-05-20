@@ -18,11 +18,11 @@
 
 **Purpose**: Create the F10 package, schema entry points, and documentation skeleton.
 
-- [ ] T001 Create `packages/dossiers/package.json`, `packages/dossiers/tsconfig.json`, `packages/dossiers/jest.config.js`, and `packages/dossiers/eslint.config.js`
-- [ ] T002 Create `packages/dossiers/src/index.ts`, `packages/dossiers/src/types.ts`, `packages/dossiers/src/repo.ts`, and `packages/dossiers/src/scopes.ts`
-- [ ] T003 Add F10 schema export placeholder in `packages/db/src/schema/dossiers.ts` and wire it from `packages/db/src/schema/index.ts`
-- [ ] T004 [P] Add F10 runbook skeleton in `docs/runbooks/dossier-builder-signer.md`
-- [ ] T005 [P] Add F10 staged-run script skeleton in `packages/dossiers/scripts/f10-staged-dev-run.ts`
+- [x] T001 Create `packages/dossiers/package.json`, `packages/dossiers/tsconfig.json`, `packages/dossiers/jest.config.js`, and `packages/dossiers/eslint.config.js`
+- [x] T002 Create `packages/dossiers/src/index.ts`, `packages/dossiers/src/types.ts`, `packages/dossiers/src/repo.ts`, and `packages/dossiers/src/scopes.ts`
+- [x] T003 Add F10 schema export placeholder in `packages/db/src/schema/dossiers.ts` and wire it from `packages/db/src/schema/index.ts`
+- [x] T004 [P] Add F10 runbook skeleton in `docs/runbooks/dossier-builder-signer.md`
+- [x] T005 [P] Add F10 staged-run script skeleton in `packages/dossiers/scripts/f10-staged-dev-run.ts`
 
 ---
 
@@ -32,15 +32,15 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T006 Add `dossier_artifact`, `dossier_projection`, and `dossier_signature_evidence` classes and F10 table entries to `docs/data-governance/data-classification.yaml`
-- [ ] T007 Add F10 retention entries to `docs/data-governance/retention-policy.md`
-- [ ] T008 Add F10 integrity invariants for `dossier_artifacts`, `dossier_projections`, `dossier_signatures`, and `dossier_verification_events` to `docs/data-governance/integrity-invariants.md`
-- [ ] T009 Implement Drizzle schema for F10 tables in `packages/db/src/schema/dossiers.ts`
-- [ ] T010 Add migration `packages/db/migrations/0012_f10_dossier_builder_signer.sql` and update `packages/db/migrations/meta/_journal.json`
-- [ ] T011 [P] Add JSON Schema contract validation tests for F10 contract files in `packages/dossiers/src/__tests__/contracts.test.ts`
-- [ ] T012 [P] Implement shared F10 type definitions and reason-code unions in `packages/dossiers/src/types.ts`
-- [ ] T013 Implement canonicalization and hash helpers in `packages/dossiers/src/canonicalize.ts`
-- [ ] T014 Implement in-memory test fixtures and repo harness in `packages/dossiers/src/__tests__/fixtures.ts`
+- [x] T006 Add `dossier_artifact`, `dossier_projection`, and `dossier_signature_evidence` classes and F10 table entries to `docs/data-governance/data-classification.yaml`
+- [x] T007 Add F10 retention entries to `docs/data-governance/retention-policy.md`
+- [x] T008 Add F10 integrity invariants for `dossier_artifacts`, `dossier_projections`, `dossier_signatures`, and `dossier_verification_events` to `docs/data-governance/integrity-invariants.md`
+- [x] T009 Implement Drizzle schema for F10 tables in `packages/db/src/schema/dossiers.ts`
+- [x] T010 Add migration `packages/db/migrations/0012_f10_dossier_builder_signer.sql` and update `packages/db/migrations/meta/_journal.json`
+- [x] T011 [P] Add JSON Schema contract validation tests for F10 contract files in `packages/dossiers/src/__tests__/contracts.test.ts`
+- [x] T012 [P] Implement shared F10 type definitions and reason-code unions in `packages/dossiers/src/types.ts`
+- [x] T013 Implement canonicalization and hash helpers in `packages/dossiers/src/canonicalize.ts`
+- [x] T014 Implement in-memory test fixtures and repo harness in `packages/dossiers/src/__tests__/fixtures.ts`
 
 **Checkpoint**: Foundation ready; user story implementation can begin.
 
@@ -54,16 +54,16 @@
 
 ### Tests for User Story 1
 
-- [ ] T015 [P] [US1] Add deterministic dossier build tests in `packages/dossiers/src/__tests__/build.test.ts`
-- [ ] T016 [P] [US1] Add canonicalization key-order regression tests in `packages/dossiers/src/__tests__/canonicalize.test.ts`
+- [x] T015 [P] [US1] Add deterministic dossier build tests in `packages/dossiers/src/__tests__/build.test.ts`
+- [x] T016 [P] [US1] Add canonicalization key-order regression tests in `packages/dossiers/src/__tests__/canonicalize.test.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T017 [US1] Implement dossier repository write/read operations in `packages/dossiers/src/repo.ts`
-- [ ] T018 [US1] Implement deterministic dossier assembly and content hashing in `packages/dossiers/src/build.ts`
-- [ ] T019 [US1] Validate rubric breakdown totals and side rationales in `packages/dossiers/src/build.ts`
-- [ ] T020 [US1] Emit canonical audit evidence for dossier build outcomes in `packages/dossiers/src/build.ts`
-- [ ] T021 [US1] Export build, canonicalization, repository, and reason-code APIs from `packages/dossiers/src/index.ts`
+- [x] T017 [US1] Implement dossier repository write/read operations in `packages/dossiers/src/repo.ts`
+- [x] T018 [US1] Implement deterministic dossier assembly and content hashing in `packages/dossiers/src/build.ts`
+- [x] T019 [US1] Validate rubric breakdown totals and side rationales in `packages/dossiers/src/build.ts`
+- [x] T020 [US1] Emit canonical audit evidence for dossier build outcomes in `packages/dossiers/src/build.ts`
+- [x] T021 [US1] Export build, canonicalization, repository, and reason-code APIs from `packages/dossiers/src/index.ts`
 
 **Checkpoint**: User Story 1 is fully functional and testable independently.
 
@@ -77,15 +77,15 @@
 
 ### Tests for User Story 2
 
-- [ ] T022 [P] [US2] Add projection storage and audience coverage tests in `packages/dossiers/src/__tests__/projections.test.ts`
-- [ ] T023 [P] [US2] Add missing-projection fail-closed and inconclusive-flag tests in `packages/dossiers/src/__tests__/projection-gate.test.ts`
+- [x] T022 [P] [US2] Add projection storage and audience coverage tests in `packages/dossiers/src/__tests__/projections.test.ts`
+- [x] T023 [P] [US2] Add missing-projection fail-closed and inconclusive-flag tests in `packages/dossiers/src/__tests__/projection-gate.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Implement projection validation and payload hashing in `packages/dossiers/src/projections.ts`
-- [ ] T025 [US2] Integrate required projection enforcement into `packages/dossiers/src/build.ts`
-- [ ] T026 [US2] Persist stored projections through `packages/dossiers/src/repo.ts`
-- [ ] T027 [US2] Export projection APIs from `packages/dossiers/src/index.ts`
+- [x] T024 [US2] Implement projection validation and payload hashing in `packages/dossiers/src/projections.ts`
+- [x] T025 [US2] Integrate required projection enforcement into `packages/dossiers/src/build.ts`
+- [x] T026 [US2] Persist stored projections through `packages/dossiers/src/repo.ts`
+- [x] T027 [US2] Export projection APIs from `packages/dossiers/src/index.ts`
 
 **Checkpoint**: User Stories 1 and 2 both work independently.
 
@@ -99,16 +99,16 @@
 
 ### Tests for User Story 3
 
-- [ ] T028 [P] [US3] Add signing and successful verification tests in `packages/dossiers/src/__tests__/signing.test.ts`
-- [ ] T029 [P] [US3] Add tamper, unknown-key, disabled-signing, and key-order verification tests in `packages/dossiers/src/__tests__/verify.test.ts`
+- [x] T028 [P] [US3] Add signing and successful verification tests in `packages/dossiers/src/__tests__/signing.test.ts`
+- [x] T029 [P] [US3] Add tamper, unknown-key, disabled-signing, and key-order verification tests in `packages/dossiers/src/__tests__/verify.test.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement signing abstraction and Ed25519 test signer in `packages/dossiers/src/signing.ts`
-- [ ] T031 [US3] Implement verification helper and stable reason codes in `packages/dossiers/src/verify.ts`
-- [ ] T032 [US3] Persist dossier signatures and verification events through `packages/dossiers/src/repo.ts`
-- [ ] T033 [US3] Emit canonical audit evidence for signing and verification outcomes in `packages/dossiers/src/signing.ts` and `packages/dossiers/src/verify.ts`
-- [ ] T034 [US3] Export signing and verification APIs from `packages/dossiers/src/index.ts`
+- [x] T030 [US3] Implement signing abstraction and Ed25519 test signer in `packages/dossiers/src/signing.ts`
+- [x] T031 [US3] Implement verification helper and stable reason codes in `packages/dossiers/src/verify.ts`
+- [x] T032 [US3] Persist dossier signatures and verification events through `packages/dossiers/src/repo.ts`
+- [x] T033 [US3] Emit canonical audit evidence for signing and verification outcomes in `packages/dossiers/src/signing.ts` and `packages/dossiers/src/verify.ts`
+- [x] T034 [US3] Export signing and verification APIs from `packages/dossiers/src/index.ts`
 
 **Checkpoint**: User Stories 1, 2, and 3 are independently functional.
 
@@ -122,14 +122,14 @@
 
 ### Tests for User Story 4
 
-- [ ] T035 [P] [US4] Add scoped dossier review read tests in `packages/dossiers/src/__tests__/review.test.ts`
-- [ ] T036 [P] [US4] Add unscoped access denial tests in `packages/dossiers/src/__tests__/review-auth.test.ts`
+- [x] T035 [P] [US4] Add scoped dossier review read tests in `packages/dossiers/src/__tests__/review.test.ts`
+- [x] T036 [P] [US4] Add unscoped access denial tests in `packages/dossiers/src/__tests__/review-auth.test.ts`
 
 ### Implementation for User Story 4
 
-- [ ] T037 [US4] Implement scoped review reads for dossiers, projections, signatures, and verification events in `packages/dossiers/src/review.ts`
-- [ ] T038 [US4] Add review scopes and descriptions in `packages/dossiers/src/scopes.ts`
-- [ ] T039 [US4] Export review APIs from `packages/dossiers/src/index.ts`
+- [x] T037 [US4] Implement scoped review reads for dossiers, projections, signatures, and verification events in `packages/dossiers/src/review.ts`
+- [x] T038 [US4] Add review scopes and descriptions in `packages/dossiers/src/scopes.ts`
+- [x] T039 [US4] Export review APIs from `packages/dossiers/src/index.ts`
 
 **Checkpoint**: All user stories are independently functional.
 
@@ -139,14 +139,14 @@
 
 **Purpose**: Verification, documentation, and required closure reviews.
 
-- [ ] T040 [P] Update `docs/runbooks/dossier-builder-signer.md` with build, projection, signing, verification, review, and rollback procedures
-- [ ] T041 Implement staged quickstart run in `packages/dossiers/scripts/f10-staged-dev-run.ts`
-- [ ] T042 Run and record quickstart evidence in `.specify/specs/010-dossier-builder-signer/quickstart-run-2026-05-20.md`
-- [ ] T043 Run `/speckit-analyze` and record findings in `.specify/specs/010-dossier-builder-signer/analyze-report.md`
-- [ ] T044 Run `/code-review` and record findings in `.specify/specs/010-dossier-builder-signer/code-review-t044.md`
-- [ ] T045 Run `/security-review` and record findings in `.specify/specs/010-dossier-builder-signer/security-review-t045.md`
-- [ ] T046 Run final verification: `pnpm --filter @spyglass/dossiers test`, `pnpm --filter @spyglass/dossiers type-check`, `pnpm --filter @spyglass/dossiers lint`, `pnpm --filter @spyglass/dossiers build`, `pnpm --filter @spyglass/dossiers dev-run:f10`, `pnpm --filter @spyglass/db build`, and `pnpm schema:lint`
-- [ ] T047 Update `.specify/roadmap.md` Stage 4 notes after F10 implementation evidence is complete
+- [x] T040 [P] Update `docs/runbooks/dossier-builder-signer.md` with build, projection, signing, verification, review, and rollback procedures
+- [x] T041 Implement staged quickstart run in `packages/dossiers/scripts/f10-staged-dev-run.ts`
+- [x] T042 Run and record quickstart evidence in `.specify/specs/010-dossier-builder-signer/quickstart-run-2026-05-20.md`
+- [x] T043 Run `/speckit-analyze` and record findings in `.specify/specs/010-dossier-builder-signer/analyze-report.md`
+- [x] T044 Run `/code-review` and record findings in `.specify/specs/010-dossier-builder-signer/code-review-t044.md`
+- [x] T045 Run `/security-review` and record findings in `.specify/specs/010-dossier-builder-signer/security-review-t045.md`
+- [x] T046 Run final verification: `pnpm --filter @spyglass/dossiers test`, `pnpm --filter @spyglass/dossiers type-check`, `pnpm --filter @spyglass/dossiers lint`, `pnpm --filter @spyglass/dossiers build`, `pnpm --filter @spyglass/dossiers dev-run:f10`, `pnpm --filter @spyglass/db build`, and `pnpm schema:lint`
+- [x] T047 Update `.specify/roadmap.md` Stage 4 notes after F10 implementation evidence is complete
 
 ---
 
