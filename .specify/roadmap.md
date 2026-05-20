@@ -40,8 +40,9 @@ modeling per `.specify/memory/constitution.md` §V.3.
 | **F03** Database schema umbrella | ✅ **Complete** (merged to `main` at `0ab3b69`, PR #26) | Governance envelope over F02's shipped schema: data-classification register (6 classes · 8 tables · 73 cols), retention-policy (per-class horizons), schema-conventions (10 sections), integrity-invariants catalog (46 rows), schema-lint CI gate (19/19 checks green). Counsel review of `retention-policy.md` flagged pending; not blocking merge, blocks Phase 1 jurisdictional admission. |
 | **F04** Ticket store + state machines | ✅ **Complete** (merged to `main` at `cbcbd56`, PR #38) | Seeker, employer-req, and match ticket tables/state machines shipped with ticket scopes, server actions/tRPC wiring, CI state-machine/principal gates, benchmark baseline, operator runbook, and F04 closure reviews. Follow-up dependency cleanup landed through PRs #28, #30, #31, #34, #35, #36, #37, and #39. |
 | **F05** Audit log + transcript store + tombstone | ✅ **Complete** (merged to `main`, PR #40) | Canonical hash-chained audit package, replay, transcript append/read primitives, redaction-by-tombstone with denial audit events, evidence export manifests, runbooks, quickstart evidence, and final package gates are complete. Operational tombstone use still requires counsel/legal-hold wiring before Phase 2 use. |
-| **F06** Jurisdiction policy gates + kill switches | ✅ **Complete** (local branch `006-jurisdiction-policy-gates`) | DB-backed jurisdiction posture, fail-safe gate evaluator, no-deploy kill switches, non-PII failure artifacts, scoped review reads, runbook, quickstart evidence, and final package gates are complete. |
-| F07a–F25 | ⏳ Not started | F07a contract registry and F07b rubric/bias gate are next on the compliance spine. |
+| **F06** Jurisdiction policy gates + kill switches | ✅ **Complete** (merged to `main`, PR #41) | DB-backed jurisdiction posture, fail-safe gate evaluator, no-deploy kill switches, non-PII failure artifacts, scoped review reads, runbook, quickstart evidence, and final package gates are complete. |
+| **F07a** Agent Contract Registry | ✅ **Complete** (merged to `main`, PR #42) | Immutable agent contract versions, scoped publication/deprecation, dispatch-time resolution, fail-closed reason codes, provenance/audit evidence, scoped review reads, runbooks, quickstart evidence, and final package gates are complete. |
+| F07b–F25 | ⏳ Not started | F07b rubric/bias gate is the remaining Stage 3 P0 blocker before Parley runtime work. |
 
 ### F02 sub-slice progress (branch `02-identity-auth-aaa`)
 
@@ -639,8 +640,8 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 - [ ] **Stage 2 gate:** State transitions exhaustively tested; tombstone procedure tested in dev (counsel sign-off deferred to pre-Phase-2); transcript-store access controls distinct from dossier
 
 ### Stage 3 checklist
-- [ ] **F06** Jurisdiction tagging + policy gates + kill switches
-- [ ] **F07a** Agent Contract Registry
+- [x] **F06** Jurisdiction tagging + policy gates + kill switches _(merged to `main`, PR #41)_
+- [x] **F07a** Agent Contract Registry _(merged to `main`, PR #42)_
 - [ ] **F07b** Rubric Registry + bias-test dispatch gate
 - [ ] **Stage 3 gate:** At least one rubric version with completed bias-test artifact; CI verifies dispatch refusal when `bias_test_ref` is missing; kill switches flippable in staging; `(contract_id, version)` and `(rubric_id, version)` immutability enforced at the storage layer
 
