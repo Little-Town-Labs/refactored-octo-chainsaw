@@ -43,7 +43,7 @@ modeling per `.specify/memory/constitution.md` §V.3.
 | **F06** Jurisdiction policy gates + kill switches | ✅ **Complete** (merged to `main`, PR #41) | DB-backed jurisdiction posture, fail-safe gate evaluator, no-deploy kill switches, non-PII failure artifacts, scoped review reads, runbook, quickstart evidence, and final package gates are complete. |
 | **F07a** Agent Contract Registry | ✅ **Complete** (merged to `main`, PR #42) | Immutable agent contract versions, scoped publication/deprecation, dispatch-time resolution, fail-closed reason codes, provenance/audit evidence, scoped review reads, runbooks, quickstart evidence, and final package gates are complete. |
 | **F07b** Rubric Registry + bias-test dispatch gate | ✅ **Complete** (merged to `main`, PR #43) | Immutable rubric versions, bias-test artifact registration, dispatch refusal for missing/invalid bias evidence, deterministic weighted scoring, scoped review reads, runbook, quickstart evidence, and package gates are complete. |
-| F08–F25 | ⏳ In progress | F08.5 Tool Surface & Dispatcher is complete and merged to `main` in PR #44; F09 Privacy Filter is complete and merged to `main` in PR #45; F10 Dossier Builder + Signer is complete and merged to `main` in PR #46 with quickstart evidence recorded. |
+| F08–F25 | ⏳ In progress | F08.5 Tool Surface & Dispatcher is complete and merged to `main` in PR #44; F09 Privacy Filter is complete and merged to `main` in PR #45; F10 Dossier Builder + Signer is complete and merged to `main` in PR #46 with quickstart evidence recorded; F11 Candidate Notification Artifact System is complete on local branch `011-candidate-notifications` with quickstart evidence recorded. |
 
 ### F02 sub-slice progress (branch `02-identity-auth-aaa`)
 
@@ -195,7 +195,7 @@ Constitution §I.6: missing or unknown jurisdiction = deny.
 | F08.5 | Tool Surface & Dispatcher (versioned catalog, type-level enforcement) | `08-5-tool-surface-dispatcher` | P0 | M — Complete (merged to `main`, PR #44) | I.5.2 (least privilege); I.6 (DiD); Parley §4.1.2, §5.5, §10.3, §17.5 |
 | F09 | Privacy filter module (no-model, sentinel-wrapped, CI-gated) | `09-privacy-filter` | P0 | L — Complete (merged to `main`, PR #45) | I.1; I.6; PRD §4.4, §9; Parley §9, §15.1, §15.2, §17.4–17.6 |
 | F10 | Dossier builder + signer + per-audience projections + verifier | `10-dossier-builder-signer` | P0 | L — Complete (merged to `main`, PR #46) | I.2; I.C.1; I.A; Parley §4.1.8, §15.4 |
-| F11 | Candidate notification artifact system | `11-candidate-notifications` | P0 | M | I.A (primitive 4); I.A.1 (EU AI Act Art. 86); Parley §13.7 |
+| F11 | Candidate notification artifact system | `11-candidate-notifications` | P0 | M — Complete (local branch `011-candidate-notifications`) | I.A (primitive 4); I.A.1 (EU AI Act Art. 86); Parley §13.7 |
 
 **Stage 4 goal.** The negotiation engine. F08, F08.5, F09, F10 are
 co-dependent but parallelizable in isolation: F09 and F08.5 can be built
@@ -651,7 +651,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 - [x] **F08.5** Tool Surface & Dispatcher _(merged to `main`, PR #44; quickstart evidence recorded)_
 - [x] **F09** Privacy filter (no-model-invocation, sentinel-wrapped) _(merged to `main`, PR #45; quickstart evidence recorded)_
 - [x] **F10** Dossier builder + signer + per-audience projections + verifier _(merged to `main`, PR #46; quickstart evidence recorded)_
-- [ ] **F11** Candidate notification artifacts
+- [x] **F11** Candidate notification artifacts _(local branch `011-candidate-notifications`; quickstart evidence recorded)_
 - [ ] **Stage 4 gate:**
   - End-to-end synthetic match produces signed, valid dossier with all
     four audience projections

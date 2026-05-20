@@ -1,0 +1,27 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/f11/notice-timing-evidence.schema.yaml"
+title: NoticeTimingEvidence
+type: object
+required:
+  - basis
+  - produced_at
+  - business_days_required
+properties:
+  basis:
+    type: string
+    enum: [none, advance_notice, outcome_notice, policy_update]
+  produced_at:
+    type: string
+    format: date-time
+  required_notice_by:
+    type: [string, "null"]
+    format: date-time
+  earliest_delivery_at:
+    type: [string, "null"]
+    format: date-time
+  business_days_required:
+    type: integer
+    minimum: 0
+  calendar_ref:
+    type: [string, "null"]
+additionalProperties: false

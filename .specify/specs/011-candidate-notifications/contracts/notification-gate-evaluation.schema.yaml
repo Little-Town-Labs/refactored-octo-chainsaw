@@ -1,0 +1,55 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/f11/notification-gate-evaluation.schema.yaml"
+title: NotificationGateEvaluation
+type: object
+required:
+  - gate_event_id
+  - artifact_id
+  - match_id
+  - decision
+  - reason_code
+  - evaluated_at
+  - policy_ref
+properties:
+  gate_event_id:
+    type: string
+    format: uuid
+  artifact_id:
+    type: [string, "null"]
+    format: uuid
+  match_id:
+    type: string
+    format: uuid
+  decision:
+    type: string
+    enum: [allowed, refused]
+  reason_code:
+    type: string
+    enum:
+      - notice_ready
+      - missing_artifact
+      - artifact_blocked
+      - template_not_published
+      - template_superseded
+      - not_yet_eligible
+      - missing_recipient
+      - invalid_payload
+      - policy_blocked
+  evaluated_at:
+    type: string
+    format: date-time
+  policy_ref:
+    type: object
+    required: [policy_id, version]
+    properties:
+      policy_id:
+        type: string
+        minLength: 1
+      version:
+        type: string
+        minLength: 1
+    additionalProperties: false
+  audit_event_id:
+    type: [string, "null"]
+    format: uuid
+additionalProperties: false
