@@ -1,0 +1,33 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/dossier-signature.schema.yaml"
+title: DossierSignature
+type: object
+additionalProperties: false
+required:
+  - signature_id
+  - dossier_id
+  - algorithm
+  - kid
+  - canonicalization_version
+  - signed_content_hash
+  - signature
+  - signed_at
+properties:
+  signature_id:
+    type: string
+  dossier_id:
+    type: string
+  algorithm:
+    type: string
+  kid:
+    type: string
+  canonicalization_version:
+    type: string
+  signed_content_hash:
+    type: string
+    pattern: "^sha256:[a-f0-9]{64}$"
+  signature:
+    type: string
+  signed_at:
+    type: string
+    format: date-time

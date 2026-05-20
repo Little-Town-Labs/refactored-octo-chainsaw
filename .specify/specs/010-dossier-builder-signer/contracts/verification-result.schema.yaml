@@ -1,0 +1,32 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/verification-result.schema.yaml"
+title: VerificationResult
+type: object
+additionalProperties: false
+required:
+  - verification_id
+  - dossier_id
+  - decision
+  - reason_code
+  - kid
+  - content_hash
+  - created_at
+properties:
+  verification_id:
+    type: string
+  dossier_id:
+    type: string
+  decision:
+    enum: [valid, invalid]
+  reason_code:
+    type: string
+  kid:
+    type: [string, "null"]
+  content_hash:
+    type: string
+    pattern: "^sha256:[a-f0-9]{64}$"
+  audit_event_id:
+    type: [string, "null"]
+  created_at:
+    type: string
+    format: date-time
