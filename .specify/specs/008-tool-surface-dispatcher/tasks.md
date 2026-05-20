@@ -18,11 +18,11 @@
 
 **Purpose**: Create the F08.5 package, schema entry points, and documentation skeleton.
 
-- [ ] T001 Create `packages/tool-dispatcher/package.json`, `packages/tool-dispatcher/tsconfig.json`, `packages/tool-dispatcher/jest.config.js`, and `packages/tool-dispatcher/eslint.config.js`
-- [ ] T002 Create `packages/tool-dispatcher/src/index.ts`, `packages/tool-dispatcher/src/types.ts`, `packages/tool-dispatcher/src/validation.ts`, `packages/tool-dispatcher/src/repo.ts`, and `packages/tool-dispatcher/src/scopes.ts`
-- [ ] T003 Add F08.5 schema export placeholder in `packages/db/src/schema/tool-surfaces.ts` and wire it from `packages/db/src/schema/index.ts`
-- [ ] T004 [P] Add F08.5 runbook skeleton in `docs/runbooks/tool-surface-dispatcher.md`
-- [ ] T005 [P] Add F08.5 staged-run script skeleton in `packages/tool-dispatcher/scripts/f08-5-staged-dev-run.ts`
+- [x] T001 Create `packages/tool-dispatcher/package.json`, `packages/tool-dispatcher/tsconfig.json`, `packages/tool-dispatcher/jest.config.js`, and `packages/tool-dispatcher/eslint.config.js`
+- [x] T002 Create `packages/tool-dispatcher/src/index.ts`, `packages/tool-dispatcher/src/types.ts`, `packages/tool-dispatcher/src/validation.ts`, `packages/tool-dispatcher/src/repo.ts`, and `packages/tool-dispatcher/src/scopes.ts`
+- [x] T003 Add F08.5 schema export placeholder in `packages/db/src/schema/tool-surfaces.ts` and wire it from `packages/db/src/schema/index.ts`
+- [x] T004 [P] Add F08.5 runbook skeleton in `docs/runbooks/tool-surface-dispatcher.md`
+- [x] T005 [P] Add F08.5 staged-run script skeleton in `packages/tool-dispatcher/scripts/f08-5-staged-dev-run.ts`
 
 ---
 
@@ -32,15 +32,15 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T006 Add `tool_surface_policy`, `tool_dispatch_evidence`, and `tool_disclosure_evidence` classes and F08.5 table entries to `docs/data-governance/data-classification.yaml`
-- [ ] T007 Add F08.5 retention entries to `docs/data-governance/retention-policy.md`
-- [ ] T008 Add F08.5 integrity invariants for `tool_surface_versions`, `tool_descriptor_versions`, `tool_surface_descriptors`, `tool_dispatch_events`, and `dispatcher_bypass_findings` to `docs/data-governance/integrity-invariants.md`
-- [ ] T009 Implement Drizzle schema for F08.5 tables in `packages/db/src/schema/tool-surfaces.ts`
-- [ ] T010 Add migration `packages/db/migrations/0010_f08_5_tool_surface_dispatcher.sql` and update `packages/db/migrations/meta/_journal.json`
-- [ ] T011 [P] Add JSON Schema contract validation tests for F08.5 contract files in `packages/tool-dispatcher/src/__tests__/contracts.test.ts`
-- [ ] T012 [P] Implement shared F08.5 type definitions and reason-code unions in `packages/tool-dispatcher/src/types.ts`
-- [ ] T013 Implement shared validation helpers for descriptor schemas, disclosure classes, statuses, content hashes, and canonical refs in `packages/tool-dispatcher/src/validation.ts`
-- [ ] T014 Implement in-memory test fixtures and repo harness in `packages/tool-dispatcher/src/__tests__/fixtures.ts`
+- [x] T006 Add `tool_surface_policy`, `tool_dispatch_evidence`, and `tool_disclosure_evidence` classes and F08.5 table entries to `docs/data-governance/data-classification.yaml`
+- [x] T007 Add F08.5 retention entries to `docs/data-governance/retention-policy.md`
+- [x] T008 Add F08.5 integrity invariants for `tool_surface_versions`, `tool_descriptor_versions`, `tool_surface_descriptors`, `tool_dispatch_events`, and `dispatcher_bypass_findings` to `docs/data-governance/integrity-invariants.md`
+- [x] T009 Implement Drizzle schema for F08.5 tables in `packages/db/src/schema/tool-surfaces.ts`
+- [x] T010 Add migration `packages/db/migrations/0010_f08_5_tool_surface_dispatcher.sql` and update `packages/db/migrations/meta/_journal.json`
+- [x] T011 [P] Add JSON Schema contract validation tests for F08.5 contract files in `packages/tool-dispatcher/src/__tests__/contracts.test.ts`
+- [x] T012 [P] Implement shared F08.5 type definitions and reason-code unions in `packages/tool-dispatcher/src/types.ts`
+- [x] T013 Implement shared validation helpers for descriptor schemas, disclosure classes, statuses, content hashes, and canonical refs in `packages/tool-dispatcher/src/validation.ts`
+- [x] T014 Implement in-memory test fixtures and repo harness in `packages/tool-dispatcher/src/__tests__/fixtures.ts`
 
 **Checkpoint**: Foundation ready; user story implementation can begin.
 
@@ -54,17 +54,17 @@
 
 ### Tests for User Story 1
 
-- [ ] T015 [P] [US1] Add immutable descriptor and surface publish tests in `packages/tool-dispatcher/src/__tests__/publish.test.ts`
-- [ ] T016 [P] [US1] Add resolver success, missing, unpublished, deprecated, and adapter-unavailable tests in `packages/tool-dispatcher/src/__tests__/resolver.test.ts`
+- [x] T015 [P] [US1] Add immutable descriptor and surface publish tests in `packages/tool-dispatcher/src/__tests__/publish.test.ts`
+- [x] T016 [P] [US1] Add resolver success, missing, unpublished, deprecated, and adapter-unavailable tests in `packages/tool-dispatcher/src/__tests__/resolver.test.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T017 [US1] Implement descriptor and surface publication/deprecation logic with scoped principals in `packages/tool-dispatcher/src/publish.ts`
-- [ ] T018 [US1] Implement tool surface repository write/read operations in `packages/tool-dispatcher/src/repo.ts`
-- [ ] T019 [US1] Implement dispatch-facing surface resolution and advertisement in `packages/tool-dispatcher/src/resolver.ts`
-- [ ] T020 [US1] Implement F07a `checkToolSurface` adapter in `packages/tool-dispatcher/src/agent-contract-adapter.ts`
-- [ ] T021 [US1] Emit canonical audit evidence for descriptor and surface publication/deprecation in `packages/tool-dispatcher/src/publish.ts`
-- [ ] T022 [US1] Export publication, deprecation, resolution, advertisement, and reason-code APIs from `packages/tool-dispatcher/src/index.ts`
+- [x] T017 [US1] Implement descriptor and surface publication/deprecation logic with scoped principals in `packages/tool-dispatcher/src/publish.ts`
+- [x] T018 [US1] Implement tool surface repository write/read operations in `packages/tool-dispatcher/src/repo.ts`
+- [x] T019 [US1] Implement dispatch-facing surface resolution and advertisement in `packages/tool-dispatcher/src/resolver.ts`
+- [x] T020 [US1] Implement F07a `checkToolSurface` adapter in `packages/tool-dispatcher/src/agent-contract-adapter.ts`
+- [x] T021 [US1] Emit canonical audit evidence for descriptor and surface publication/deprecation in `packages/tool-dispatcher/src/publish.ts`
+- [x] T022 [US1] Export publication, deprecation, resolution, advertisement, and reason-code APIs from `packages/tool-dispatcher/src/index.ts`
 
 **Checkpoint**: User Story 1 is fully functional and testable independently.
 
@@ -78,18 +78,18 @@
 
 ### Tests for User Story 2
 
-- [ ] T023 [P] [US2] Add supported invocation and input/output schema validation tests in `packages/tool-dispatcher/src/__tests__/dispatcher.test.ts`
-- [ ] T024 [P] [US2] Add unsupported-tool continuation tests in `packages/tool-dispatcher/src/__tests__/unsupported-tool.test.ts`
-- [ ] T025 [P] [US2] Add direct-call bypass fixture and expected failure test in `packages/tool-dispatcher/src/__tests__/import-boundary.test.ts`
+- [x] T023 [P] [US2] Add supported invocation and input/output schema validation tests in `packages/tool-dispatcher/src/__tests__/dispatcher.test.ts`
+- [x] T024 [P] [US2] Add unsupported-tool continuation tests in `packages/tool-dispatcher/src/__tests__/unsupported-tool.test.ts`
+- [x] T025 [P] [US2] Add direct-call bypass fixture and expected failure test in `packages/tool-dispatcher/src/__tests__/import-boundary.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T026 [US2] Implement adapter registration and adapter availability checks in `packages/tool-dispatcher/src/adapter-registry.ts`
-- [ ] T027 [US2] Implement dispatcher authorization, per-turn call-limit checks, and schema validation in `packages/tool-dispatcher/src/dispatcher.ts`
-- [ ] T028 [US2] Implement `tool_unsupported`, `denied`, `adapter_failed`, `adapter_timeout`, and `schema_invalid` result handling in `packages/tool-dispatcher/src/dispatcher.ts`
-- [ ] T029 [US2] Implement direct-call import boundary guard helper in `packages/tool-dispatcher/src/import-boundary.ts`
-- [ ] T030 [US2] Wire F08.5 import-boundary guard into package lint/type-check workflow in `packages/tool-dispatcher/package.json`
-- [ ] T031 [US2] Emit canonical audit evidence for dispatch invocation, unsupported tools, denials, adapter failures, and bypass findings in `packages/tool-dispatcher/src/dispatcher.ts` and `packages/tool-dispatcher/src/import-boundary.ts`
+- [x] T026 [US2] Implement adapter registration and adapter availability checks in `packages/tool-dispatcher/src/adapter-registry.ts`
+- [x] T027 [US2] Implement dispatcher authorization, per-turn call-limit checks, and schema validation in `packages/tool-dispatcher/src/dispatcher.ts`
+- [x] T028 [US2] Implement `tool_unsupported`, `denied`, `adapter_failed`, `adapter_timeout`, and `schema_invalid` result handling in `packages/tool-dispatcher/src/dispatcher.ts`
+- [x] T029 [US2] Implement direct-call import boundary guard helper in `packages/tool-dispatcher/src/import-boundary.ts`
+- [x] T030 [US2] Wire F08.5 import-boundary guard into package lint/type-check workflow in `packages/tool-dispatcher/package.json`
+- [x] T031 [US2] Emit canonical audit evidence for dispatch invocation, unsupported tools, denials, adapter failures, and bypass findings in `packages/tool-dispatcher/src/dispatcher.ts` and `packages/tool-dispatcher/src/import-boundary.ts`
 
 **Checkpoint**: User Stories 1 and 2 both work independently, and unsupported tools continue the turn.
 
@@ -103,16 +103,16 @@
 
 ### Tests for User Story 3
 
-- [ ] T032 [P] [US3] Add disclosure routing matrix tests in `packages/tool-dispatcher/src/__tests__/disclosure.test.ts`
-- [ ] T033 [P] [US3] Add `counterparty_filtered` fail-closed tests in `packages/tool-dispatcher/src/__tests__/privacy-boundary.test.ts`
+- [x] T032 [P] [US3] Add disclosure routing matrix tests in `packages/tool-dispatcher/src/__tests__/disclosure.test.ts`
+- [x] T033 [P] [US3] Add `counterparty_filtered` fail-closed tests in `packages/tool-dispatcher/src/__tests__/privacy-boundary.test.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T034 [US3] Implement disclosure routing decisions for `principal_self`, `counterparty_filtered`, and `platform_open` in `packages/tool-dispatcher/src/disclosure.ts`
-- [ ] T035 [US3] Implement F09-facing privacy-filter port and unavailable-filter fail-closed behavior in `packages/tool-dispatcher/src/disclosure.ts`
-- [ ] T036 [US3] Integrate disclosure routing with dispatcher result construction in `packages/tool-dispatcher/src/dispatcher.ts`
-- [ ] T037 [US3] Emit canonical disclosure routing evidence in `packages/tool-dispatcher/src/disclosure.ts`
-- [ ] T038 [US3] Export disclosure routing types and privacy-filter port from `packages/tool-dispatcher/src/index.ts`
+- [x] T034 [US3] Implement disclosure routing decisions for `principal_self`, `counterparty_filtered`, and `platform_open` in `packages/tool-dispatcher/src/disclosure.ts`
+- [x] T035 [US3] Implement F09-facing privacy-filter port and unavailable-filter fail-closed behavior in `packages/tool-dispatcher/src/disclosure.ts`
+- [x] T036 [US3] Integrate disclosure routing with dispatcher result construction in `packages/tool-dispatcher/src/dispatcher.ts`
+- [x] T037 [US3] Emit canonical disclosure routing evidence in `packages/tool-dispatcher/src/disclosure.ts`
+- [x] T038 [US3] Export disclosure routing types and privacy-filter port from `packages/tool-dispatcher/src/index.ts`
 
 **Checkpoint**: User Stories 1, 2, and 3 are independently functional.
 
@@ -126,15 +126,15 @@
 
 ### Tests for User Story 4
 
-- [ ] T039 [P] [US4] Add scoped catalog and descriptor review read tests in `packages/tool-dispatcher/src/__tests__/review.test.ts`
-- [ ] T040 [P] [US4] Add unscoped access denial and payload redaction tests in `packages/tool-dispatcher/src/__tests__/review-auth.test.ts`
+- [x] T039 [P] [US4] Add scoped catalog and descriptor review read tests in `packages/tool-dispatcher/src/__tests__/review.test.ts`
+- [x] T040 [P] [US4] Add unscoped access denial and payload redaction tests in `packages/tool-dispatcher/src/__tests__/review-auth.test.ts`
 
 ### Implementation for User Story 4
 
-- [ ] T041 [US4] Implement scoped review reads for tool surfaces, descriptors, and publication events in `packages/tool-dispatcher/src/review.ts`
-- [ ] T042 [US4] Implement scoped review reads for dispatch outcomes, disclosure routing, unsupported-tool events, and bypass findings in `packages/tool-dispatcher/src/review.ts`
-- [ ] T043 [US4] Add review scopes and descriptions in `packages/tool-dispatcher/src/scopes.ts`
-- [ ] T044 [US4] Export review APIs from `packages/tool-dispatcher/src/index.ts`
+- [x] T041 [US4] Implement scoped review reads for tool surfaces, descriptors, and publication events in `packages/tool-dispatcher/src/review.ts`
+- [x] T042 [US4] Implement scoped review reads for dispatch outcomes, disclosure routing, unsupported-tool events, and bypass findings in `packages/tool-dispatcher/src/review.ts`
+- [x] T043 [US4] Add review scopes and descriptions in `packages/tool-dispatcher/src/scopes.ts`
+- [x] T044 [US4] Export review APIs from `packages/tool-dispatcher/src/index.ts`
 
 **Checkpoint**: All user stories are independently functional.
 
@@ -144,14 +144,14 @@
 
 **Purpose**: Verification, documentation, and required closure reviews.
 
-- [ ] T045 [P] Update `docs/runbooks/tool-surface-dispatcher.md` with publish, resolution, dispatch, unsupported-tool, disclosure routing, bypass guard, review, and rollback procedures
-- [ ] T046 Implement staged quickstart run in `packages/tool-dispatcher/scripts/f08-5-staged-dev-run.ts`
-- [ ] T047 Run and record quickstart evidence in `.specify/specs/008-tool-surface-dispatcher/quickstart-run-2026-05-20.md`
-- [ ] T048 Run `/speckit-analyze` and record findings in `.specify/specs/008-tool-surface-dispatcher/analyze-report.md`
-- [ ] T049 Run `/code-review` and record findings in `.specify/specs/008-tool-surface-dispatcher/code-review-t049.md`
-- [ ] T050 Run `/security-review` and record findings in `.specify/specs/008-tool-surface-dispatcher/security-review-t050.md`
-- [ ] T051 Run final verification: `pnpm --filter @spyglass/tool-dispatcher test`, `pnpm --filter @spyglass/tool-dispatcher type-check`, `pnpm --filter @spyglass/tool-dispatcher lint`, and `pnpm schema:lint`
-- [ ] T052 Update `.specify/roadmap.md` Stage 4 notes after F08.5 implementation evidence is complete
+- [x] T045 [P] Update `docs/runbooks/tool-surface-dispatcher.md` with publish, resolution, dispatch, unsupported-tool, disclosure routing, bypass guard, review, and rollback procedures
+- [x] T046 Implement staged quickstart run in `packages/tool-dispatcher/scripts/f08-5-staged-dev-run.ts`
+- [x] T047 Run and record quickstart evidence in `.specify/specs/008-tool-surface-dispatcher/quickstart-run-2026-05-20.md`
+- [x] T048 Run `/speckit-analyze` and record findings in `.specify/specs/008-tool-surface-dispatcher/analyze-report.md`
+- [x] T049 Run `/code-review` and record findings in `.specify/specs/008-tool-surface-dispatcher/code-review-t049.md`
+- [x] T050 Run `/security-review` and record findings in `.specify/specs/008-tool-surface-dispatcher/security-review-t050.md`
+- [x] T051 Run final verification: `pnpm --filter @spyglass/tool-dispatcher test`, `pnpm --filter @spyglass/tool-dispatcher type-check`, `pnpm --filter @spyglass/tool-dispatcher lint`, and `pnpm schema:lint`
+- [x] T052 Update `.specify/roadmap.md` Stage 4 notes after F08.5 implementation evidence is complete
 
 ---
 
