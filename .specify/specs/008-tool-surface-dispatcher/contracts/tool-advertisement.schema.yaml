@@ -1,0 +1,45 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/f08-5/tool-advertisement.schema.yaml"
+title: Tool Advertisement
+type: object
+additionalProperties: false
+required:
+  - run_id
+  - side
+  - contract_ref
+  - surface_ref
+  - descriptors
+  - resolved_at
+properties:
+  run_id:
+    type: string
+  side:
+    type: string
+    enum: [seeker, employer]
+  contract_ref:
+    type: object
+    additionalProperties: false
+    required: [id, version]
+    properties:
+      id:
+        type: string
+      version:
+        type: string
+  surface_ref:
+    type: object
+    additionalProperties: false
+    required: [id, version]
+    properties:
+      id:
+        type: string
+      version:
+        type: string
+  descriptors:
+    type: array
+    items:
+      $ref: "tool-descriptor.schema.yaml"
+  resolved_at:
+    type: string
+    format: date-time
+  reason_code:
+    type: string
