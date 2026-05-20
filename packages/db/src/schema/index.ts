@@ -81,3 +81,26 @@ export {
   type TranscriptSide,
   type TranscriptTurnRow,
 } from "./transcript-store.js";
+
+// F06 — Jurisdiction policy gates.
+export {
+  jurisdictionGateDecisions,
+  type JurisdictionGateDecision,
+  JURISDICTION_GATE_DECISIONS,
+  type JurisdictionGateDecisionRow,
+  type JurisdictionGateReasonCode,
+  JURISDICTION_GATE_REASON_CODES,
+  type JurisdictionGateSubjectKind,
+  JURISDICTION_GATE_SUBJECT_KINDS,
+  jurisdictionKillSwitchEvents,
+  type JurisdictionKillSwitchEventRow,
+  type JurisdictionKillSwitchReasonCode,
+  JURISDICTION_KILL_SWITCH_REASON_CODES,
+  jurisdictionPolicies,
+  type JurisdictionPolicyRow,
+  type JurisdictionPolicyStatus,
+  JURISDICTION_POLICY_STATUSES,
+  type NewJurisdictionGateDecisionRow,
+  type NewJurisdictionKillSwitchEventRow,
+  type NewJurisdictionPolicyRow,
+} from "./jurisdiction-policy.js";

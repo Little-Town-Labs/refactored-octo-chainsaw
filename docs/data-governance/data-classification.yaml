@@ -168,6 +168,46 @@ data_classes:
       GDPR Art. 6(1)(f) — legitimate interest in incident response,
       forensic readiness, and controlled counsel review.
 
+  # ------------------------------------------------------------------
+  # F06 data classes (Jurisdiction policy gates + kill switches)
+  # ------------------------------------------------------------------
+  - id: jurisdiction_policy
+    description: >-
+      Versioned compliance posture for supported, unsupported, disabled,
+      review-required, and retired jurisdictions. Contains policy
+      versions, effective windows, closed-list operational reasons, and
+      reviewer/operator attribution.
+    sensitivity: medium
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — legal and regulatory compliance obligation;
+      GDPR Art. 6(1)(f) — legitimate interest in enforcing launch
+      posture and compliance controls.
+
+  - id: jurisdiction_gate_evidence
+    description: >-
+      Immutable policy-gate decisions and denial artifacts that prove a
+      ticket, match, or run-dispatch workflow was allowed or blocked
+      under a specific jurisdiction policy version.
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — accountability and AEDT compliance evidence;
+      GDPR Art. 6(1)(f) — legitimate interest in forensic readiness and
+      safe workflow gating.
+
+  - id: jurisdiction_kill_switch_evidence
+    description: >-
+      Immutable operator/compliance records for no-deploy jurisdiction
+      status changes, including prior/new status, reason code,
+      operator/reviewer attribution, correlation id, and audit evidence.
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — legal and regulatory compliance obligation;
+      GDPR Art. 6(1)(f) — legitimate interest in incident response,
+      operational safety, and non-repudiation.
+
 # Tables — one entry per pgTable in packages/db/src/schema/.
 # Coverage is enforced by the lint (rule R3).
 tables:
@@ -502,3 +542,63 @@ tables:
       - { name: manifest_hash, class: evidence_export, erasure: hard_delete }
       - { name: chain_verification_status, class: evidence_export, erasure: hard_delete }
       - { name: created_at, class: evidence_export, erasure: tombstone }
+
+  - name: jurisdiction_policies
+    file: packages/db/src/schema/jurisdiction-policy.ts
+    migration: packages/db/migrations/0007_f06_jurisdiction_policy_gates.sql
+    primary_class: jurisdiction_policy
+    data_subject_linkage:
+      column: created_by_principal_id
+      role: actor
+    columns:
+      - { name: jurisdiction_policy_id, class: jurisdiction_policy, erasure: tombstone }
+      - { name: jurisdiction_code, class: jurisdiction_policy, erasure: hard_delete }
+      - { name: status, class: jurisdiction_policy, erasure: hard_delete }
+      - { name: policy_version, class: jurisdiction_policy, erasure: hard_delete }
+      - { name: effective_from, class: jurisdiction_policy, erasure: hard_delete }
+      - { name: effective_until, class: jurisdiction_policy, erasure: hard_delete }
+      - { name: operational_reason, class: jurisdiction_policy, erasure: hard_delete }
+      - { name: reviewer_principal_id, class: jurisdiction_policy, erasure: tombstone, fk: principals.principal_id }
+      - { name: created_by_principal_id, class: jurisdiction_policy, erasure: tombstone, fk: principals.principal_id }
+      - { name: created_at, class: jurisdiction_policy, erasure: tombstone }
+
+  - name: jurisdiction_gate_decisions
+    file: packages/db/src/schema/jurisdiction-policy.ts
+    migration: packages/db/migrations/0007_f06_jurisdiction_policy_gates.sql
+    primary_class: jurisdiction_gate_evidence
+    data_subject_linkage:
+      column: principal_id
+      role: actor
+    columns:
+      - { name: gate_decision_id, class: jurisdiction_gate_evidence, erasure: tombstone }
+      - { name: subject_kind, class: jurisdiction_gate_evidence, erasure: hard_delete }
+      - { name: subject_id, class: jurisdiction_gate_evidence, erasure: tombstone, notes: "References seeker, employer, match, or run-dispatch subject by subject_kind." }
+      - { name: decision, class: jurisdiction_gate_evidence, erasure: hard_delete }
+      - { name: reason_code, class: jurisdiction_gate_evidence, erasure: hard_delete }
+      - { name: jurisdiction_codes, class: jurisdiction_gate_evidence, erasure: hard_delete }
+      - { name: policy_version, class: jurisdiction_gate_evidence, erasure: hard_delete }
+      - { name: policy_revision_ids, class: jurisdiction_gate_evidence, erasure: hard_delete }
+      - { name: correlation_id, class: jurisdiction_gate_evidence, erasure: tombstone }
+      - { name: principal_id, class: jurisdiction_gate_evidence, erasure: tombstone, fk: principals.principal_id }
+      - { name: audit_event_id, class: jurisdiction_gate_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: jurisdiction_gate_evidence, erasure: tombstone }
+
+  - name: jurisdiction_kill_switch_events
+    file: packages/db/src/schema/jurisdiction-policy.ts
+    migration: packages/db/migrations/0007_f06_jurisdiction_policy_gates.sql
+    primary_class: jurisdiction_kill_switch_evidence
+    data_subject_linkage:
+      column: operator_principal_id
+      role: actor
+    columns:
+      - { name: kill_switch_event_id, class: jurisdiction_kill_switch_evidence, erasure: tombstone }
+      - { name: jurisdiction_code, class: jurisdiction_kill_switch_evidence, erasure: hard_delete }
+      - { name: from_status, class: jurisdiction_kill_switch_evidence, erasure: hard_delete }
+      - { name: to_status, class: jurisdiction_kill_switch_evidence, erasure: hard_delete }
+      - { name: reason_code, class: jurisdiction_kill_switch_evidence, erasure: hard_delete }
+      - { name: policy_version, class: jurisdiction_kill_switch_evidence, erasure: hard_delete }
+      - { name: operator_principal_id, class: jurisdiction_kill_switch_evidence, erasure: tombstone, fk: principals.principal_id }
+      - { name: reviewer_principal_id, class: jurisdiction_kill_switch_evidence, erasure: tombstone, fk: principals.principal_id }
+      - { name: correlation_id, class: jurisdiction_kill_switch_evidence, erasure: tombstone }
+      - { name: audit_event_id, class: jurisdiction_kill_switch_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: jurisdiction_kill_switch_evidence, erasure: tombstone }

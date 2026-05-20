@@ -1,8 +1,8 @@
 # Project Spyglass — Implementation Roadmap
 
-**Version:** 1.4.0
+**Version:** 1.5.0
 **Created:** 2026-05-06
-**Last Amended:** 2026-05-19
+**Last Amended:** 2026-05-20
 **Owner:** Gary
 **PRD source:** `PRD.md` (Draft v0.1, 2026-05-05)
 **Constitution:** `.specify/memory/constitution.md` (v1.1.0)
@@ -31,7 +31,7 @@ modeling per `.specify/memory/constitution.md` §V.3.
 
 ---
 
-## Current Status (2026-05-19)
+## Current Status (2026-05-20)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
@@ -39,8 +39,9 @@ modeling per `.specify/memory/constitution.md` §V.3.
 | **F02** Identity & Auth | ✅ **Complete** (merged to `main` at `1d5e4ca`, PR #25) | B1–B9 closed; 384 tests green; 17/18 CI gates passing. Operator-run gates deferred: B6 (Scenarios 10+11 + NVDA), B7 (Scenario 6 + drill), B8 (T071 metrics + T072 end-to-end). |
 | **F03** Database schema umbrella | ✅ **Complete** (merged to `main` at `0ab3b69`, PR #26) | Governance envelope over F02's shipped schema: data-classification register (6 classes · 8 tables · 73 cols), retention-policy (per-class horizons), schema-conventions (10 sections), integrity-invariants catalog (46 rows), schema-lint CI gate (19/19 checks green). Counsel review of `retention-policy.md` flagged pending; not blocking merge, blocks Phase 1 jurisdictional admission. |
 | **F04** Ticket store + state machines | ✅ **Complete** (merged to `main` at `cbcbd56`, PR #38) | Seeker, employer-req, and match ticket tables/state machines shipped with ticket scopes, server actions/tRPC wiring, CI state-machine/principal gates, benchmark baseline, operator runbook, and F04 closure reviews. Follow-up dependency cleanup landed through PRs #28, #30, #31, #34, #35, #36, #37, and #39. |
-| **F05** Audit log + transcript store + tombstone | ✅ **Complete** (local branch `05-audit-log-tombstone`) | Canonical hash-chained audit package, replay, transcript append/read primitives, redaction-by-tombstone with denial audit events, evidence export manifests, runbooks, quickstart evidence, and final package gates are complete. Operational tombstone use still requires counsel/legal-hold wiring before Phase 2 use. |
-| F06–F25 | ⏳ Not started | F06 jurisdiction tagging, policy gates, and geographic kill switches are next on the critical path. |
+| **F05** Audit log + transcript store + tombstone | ✅ **Complete** (merged to `main`, PR #40) | Canonical hash-chained audit package, replay, transcript append/read primitives, redaction-by-tombstone with denial audit events, evidence export manifests, runbooks, quickstart evidence, and final package gates are complete. Operational tombstone use still requires counsel/legal-hold wiring before Phase 2 use. |
+| **F06** Jurisdiction policy gates + kill switches | ✅ **Complete** (local branch `006-jurisdiction-policy-gates`) | DB-backed jurisdiction posture, fail-safe gate evaluator, no-deploy kill switches, non-PII failure artifacts, scoped review reads, runbook, quickstart evidence, and final package gates are complete. |
+| F07a–F25 | ⏳ Not started | F07a contract registry and F07b rubric/bias gate are next on the compliance spine. |
 
 ### F02 sub-slice progress (branch `02-identity-auth-aaa`)
 

@@ -1,0 +1,54 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "spyglass/jurisdiction-gate-decision.v1"
+title: "Jurisdiction policy gate decision"
+type: object
+required:
+  - gate_decision_id
+  - subject_kind
+  - subject_id
+  - decision
+  - reason_code
+  - jurisdiction_codes
+  - policy_version
+  - correlation_id
+  - audit_event_id
+  - created_at
+additionalProperties: false
+properties:
+  gate_decision_id: { type: string, format: uuid }
+  subject_kind:
+    enum: [seeker_ticket, employer_req_ticket, match_ticket, run_dispatch]
+  subject_id: { type: string, minLength: 1 }
+  decision: { enum: [allow, deny] }
+  reason_code:
+    enum:
+      - all_allowed
+      - missing_jurisdiction
+      - unknown_jurisdiction
+      - unsupported_jurisdiction
+      - disabled_jurisdiction
+      - review_required
+      - expired_policy
+      - conflicting_jurisdictions
+      - unauthorized
+  jurisdiction_codes:
+    type: array
+    items: { type: string, pattern: "^[A-Z]{2}(?:-[A-Z0-9]{1,3})?$" }
+  policy_version: { type: string, minLength: 1 }
+  policy_revision_ids:
+    type: array
+    items: { type: string, format: uuid }
+  correlation_id: { type: string, minLength: 1 }
+  principal_id: { type: [string, "null"], format: uuid }
+  audit_event_id: { type: string, format: uuid }
+  created_at: { type: string, format: date-time }
+allOf:
+  - if:
+      properties: { decision: { const: allow } }
+    then:
+      properties: { reason_code: { const: all_allowed } }
+  - if:
+      properties: { decision: { const: deny } }
+    then:
+      not:
+        properties: { reason_code: { const: all_allowed } }
