@@ -256,6 +256,36 @@ class in the register has a section here (M-3).
 | Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
 | Notes | Disclosure evidence records route decisions and privacy-filter refs without raw tool payloads by default |
 
+### 1.23 `privacy_ruleset_policy`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years after privacy ruleset version is retired or after the last run referencing it reaches terminal retention, whichever is later |
+| Horizon (ISO-8601) | `max(retired-driven:privacy_ruleset_versions.status+P7Y, referenced-run-horizon)` |
+| Lawful basis | GDPR Art. 6(1)(c) accountability and employment-decision audit obligation; GDPR Art. 6(1)(f) legitimate interest in preserving privacy-policy provenance |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Ruleset policy records contain disclosure stages, allowed fields, deterministic rule metadata, hashes, and version metadata, not raw negotiation payloads |
+
+### 1.24 `privacy_filter_evidence`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years from filter decision or sentinel failure, or inherited longer incident/counsel horizon if attached to an evidence package |
+| Horizon (ISO-8601) | `P7Y` |
+| Lawful basis | GDPR Art. 6(1)(c) privacy and compliance evidence; GDPR Art. 6(1)(f) legitimate interest in proving fail-closed filtering and prompt-injection containment |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Filter evidence stores reason codes, redaction counts, ruleset refs, filtered-view refs, and content hashes without raw sensitive payloads by default |
+
+### 1.25 `privacy_boundary_evidence`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years from boundary finding, or inherited longer incident/counsel horizon if attached to an evidence package |
+| Horizon (ISO-8601) | `P7Y` |
+| Lawful basis | GDPR Art. 6(1)(c) compliance gate evidence; GDPR Art. 6(1)(f) legitimate interest in proving non-bypassable counterparty disclosure controls |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Boundary evidence records source paths, forbidden access patterns, detector refs, statuses, and audit links |
+
 ---
 
 ## 2. Tombstone procedure (F05)
@@ -317,8 +347,11 @@ in §1 above. (M-3 mechanical check.)
 | `tool_surface_policy` | §1.20 | `max(retired-driven:tool_surface_versions.status+P7Y, referenced-run-horizon)` | tombstone |
 | `tool_dispatch_evidence` | §1.21 | `P7Y` | tombstone |
 | `tool_disclosure_evidence` | §1.22 | `P7Y` | tombstone |
+| `privacy_ruleset_policy` | §1.23 | `max(retired-driven:privacy_ruleset_versions.status+P7Y, referenced-run-horizon)` | tombstone |
+| `privacy_filter_evidence` | §1.24 | `P7Y` | tombstone |
+| `privacy_boundary_evidence` | §1.25 | `P7Y` | tombstone |
 
-**22 classes declared · 22 classes covered · M-3 ✅**
+**25 classes declared · 25 classes covered · M-3 ✅**
 
 ---
 
@@ -340,6 +373,11 @@ in §1 above. (M-3 mechanical check.)
   `tool_disclosure_evidence`. These classes preserve tool catalog,
   dispatcher, bypass, and disclosure-routing evidence without storing
   raw sensitive tool payloads by default.
+- **v1.5 (2026-05-20)** — Added F09 retention coverage for
+  `privacy_ruleset_policy`, `privacy_filter_evidence`, and
+  `privacy_boundary_evidence`. These classes preserve privacy ruleset,
+  filter, sentinel, and access-boundary evidence without storing raw
+  sensitive payloads by default.
 - **v1.0 (2026-05-12)** — Initial declaration. Authored under F03
   T007/T008. Counsel review pending; horizons reflect
   engineer-best-judgment against Constitution §I.4.2 + cited

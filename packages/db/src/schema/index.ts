@@ -184,3 +184,29 @@ export {
   toolSurfaceVersions,
   type ToolSurfaceVersionRow,
 } from "./tool-surfaces.js";
+
+// F09 — Privacy filter.
+export {
+  counterpartyAccessFindings,
+  type CounterpartyAccessFindingRow,
+  type NewCounterpartyAccessFindingRow,
+  type NewPrivacyFilterDecisionRow,
+  type NewPrivacyRulesetVersionRow,
+  type NewSentinelFailureRow,
+  PRIVACY_AUDIENCES,
+  type PrivacyAudience,
+  PRIVACY_FILTER_DECISIONS,
+  privacyFilterDecisions,
+  type PrivacyFilterDecision,
+  type PrivacyFilterDecisionRow,
+  PRIVACY_FINDING_STATUSES,
+  type PrivacyFindingStatus,
+  PRIVACY_INPUT_CLASSES,
+  type PrivacyInputClass,
+  PRIVACY_RULESET_STATUSES,
+  privacyRulesetVersions,
+  type PrivacyRulesetStatus,
+  type PrivacyRulesetVersionRow,
+  sentinelFailures,
+  type SentinelFailureRow,
+} from "./privacy-filter.js";

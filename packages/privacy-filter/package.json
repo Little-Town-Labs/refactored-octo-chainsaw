@@ -1,0 +1,40 @@
+{
+  "name": "@spyglass/privacy-filter",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "type-check": "tsc --noEmit -p tsconfig.json",
+    "test": "jest --passWithNoTests",
+    "lint": "eslint .",
+    "reachability:check": "tsx scripts/check-reachability.ts",
+    "boundary:check": "tsx scripts/check-access-boundary.ts",
+    "dev-run:f09": "tsx scripts/f09-staged-dev-run.ts"
+  },
+  "dependencies": {
+    "@spyglass/audit-log": "workspace:*",
+    "@spyglass/auth": "workspace:*",
+    "@spyglass/db": "workspace:*",
+    "@spyglass/tool-dispatcher": "workspace:*",
+    "drizzle-orm": "^0.45.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "js-yaml": "^4.1.1"
+  }
+}

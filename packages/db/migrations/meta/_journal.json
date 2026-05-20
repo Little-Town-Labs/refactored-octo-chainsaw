@@ -78,6 +78,13 @@
       "when": 1779300000000,
       "tag": "0010_f08_5_tool_surface_dispatcher",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1779303600000,
+      "tag": "0011_f09_privacy_filter",
+      "breakpoints": true
     }
   ]
 }
