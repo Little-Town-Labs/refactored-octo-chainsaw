@@ -236,6 +236,45 @@ data_classes:
       GDPR Art. 6(1)(f) — legitimate interest in forensic readiness and
       non-repudiation for policy release events.
 
+  # ------------------------------------------------------------------
+  # F07b data classes (Rubric registry + bias-test dispatch gate)
+  # ------------------------------------------------------------------
+  - id: rubric_policy
+    description: >-
+      Immutable versioned rubric definitions: dimensions, score ranges,
+      weights, aggregation policy, content hashes, publication state, and
+      review provenance. These are scoring policy artifacts, not raw
+      negotiation content.
+    sensitivity: medium
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — accountability and AEDT audit obligation;
+      GDPR Art. 6(1)(f) — legitimate interest in preserving scoring
+      policy provenance and run reconstruction.
+
+  - id: rubric_evidence
+    description: >-
+      Bias-test artifacts plus rubric publication/deprecation evidence,
+      including methodology refs, jurisdiction coverage, actor/reviewer
+      attribution, reason codes, correlation ids, and audit-event links.
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — AEDT bias-audit and accountability evidence;
+      GDPR Art. 6(1)(f) — legitimate interest in forensic readiness and
+      non-repudiation for policy release events.
+
+  - id: rubric_dispatch_evidence
+    description: >-
+      Non-PII dispatch gate evidence for rubric allow/deny decisions,
+      including rubric refs, bias-test refs, reason codes, correlation
+      ids, and audit-event links.
+    sensitivity: medium
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — compliance gate evidence; GDPR Art. 6(1)(f) —
+      legitimate interest in proving fail-closed dispatch behavior.
+
 # Tables — one entry per pgTable in packages/db/src/schema/.
 # Coverage is enforced by the lint (rule R3).
 tables:
@@ -676,3 +715,86 @@ tables:
       - { name: correlation_id, class: agent_contract_evidence, erasure: tombstone }
       - { name: audit_event_id, class: agent_contract_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
       - { name: created_at, class: agent_contract_evidence, erasure: tombstone }
+
+  - name: rubric_versions
+    file: packages/db/src/schema/rubrics.ts
+    migration: packages/db/migrations/0009_f07b_rubric_registry_bias_gate.sql
+    primary_class: rubric_policy
+    data_subject_linkage:
+      column: author_principal_id
+      role: actor
+    columns:
+      - { name: rubric_version_id, class: rubric_policy, erasure: tombstone }
+      - { name: rubric_id, class: rubric_policy, erasure: hard_delete }
+      - { name: version, class: rubric_policy, erasure: hard_delete }
+      - { name: side, class: rubric_policy, erasure: hard_delete }
+      - { name: status, class: rubric_policy, erasure: hard_delete }
+      - { name: dimensions, class: rubric_policy, erasure: hard_delete }
+      - { name: aggregation_policy, class: rubric_policy, erasure: hard_delete }
+      - { name: bias_test_ref, class: rubric_policy, erasure: tombstone }
+      - { name: content_hash, class: rubric_policy, erasure: hard_delete }
+      - { name: description, class: rubric_policy, erasure: hard_delete }
+      - { name: author_principal_id, class: rubric_policy, erasure: tombstone, fk: principals.principal_id }
+      - { name: reviewer_principal_id, class: rubric_policy, erasure: tombstone, fk: principals.principal_id }
+      - { name: published_at, class: rubric_policy, erasure: hard_delete }
+      - { name: deprecated_after, class: rubric_policy, erasure: hard_delete }
+      - { name: audit_event_id, class: rubric_policy, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: rubric_policy, erasure: tombstone }
+
+  - name: bias_test_artifacts
+    file: packages/db/src/schema/rubrics.ts
+    migration: packages/db/migrations/0009_f07b_rubric_registry_bias_gate.sql
+    primary_class: rubric_evidence
+    data_subject_linkage:
+      column: reviewer_principal_id
+      role: actor
+    columns:
+      - { name: bias_test_artifact_id, class: rubric_evidence, erasure: tombstone }
+      - { name: rubric_id, class: rubric_evidence, erasure: hard_delete }
+      - { name: rubric_version, class: rubric_evidence, erasure: hard_delete }
+      - { name: rubric_content_hash, class: rubric_evidence, erasure: hard_delete }
+      - { name: methodology_ref, class: rubric_evidence, erasure: hard_delete }
+      - { name: status, class: rubric_evidence, erasure: hard_delete }
+      - { name: jurisdiction_coverage, class: rubric_evidence, erasure: hard_delete }
+      - { name: reviewer_principal_id, class: rubric_evidence, erasure: tombstone, fk: principals.principal_id }
+      - { name: completed_at, class: rubric_evidence, erasure: hard_delete }
+      - { name: expires_at, class: rubric_evidence, erasure: hard_delete }
+      - { name: artifact_uri, class: rubric_evidence, erasure: tombstone }
+      - { name: audit_event_id, class: rubric_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: rubric_evidence, erasure: tombstone }
+
+  - name: rubric_events
+    file: packages/db/src/schema/rubrics.ts
+    migration: packages/db/migrations/0009_f07b_rubric_registry_bias_gate.sql
+    primary_class: rubric_evidence
+    data_subject_linkage:
+      column: principal_id
+      role: actor
+    columns:
+      - { name: rubric_event_id, class: rubric_evidence, erasure: tombstone }
+      - { name: rubric_version_id, class: rubric_evidence, erasure: tombstone, fk: rubric_versions.rubric_version_id }
+      - { name: event_type, class: rubric_evidence, erasure: hard_delete }
+      - { name: reason_code, class: rubric_evidence, erasure: hard_delete }
+      - { name: principal_id, class: rubric_evidence, erasure: tombstone, fk: principals.principal_id }
+      - { name: reviewer_principal_id, class: rubric_evidence, erasure: tombstone, fk: principals.principal_id }
+      - { name: correlation_id, class: rubric_evidence, erasure: tombstone }
+      - { name: audit_event_id, class: rubric_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: rubric_evidence, erasure: tombstone }
+
+  - name: rubric_dispatch_gate_events
+    file: packages/db/src/schema/rubrics.ts
+    migration: packages/db/migrations/0009_f07b_rubric_registry_bias_gate.sql
+    primary_class: rubric_dispatch_evidence
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: gate_event_id, class: rubric_dispatch_evidence, erasure: tombstone }
+      - { name: rubric_id, class: rubric_dispatch_evidence, erasure: hard_delete }
+      - { name: rubric_version, class: rubric_dispatch_evidence, erasure: hard_delete }
+      - { name: decision, class: rubric_dispatch_evidence, erasure: hard_delete }
+      - { name: reason_code, class: rubric_dispatch_evidence, erasure: hard_delete }
+      - { name: bias_test_artifact_id, class: rubric_dispatch_evidence, erasure: tombstone, fk: bias_test_artifacts.bias_test_artifact_id }
+      - { name: audit_event_id, class: rubric_dispatch_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: correlation_id, class: rubric_dispatch_evidence, erasure: tombstone }
+      - { name: created_at, class: rubric_dispatch_evidence, erasure: tombstone }

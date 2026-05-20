@@ -1,6 +1,6 @@
 # Feature Specification: F07b Rubric Registry + Bias-Test Dispatch Gate
 
-**Feature Branch**: `007b-rubric-registry-bias-gate`
+**Feature Branch**: `007-b`
 
 **Created**: 2026-05-20
 

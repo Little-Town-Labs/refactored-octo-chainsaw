@@ -1,6 +1,6 @@
 # Implementation Plan: F07b Rubric Registry + Bias-Test Dispatch Gate
 
-**Branch**: `007b-rubric-registry-bias-gate` | **Date**: 2026-05-20 | **Spec**: [spec.md](spec.md)
+**Branch**: `007-b` | **Date**: 2026-05-20 | **Spec**: [spec.md](spec.md)
 
 **Input**: Feature specification from `.specify/specs/007b-rubric-registry-bias-gate/spec.md`
 

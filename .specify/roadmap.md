@@ -42,7 +42,8 @@ modeling per `.specify/memory/constitution.md` §V.3.
 | **F05** Audit log + transcript store + tombstone | ✅ **Complete** (merged to `main`, PR #40) | Canonical hash-chained audit package, replay, transcript append/read primitives, redaction-by-tombstone with denial audit events, evidence export manifests, runbooks, quickstart evidence, and final package gates are complete. Operational tombstone use still requires counsel/legal-hold wiring before Phase 2 use. |
 | **F06** Jurisdiction policy gates + kill switches | ✅ **Complete** (merged to `main`, PR #41) | DB-backed jurisdiction posture, fail-safe gate evaluator, no-deploy kill switches, non-PII failure artifacts, scoped review reads, runbook, quickstart evidence, and final package gates are complete. |
 | **F07a** Agent Contract Registry | ✅ **Complete** (merged to `main`, PR #42) | Immutable agent contract versions, scoped publication/deprecation, dispatch-time resolution, fail-closed reason codes, provenance/audit evidence, scoped review reads, runbooks, quickstart evidence, and final package gates are complete. |
-| F07b–F25 | ⏳ Not started | F07b rubric/bias gate is the remaining Stage 3 P0 blocker before Parley runtime work. |
+| **F07b** Rubric Registry + bias-test dispatch gate | ✅ **Complete** (local branch `007-b`) | Immutable rubric versions, bias-test artifact registration, dispatch refusal for missing/invalid bias evidence, deterministic weighted scoring, scoped review reads, runbook, quickstart evidence, and package gates are complete. |
+| F08–F25 | ⏳ Not started | F08.5 Tool Surface & Dispatcher and F09 Privacy Filter are the next strong candidates before the full F08 Parley runner. |
 
 ### F02 sub-slice progress (branch `02-identity-auth-aaa`)
 
@@ -642,8 +643,8 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 ### Stage 3 checklist
 - [x] **F06** Jurisdiction tagging + policy gates + kill switches _(merged to `main`, PR #41)_
 - [x] **F07a** Agent Contract Registry _(merged to `main`, PR #42)_
-- [ ] **F07b** Rubric Registry + bias-test dispatch gate
-- [ ] **Stage 3 gate:** At least one rubric version with completed bias-test artifact; CI verifies dispatch refusal when `bias_test_ref` is missing; kill switches flippable in staging; `(contract_id, version)` and `(rubric_id, version)` immutability enforced at the storage layer
+- [x] **F07b** Rubric Registry + bias-test dispatch gate _(local branch `007-b`; quickstart evidence recorded)_
+- [x] **Stage 3 gate:** At least one rubric version with completed bias-test artifact; CI verifies dispatch refusal when `bias_test_ref` is missing; kill switches flippable in staging; `(contract_id, version)` and `(rubric_id, version)` immutability enforced at the storage layer
 
 ### Stage 4 checklist
 - [ ] **F08** Parley runner (six Inngest functions)

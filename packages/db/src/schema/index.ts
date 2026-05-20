@@ -122,3 +122,33 @@ export {
   type NewAgentContractEventRow,
   type NewAgentContractVersionRow,
 } from "./agent-contracts.js";
+
+// F07b — Rubric registry and bias-test dispatch gate.
+export {
+  biasTestArtifacts,
+  type BiasTestArtifactRow,
+  type BiasTestStatus,
+  BIAS_TEST_STATUSES,
+  type NewBiasTestArtifactRow,
+  type NewRubricDispatchGateEventRow,
+  type NewRubricEventRow,
+  type NewRubricVersionRow,
+  RUBRIC_EVENT_REASON_CODES,
+  type RubricEventReasonCode,
+  RUBRIC_EVENT_TYPES,
+  type RubricEventRow,
+  type RubricEventType,
+  RUBRIC_GATE_DECISIONS,
+  type RubricGateDecision,
+  RUBRIC_GATE_REASON_CODES,
+  type RubricGateReasonCode,
+  rubricDispatchGateEvents,
+  type RubricDispatchGateEventRow,
+  rubricEvents,
+  RUBRIC_SIDES,
+  type RubricSide,
+  RUBRIC_STATUSES,
+  type RubricStatus,
+  rubricVersions,
+  type RubricVersionRow,
+} from "./rubrics.js";
