@@ -1,0 +1,81 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/dossier-artifact.schema.yaml"
+title: DossierArtifact
+type: object
+additionalProperties: false
+required:
+  - dossier_id
+  - run_id
+  - match_id
+  - status
+  - contract_refs
+  - privacy_ruleset_refs
+  - harness_version
+  - model_invocation_refs
+  - rubric_breakdowns
+  - rationales
+  - reconciled_flags
+  - projection_refs
+  - content_hash
+  - created_at
+properties:
+  dossier_id:
+    type: string
+    minLength: 1
+  run_id:
+    type: string
+    minLength: 1
+  match_id:
+    type: string
+    minLength: 1
+  status:
+    enum: [conclusive, inconclusive]
+  contract_refs:
+    type: object
+    additionalProperties:
+      type: object
+      required: [contract_id, version]
+      properties:
+        contract_id:
+          type: string
+        version:
+          type: string
+  privacy_ruleset_refs:
+    type: array
+    items:
+      type: object
+      required: [ruleset_id, version]
+      properties:
+        ruleset_id:
+          type: string
+        version:
+          type: string
+  harness_version:
+    type: string
+  model_invocation_refs:
+    type: array
+    items:
+      type: string
+  rubric_breakdowns:
+    type: array
+    items:
+      type: object
+  rationales:
+    type: object
+  reconciled_flags:
+    type: array
+    items:
+      type: object
+  projection_refs:
+    type: object
+    required: [seeker, employer, auditor, a2a_receiver]
+  content_hash:
+    type: string
+    pattern: "^sha256:[a-f0-9]{64}$"
+  signature:
+    type: [object, "null"]
+  audit_event_id:
+    type: [string, "null"]
+  created_at:
+    type: string
+    format: date-time

@@ -354,6 +354,42 @@ data_classes:
       legitimate interest in proving non-bypassable counterparty
       disclosure controls.
 
+  # ------------------------------------------------------------------
+  # F10 data classes (Dossier builder + signer)
+  # ------------------------------------------------------------------
+  - id: dossier_artifact
+    description: >-
+      Terminal Parley dossier artifacts, including run refs, match refs,
+      status, contract refs, ruleset refs, rubric breakdowns, rationales,
+      reconciled flags, projection refs, content hashes, and audit refs.
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(b) — performance of contract for match delivery;
+      GDPR Art. 6(1)(c) — employment-decision audit obligation.
+
+  - id: dossier_projection
+    description: >-
+      Stored pre-computed dossier projections for seeker, employer,
+      auditor, and A2A receiver audiences. Payloads are filtered before
+      storage and are never derived at delivery time.
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(b) — performance of contract for audience-specific
+      delivery; GDPR Art. 6(1)(c) — audit and privacy evidence.
+
+  - id: dossier_signature_evidence
+    description: >-
+      Dossier signing and verification evidence, including algorithm,
+      key id, canonicalization version, signed content hash, signature,
+      verification reason codes, and audit refs.
+    sensitivity: medium
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — integrity and non-repudiation evidence; GDPR
+      Art. 6(1)(f) — legitimate interest in tamper-evident delivery.
+
 # Tables — one entry per pgTable in packages/db/src/schema/.
 # Coverage is enforced by the lint (rule R3).
 tables:
@@ -1072,3 +1108,83 @@ tables:
       - { name: status, class: privacy_boundary_evidence, erasure: hard_delete }
       - { name: audit_event_id, class: privacy_boundary_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
       - { name: created_at, class: privacy_boundary_evidence, erasure: tombstone }
+
+  - name: dossier_artifacts
+    file: packages/db/src/schema/dossiers.ts
+    migration: packages/db/migrations/0012_f10_dossier_builder_signer.sql
+    primary_class: dossier_artifact
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: dossier_id, class: dossier_artifact, erasure: tombstone }
+      - { name: run_id, class: dossier_artifact, erasure: tombstone }
+      - { name: match_id, class: dossier_artifact, erasure: tombstone }
+      - { name: status, class: dossier_artifact, erasure: hard_delete }
+      - { name: contract_refs, class: dossier_artifact, erasure: tombstone }
+      - { name: privacy_ruleset_refs, class: dossier_artifact, erasure: tombstone }
+      - { name: harness_version, class: dossier_artifact, erasure: hard_delete }
+      - { name: model_invocation_refs, class: dossier_artifact, erasure: tombstone }
+      - { name: rubric_breakdowns, class: dossier_artifact, erasure: tombstone }
+      - { name: rationales, class: dossier_artifact, erasure: tombstone }
+      - { name: reconciled_flags, class: dossier_artifact, erasure: tombstone }
+      - { name: inconclusive_flags, class: dossier_artifact, erasure: tombstone }
+      - { name: projection_refs, class: dossier_artifact, erasure: tombstone }
+      - { name: content_hash, class: dossier_artifact, erasure: tombstone }
+      - { name: signature, class: dossier_signature_evidence, erasure: tombstone }
+      - { name: audit_event_id, class: dossier_artifact, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: dossier_artifact, erasure: tombstone }
+
+  - name: dossier_projections
+    file: packages/db/src/schema/dossiers.ts
+    migration: packages/db/migrations/0012_f10_dossier_builder_signer.sql
+    primary_class: dossier_projection
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: projection_id, class: dossier_projection, erasure: tombstone }
+      - { name: dossier_id, class: dossier_projection, erasure: tombstone, fk: dossier_artifacts.dossier_id }
+      - { name: audience, class: dossier_projection, erasure: hard_delete }
+      - { name: disclosure_stage, class: dossier_projection, erasure: hard_delete }
+      - { name: ruleset_id, class: dossier_projection, erasure: tombstone }
+      - { name: ruleset_version, class: dossier_projection, erasure: tombstone }
+      - { name: payload, class: dossier_projection, erasure: tombstone }
+      - { name: payload_hash, class: dossier_projection, erasure: tombstone }
+      - { name: created_at, class: dossier_projection, erasure: tombstone }
+
+  - name: dossier_signatures
+    file: packages/db/src/schema/dossiers.ts
+    migration: packages/db/migrations/0012_f10_dossier_builder_signer.sql
+    primary_class: dossier_signature_evidence
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: signature_id, class: dossier_signature_evidence, erasure: tombstone }
+      - { name: dossier_id, class: dossier_signature_evidence, erasure: tombstone, fk: dossier_artifacts.dossier_id }
+      - { name: algorithm, class: dossier_signature_evidence, erasure: hard_delete }
+      - { name: kid, class: dossier_signature_evidence, erasure: tombstone }
+      - { name: canonicalization_version, class: dossier_signature_evidence, erasure: hard_delete }
+      - { name: signed_content_hash, class: dossier_signature_evidence, erasure: tombstone }
+      - { name: signature, class: dossier_signature_evidence, erasure: tombstone }
+      - { name: signed_at, class: dossier_signature_evidence, erasure: tombstone }
+      - { name: audit_event_id, class: dossier_signature_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: dossier_signature_evidence, erasure: tombstone }
+
+  - name: dossier_verification_events
+    file: packages/db/src/schema/dossiers.ts
+    migration: packages/db/migrations/0012_f10_dossier_builder_signer.sql
+    primary_class: dossier_signature_evidence
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: verification_id, class: dossier_signature_evidence, erasure: tombstone }
+      - { name: dossier_id, class: dossier_signature_evidence, erasure: tombstone, fk: dossier_artifacts.dossier_id }
+      - { name: decision, class: dossier_signature_evidence, erasure: hard_delete }
+      - { name: reason_code, class: dossier_signature_evidence, erasure: hard_delete }
+      - { name: kid, class: dossier_signature_evidence, erasure: tombstone }
+      - { name: content_hash, class: dossier_signature_evidence, erasure: tombstone }
+      - { name: audit_event_id, class: dossier_signature_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: dossier_signature_evidence, erasure: tombstone }

@@ -210,3 +210,25 @@ export {
   sentinelFailures,
   type SentinelFailureRow,
 } from "./privacy-filter.js";
+
+// F10 — Dossier builder and signer.
+export {
+  DOSSIER_AUDIENCES,
+  dossierArtifacts,
+  type DossierArtifactRow,
+  type DossierAudience,
+  dossierProjections,
+  type DossierProjectionRow,
+  dossierSignatures,
+  type DossierSignatureRow,
+  DOSSIER_STATUSES,
+  type DossierStatus,
+  DOSSIER_VERIFICATION_DECISIONS,
+  type DossierVerificationDecision,
+  dossierVerificationEvents,
+  type DossierVerificationEventRow,
+  type NewDossierArtifactRow,
+  type NewDossierProjectionRow,
+  type NewDossierSignatureRow,
+  type NewDossierVerificationEventRow,
+} from "./dossiers.js";

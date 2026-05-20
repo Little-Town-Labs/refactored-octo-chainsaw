@@ -286,6 +286,36 @@ class in the register has a section here (M-3).
 | Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
 | Notes | Boundary evidence records source paths, forbidden access patterns, detector refs, statuses, and audit links |
 
+### 1.26 `dossier_artifact`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years after related match reaches terminal retention, or inherited longer incident/counsel horizon if attached to an evidence package |
+| Horizon (ISO-8601) | `terminal-state-driven:match_tickets.state+P7Y` |
+| Lawful basis | GDPR Art. 6(1)(b) performance of contract; GDPR Art. 6(1)(c) employment-decision audit obligation |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Dossier artifacts are terminal delivery and audit records. Subject linkages can be tombstoned while structural hashes, refs, and signature evidence remain reviewable |
+
+### 1.27 `dossier_projection`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | Same as parent dossier artifact |
+| Horizon (ISO-8601) | `parent-driven:dossier_artifacts` |
+| Lawful basis | GDPR Art. 6(1)(b) performance of contract for audience-specific delivery; GDPR Art. 6(1)(c) audit and privacy evidence |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Projection payloads are pre-filtered and stored at dossier-build time; they are not recomputed from raw transcript content at delivery |
+
+### 1.28 `dossier_signature_evidence`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | Same as parent dossier artifact, with a 7-year minimum from signature or verification event |
+| Horizon (ISO-8601) | `parent-record-horizon:min-P7Y` |
+| Lawful basis | GDPR Art. 6(1)(c) integrity and non-repudiation evidence; GDPR Art. 6(1)(f) legitimate interest in tamper-evident delivery |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Signature and verification evidence stores key ids, algorithms, hashes, signatures, decisions, and reason codes |
+
 ---
 
 ## 2. Tombstone procedure (F05)
@@ -350,8 +380,11 @@ in §1 above. (M-3 mechanical check.)
 | `privacy_ruleset_policy` | §1.23 | `max(retired-driven:privacy_ruleset_versions.status+P7Y, referenced-run-horizon)` | tombstone |
 | `privacy_filter_evidence` | §1.24 | `P7Y` | tombstone |
 | `privacy_boundary_evidence` | §1.25 | `P7Y` | tombstone |
+| `dossier_artifact` | §1.26 | `terminal-state-driven:match_tickets.state+P7Y` | tombstone |
+| `dossier_projection` | §1.27 | `parent-driven:dossier_artifacts` | tombstone |
+| `dossier_signature_evidence` | §1.28 | `parent-record-horizon:min-P7Y` | tombstone |
 
-**25 classes declared · 25 classes covered · M-3 ✅**
+**28 classes declared · 28 classes covered · M-3 ✅**
 
 ---
 
@@ -378,6 +411,10 @@ in §1 above. (M-3 mechanical check.)
   `privacy_boundary_evidence`. These classes preserve privacy ruleset,
   filter, sentinel, and access-boundary evidence without storing raw
   sensitive payloads by default.
+- **v1.6 (2026-05-20)** — Added F10 retention coverage for
+  `dossier_artifact`, `dossier_projection`, and
+  `dossier_signature_evidence`. These classes preserve terminal dossier
+  artifacts, pre-computed audience projections, and tamper-evidence.
 - **v1.0 (2026-05-12)** — Initial declaration. Authored under F03
   T007/T008. Counsel review pending; horizons reflect
   engineer-best-judgment against Constitution §I.4.2 + cited

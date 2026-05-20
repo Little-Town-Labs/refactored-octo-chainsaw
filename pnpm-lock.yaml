@@ -216,6 +216,40 @@ importers:
         specifier: ^0.31.10
         version: 0.31.10
 
+  packages/dossiers:
+    dependencies:
+      '@spyglass/audit-log':
+        specifier: workspace:*
+        version: link:../audit-log
+      '@spyglass/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@spyglass/db':
+        specifier: workspace:*
+        version: link:../db
+      '@spyglass/privacy-filter':
+        specifier: workspace:*
+        version: link:../privacy-filter
+      drizzle-orm:
+        specifier: ^0.45.2
+        version: 0.45.2(@types/pg@8.20.0)(pg@8.21.0)
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
+      ajv:
+        specifier: ^8.17.1
+        version: 8.20.0
+      ajv-formats:
+        specifier: ^3.0.1
+        version: 3.0.1(ajv@8.20.0)
+      js-yaml:
+        specifier: ^4.1.1
+        version: 4.1.1
+
   packages/parley: {}
 
   packages/policy-gates:

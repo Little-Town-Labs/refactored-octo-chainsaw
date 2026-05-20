@@ -1,0 +1,39 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/dossier-projection.schema.yaml"
+title: DossierProjection
+type: object
+additionalProperties: false
+required:
+  - projection_id
+  - dossier_id
+  - audience
+  - disclosure_stage
+  - ruleset_ref
+  - payload
+  - payload_hash
+  - created_at
+properties:
+  projection_id:
+    type: string
+  dossier_id:
+    type: string
+  audience:
+    enum: [seeker, employer, auditor, a2a_receiver]
+  disclosure_stage:
+    type: string
+  ruleset_ref:
+    type: object
+    required: [ruleset_id, version]
+    properties:
+      ruleset_id:
+        type: string
+      version:
+        type: string
+  payload:
+    type: object
+  payload_hash:
+    type: string
+    pattern: "^sha256:[a-f0-9]{64}$"
+  created_at:
+    type: string
+    format: date-time

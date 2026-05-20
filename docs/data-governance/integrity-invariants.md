@@ -553,6 +553,47 @@ Migration: [`0011_f09_privacy_filter.sql`](../../packages/db/migrations/0011_f09
 | `counterparty_access_findings_status_check` | CHECK | `status IN ('open','resolved','expected_fixture')` | Ambiguous access-boundary finding state | `packages/privacy-filter/src/__tests__/access-boundary.test.ts` |
 | `counterparty_access_findings_status_idx` | INDEX | `(status, created_at DESC)` | (perf) finding review by status | `packages/privacy-filter/src/__tests__/review.test.ts` |
 
+## dossier_artifacts
+File: [`packages/db/src/schema/dossiers.ts`](../../packages/db/src/schema/dossiers.ts) ·
+Migration: [`0012_f10_dossier_builder_signer.sql`](../../packages/db/migrations/0012_f10_dossier_builder_signer.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `dossier_artifacts_pkey` | PK | `dossier_id uuid` default `uuidv7()` | Duplicate / missing dossier artifact | `packages/dossiers/src/__tests__/build.test.ts` |
+| `dossier_artifacts_run_unique_idx` | UNIQUE | `UNIQUE (run_id)` | Multiple terminal dossiers for one run | `packages/dossiers/src/__tests__/build.test.ts` |
+| `dossier_artifacts_status_check` | CHECK | `status IN ('conclusive','inconclusive')` | Ambiguous dossier terminal state | `packages/dossiers/src/__tests__/projection-gate.test.ts` |
+| `dossier_artifacts_hash_check` | CHECK | `content_hash <> ''` | Dossier without canonical content hash | `packages/dossiers/src/__tests__/canonicalize.test.ts` |
+
+## dossier_projections
+File: [`packages/db/src/schema/dossiers.ts`](../../packages/db/src/schema/dossiers.ts) ·
+Migration: [`0012_f10_dossier_builder_signer.sql`](../../packages/db/migrations/0012_f10_dossier_builder_signer.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `dossier_projections_pkey` | PK | `projection_id uuid` default `uuidv7()` | Duplicate / missing projection | `packages/dossiers/src/__tests__/projections.test.ts` |
+| `dossier_projections_dossier_audience_idx` | UNIQUE | `UNIQUE (dossier_id, audience)` | Multiple conflicting projections for one audience | `packages/dossiers/src/__tests__/projections.test.ts` |
+| `dossier_projections_audience_check` | CHECK | closed-list dossier audiences | Delivery-time audience drift | `packages/dossiers/src/__tests__/projection-gate.test.ts` |
+
+## dossier_signatures
+File: [`packages/db/src/schema/dossiers.ts`](../../packages/db/src/schema/dossiers.ts) ·
+Migration: [`0012_f10_dossier_builder_signer.sql`](../../packages/db/migrations/0012_f10_dossier_builder_signer.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `dossier_signatures_pkey` | PK | `signature_id uuid` default `uuidv7()` | Duplicate / missing signature | `packages/dossiers/src/__tests__/signing.test.ts` |
+| `dossier_signatures_dossier_idx` | UNIQUE | `UNIQUE (dossier_id)` | Multiple active signatures for one dossier | `packages/dossiers/src/__tests__/signing.test.ts` |
+| `dossier_signatures_algorithm_check` | CHECK | `algorithm IN ('Ed25519')` | Unsupported signature algorithm drift | `packages/dossiers/src/__tests__/verify.test.ts` |
+
+## dossier_verification_events
+File: [`packages/db/src/schema/dossiers.ts`](../../packages/db/src/schema/dossiers.ts) ·
+Migration: [`0012_f10_dossier_builder_signer.sql`](../../packages/db/migrations/0012_f10_dossier_builder_signer.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `dossier_verification_events_pkey` | PK | `verification_id uuid` default `uuidv7()` | Duplicate / missing verification evidence | `packages/dossiers/src/__tests__/verify.test.ts` |
+| `dossier_verification_events_decision_check` | CHECK | `decision IN ('valid','invalid')` | Ambiguous verification outcome | `packages/dossiers/src/__tests__/verify.test.ts` |
+| `dossier_verification_events_reason_code_check` | CHECK | closed-list verification reasons | Non-machine-readable verification failure | `packages/dossiers/src/__tests__/verify.test.ts` |
+
 ---
 
 ## Changelog
@@ -560,6 +601,9 @@ Migration: [`0011_f09_privacy_filter.sql`](../../packages/db/migrations/0011_f09
 - **v1.7 (2026-05-20)** — F09 T008 amendment. Added invariants
   for privacy ruleset versions, privacy filter decisions, sentinel
   failures, and counterparty access findings.
+- **v1.8 (2026-05-20)** — F10 T008 amendment. Added invariants
+  for dossier artifacts, projections, signatures, and verification
+  events.
 - **v1.6 (2026-05-20)** — F08.5 T008 amendment. Added invariants
   for tool descriptor versions, tool surface versions, dispatch events,
   disclosure routing evidence, and dispatcher bypass findings.

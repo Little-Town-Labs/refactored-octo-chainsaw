@@ -85,6 +85,13 @@
       "when": 1779303600000,
       "tag": "0011_f09_privacy_filter",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1779307200000,
+      "tag": "0012_f10_dossier_builder_signer",
+      "breakpoints": true
     }
   ]
 }

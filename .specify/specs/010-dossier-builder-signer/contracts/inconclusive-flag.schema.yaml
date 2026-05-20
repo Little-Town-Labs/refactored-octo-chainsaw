@@ -1,0 +1,16 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/inconclusive-flag.schema.yaml"
+title: InconclusiveFlag
+type: object
+additionalProperties: false
+required:
+  - reason_code
+  - source_ref
+  - resolution_hint
+properties:
+  reason_code:
+    enum: [timed_out, tool_failure, projection_missing, scoring_gap, policy_blocked, insufficient_evidence]
+  source_ref:
+    type: string
+  resolution_hint:
+    type: string
