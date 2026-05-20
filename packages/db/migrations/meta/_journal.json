@@ -64,6 +64,13 @@
       "when": 1779292800000,
       "tag": "0008_f07a_agent_contract_registry",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1779296400000,
+      "tag": "0009_f07b_rubric_registry_bias_gate",
+      "breakpoints": true
     }
   ]
 }

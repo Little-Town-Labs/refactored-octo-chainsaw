@@ -196,6 +196,36 @@ class in the register has a section here (M-3).
 | Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
 | Notes | Publication/deprecation evidence retains reason codes, contract refs, correlation ids, and audit links. Actor/reviewer principal links can be tombstoned through the F05 procedure |
 
+### 1.17 `rubric_policy`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years after rubric version is retired or after the last run referencing it reaches terminal retention, whichever is later |
+| Horizon (ISO-8601) | `max(retired-driven:rubric_versions.status+P7Y, referenced-run-horizon)` |
+| Lawful basis | GDPR Art. 6(1)(c) accountability and AEDT audit obligation; GDPR Art. 6(1)(f) legitimate interest in preserving scoring-policy provenance |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Rubric definitions do not contain raw transcript content or prompt bodies. Structural refs, hashes, dimensions, weights, and version metadata remain for audit reconstruction |
+
+### 1.18 `rubric_evidence`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years from artifact/event, or inherited longer incident/counsel horizon if attached to an evidence package |
+| Horizon (ISO-8601) | `P7Y` |
+| Lawful basis | GDPR Art. 6(1)(c) AEDT bias-audit and accountability evidence; GDPR Art. 6(1)(f) legitimate interest in forensic readiness |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Bias-test artifacts and rubric publication/deprecation events retain methodology refs, rubric hashes, coverage, reason codes, and audit links. Principal links can be tombstoned |
+
+### 1.19 `rubric_dispatch_evidence`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years from gate decision, or inherited longer incident/counsel horizon if attached to an evidence package |
+| Horizon (ISO-8601) | `P7Y` |
+| Lawful basis | GDPR Art. 6(1)(c) compliance gate evidence; GDPR Art. 6(1)(f) legitimate interest in proving fail-closed dispatch behavior |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Dispatch gate evidence records non-PII reason codes and rubric/bias-test refs for compliance reconstruction |
+
 ---
 
 ## 2. Tombstone procedure (F05)

@@ -415,8 +415,60 @@ Migration: [`0008_f07a_agent_contract_registry.sql`](../../packages/db/migration
 
 ---
 
+## rubric_versions
+File: [`packages/db/src/schema/rubrics.ts`](../../packages/db/src/schema/rubrics.ts) ·
+Migration: [`0009_f07b_rubric_registry_bias_gate.sql`](../../packages/db/migrations/0009_f07b_rubric_registry_bias_gate.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `rubric_versions_pkey` | PK | `rubric_version_id uuid` default `uuidv7()` | Duplicate / missing rubric version | `packages/rubrics/src/__tests__/publish.test.ts` |
+| `rubric_versions_rubric_id_check` | CHECK | `rubric_id <> ''` | Empty rubric ids | `packages/rubrics/src/__tests__/publish.test.ts` |
+| `rubric_versions_version_check` | CHECK | `version <> ''` | Empty rubric versions | `packages/rubrics/src/__tests__/publish.test.ts` |
+| `rubric_versions_side_check` | CHECK | `side IN ('seeker','employer','both')` | Invalid rubric side drift | `packages/rubrics/src/__tests__/resolver.test.ts` |
+| `rubric_versions_status_check` | CHECK | `status IN ('draft','published','deprecated','retired')` | Invalid publication status drift | `packages/rubrics/src/__tests__/resolver.test.ts` |
+| `rubric_versions_dimensions_check` | CHECK | dimensions array is non-empty | Rubrics without scored dimensions | `packages/rubrics/src/__tests__/scoring.test.ts` |
+| `rubric_versions_published_shape_check` | CHECK | `published` rows require reviewer, published_at, audit_event_id, and bias_test_ref | Production rubric without provenance or bias evidence | `packages/rubrics/src/__tests__/dispatch-gate.test.ts` |
+| `rubric_versions_ref_unique_idx` | UNIQUE | `UNIQUE (rubric_id, version)` | Mutable or ambiguous rubric refs | `packages/rubrics/src/__tests__/publish.test.ts` |
+
+## bias_test_artifacts
+File: [`packages/db/src/schema/rubrics.ts`](../../packages/db/src/schema/rubrics.ts) ·
+Migration: [`0009_f07b_rubric_registry_bias_gate.sql`](../../packages/db/migrations/0009_f07b_rubric_registry_bias_gate.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `bias_test_artifacts_pkey` | PK | `bias_test_artifact_id uuid` default `uuidv7()` | Duplicate / missing bias artifact | `packages/rubrics/src/__tests__/bias-test.test.ts` |
+| `bias_test_artifacts_status_check` | CHECK | closed-list artifact statuses | Non-machine-readable artifact state | `packages/rubrics/src/__tests__/dispatch-gate.test.ts` |
+| `bias_test_artifacts_completed_shape_check` | CHECK | completed artifacts require reviewer, completed_at, artifact_uri, and audit_event_id | Completed artifact without evidence | `packages/rubrics/src/__tests__/bias-test.test.ts` |
+| `bias_test_artifacts_rubric_idx` | INDEX | `(rubric_id, rubric_version)` | (perf) artifact lookup by rubric ref | `packages/rubrics/src/__tests__/dispatch-gate.test.ts` |
+
+## rubric_events
+File: [`packages/db/src/schema/rubrics.ts`](../../packages/db/src/schema/rubrics.ts) ·
+Migration: [`0009_f07b_rubric_registry_bias_gate.sql`](../../packages/db/migrations/0009_f07b_rubric_registry_bias_gate.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `rubric_events_pkey` | PK | `rubric_event_id uuid` default `uuidv7()` | Duplicate / missing rubric event | `packages/rubrics/src/__tests__/publish.test.ts` |
+| `rubric_events_reason_code_check` | CHECK | closed-list publication/deprecation reasons | Non-machine-readable rubric release reason | `packages/rubrics/src/__tests__/publish.test.ts` |
+| `rubric_events_audit_event_idx` | UNIQUE | `UNIQUE (audit_event_id)` | Reusing one audit event for multiple rubric events | `packages/rubrics/src/__tests__/publish.test.ts` |
+
+## rubric_dispatch_gate_events
+File: [`packages/db/src/schema/rubrics.ts`](../../packages/db/src/schema/rubrics.ts) ·
+Migration: [`0009_f07b_rubric_registry_bias_gate.sql`](../../packages/db/migrations/0009_f07b_rubric_registry_bias_gate.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `rubric_dispatch_gate_events_pkey` | PK | `gate_event_id uuid` default `uuidv7()` | Duplicate / missing gate event | `packages/rubrics/src/__tests__/dispatch-gate.test.ts` |
+| `rubric_dispatch_gate_events_decision_check` | CHECK | `decision IN ('allow','deny')` | Ambiguous dispatch gate state | `packages/rubrics/src/__tests__/dispatch-gate.test.ts` |
+| `rubric_dispatch_gate_events_reason_code_check` | CHECK | closed-list gate reason codes | Non-machine-readable dispatch refusal | `packages/rubrics/src/__tests__/dispatch-gate.test.ts` |
+| `rubric_dispatch_gate_events_ref_idx` | INDEX | `(rubric_id, rubric_version, created_at DESC)` | (perf) review listing by rubric ref | `packages/rubrics/src/__tests__/review.test.ts` |
+
+---
+
 ## Changelog
 
+- **v1.5 (2026-05-20)** — F07b T008 amendment. Added invariants
+  for rubric versions, bias-test artifacts, rubric events, and dispatch
+  gate events.
 - **v1.4 (2026-05-20)** — F07a T005 amendment. Added 22 invariants
   for `agent_contract_versions` and `agent_contract_events`.
 - **v1.0 (2026-05-12)** — Authored under F03 T010–T013. 47 invariants

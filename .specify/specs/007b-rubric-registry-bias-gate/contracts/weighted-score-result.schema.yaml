@@ -1,0 +1,57 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/f07b/weighted-score-result.schema.yaml"
+title: WeightedScoreResult
+type: object
+required:
+  - rubric_id
+  - rubric_version
+  - dimension_scores
+  - normalized_weights
+  - total_score
+  - rounding_policy
+  - model_holistic_score_ignored
+properties:
+  rubric_id:
+    type: string
+    minLength: 1
+  rubric_version:
+    type: string
+    minLength: 1
+  dimension_scores:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [dimension_id, score]
+      properties:
+        dimension_id:
+          type: string
+          minLength: 1
+        score:
+          type: number
+      additionalProperties: false
+  normalized_weights:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required: [dimension_id, weight]
+      properties:
+        dimension_id:
+          type: string
+          minLength: 1
+        weight:
+          type: number
+          minimum: 0
+      additionalProperties: false
+  total_score:
+    type: number
+  rounding_policy:
+    type: string
+    enum: [half_away_from_zero_4dp]
+  model_holistic_score_ignored:
+    type: boolean
+  regression_signal_ref:
+    type: string
+    minLength: 1
+additionalProperties: false

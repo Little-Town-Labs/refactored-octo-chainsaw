@@ -1,0 +1,65 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/f07b/bias-test-artifact.schema.yaml"
+title: BiasTestArtifact
+type: object
+required:
+  - bias_test_artifact_id
+  - rubric_id
+  - rubric_version
+  - rubric_content_hash
+  - methodology_ref
+  - status
+  - jurisdiction_coverage
+  - created_at
+properties:
+  bias_test_artifact_id:
+    type: string
+    minLength: 1
+  rubric_id:
+    type: string
+    minLength: 1
+  rubric_version:
+    type: string
+    minLength: 1
+  rubric_content_hash:
+    type: string
+    minLength: 1
+  methodology_ref:
+    type: object
+    required: [methodology_id, version]
+    properties:
+      methodology_id:
+        type: string
+        minLength: 1
+      version:
+        type: string
+        minLength: 1
+    additionalProperties: false
+  status:
+    type: string
+    enum: [draft, completed, rejected, superseded, expired]
+  jurisdiction_coverage:
+    type: array
+    minItems: 1
+    items:
+      type: string
+      minLength: 1
+  reviewer_principal_id:
+    type: string
+    minLength: 1
+  completed_at:
+    type: string
+    format: date-time
+  expires_at:
+    type: string
+    format: date-time
+  artifact_uri:
+    type: string
+    minLength: 1
+  audit_event_id:
+    type: string
+    minLength: 1
+  created_at:
+    type: string
+    format: date-time
+additionalProperties: false

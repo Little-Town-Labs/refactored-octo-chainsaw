@@ -1,0 +1,50 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/f07b/rubric-dispatch-gate.schema.yaml"
+title: RubricDispatchGateResult
+type: object
+required:
+  - decision
+  - reason_code
+  - rubric_ref
+  - checked_at
+properties:
+  decision:
+    type: string
+    enum: [allow, deny]
+  reason_code:
+    type: string
+    enum:
+      - rubric_gate_allowed
+      - rubric_missing
+      - rubric_unpublished
+      - rubric_deprecated
+      - rubric_invalid
+      - rubric_missing_bias_test
+      - rubric_bias_test_incomplete
+      - rubric_bias_test_mismatched_hash
+      - rubric_bias_test_expired
+      - rubric_bias_test_insufficient_coverage
+  rubric_ref:
+    type: object
+    required: [rubric_id, version]
+    properties:
+      rubric_id:
+        type: string
+        minLength: 1
+      version:
+        type: string
+        minLength: 1
+    additionalProperties: false
+  bias_test_artifact_id:
+    type: string
+    minLength: 1
+  audit_event_id:
+    type: string
+    minLength: 1
+  correlation_id:
+    type: string
+    minLength: 1
+  checked_at:
+    type: string
+    format: date-time
+additionalProperties: false
