@@ -43,7 +43,7 @@ modeling per `.specify/memory/constitution.md` §V.3.
 | **F06** Jurisdiction policy gates + kill switches | ✅ **Complete** (merged to `main`, PR #41) | DB-backed jurisdiction posture, fail-safe gate evaluator, no-deploy kill switches, non-PII failure artifacts, scoped review reads, runbook, quickstart evidence, and final package gates are complete. |
 | **F07a** Agent Contract Registry | ✅ **Complete** (merged to `main`, PR #42) | Immutable agent contract versions, scoped publication/deprecation, dispatch-time resolution, fail-closed reason codes, provenance/audit evidence, scoped review reads, runbooks, quickstart evidence, and final package gates are complete. |
 | **F07b** Rubric Registry + bias-test dispatch gate | ✅ **Complete** (merged to `main`, PR #43) | Immutable rubric versions, bias-test artifact registration, dispatch refusal for missing/invalid bias evidence, deterministic weighted scoring, scoped review reads, runbook, quickstart evidence, and package gates are complete. |
-| F08–F25 | ⏳ In progress | F08.5 Tool Surface & Dispatcher is complete on local branch `008-tool-surface-dispatcher`; F09 Privacy Filter is the next strong candidate before the full F08 Parley runner. |
+| F08–F25 | ⏳ In progress | F08.5 Tool Surface & Dispatcher is complete and merged to `main` in PR #44; F09 Privacy Filter is the next strong candidate before the full F08 Parley runner. |
 
 ### F02 sub-slice progress (branch `02-identity-auth-aaa`)
 
@@ -192,7 +192,7 @@ Constitution §I.6: missing or unknown jurisdiction = deny.
 | ID | Feature | Slug | Priority | Complexity | Constitution refs |
 |----|---------|------|----------|------------|-------------------|
 | F08 | Parley runner (six Inngest functions, run-to-completion) | `08-parley-runner` | P0 | L | II (agent-first runtime); Parley §7, §8, §10.5 |
-| F08.5 | Tool Surface & Dispatcher (versioned catalog, type-level enforcement) | `08-5-tool-surface-dispatcher` | P0 | M — Complete (local branch `008-tool-surface-dispatcher`) | I.5.2 (least privilege); I.6 (DiD); Parley §4.1.2, §5.5, §10.3, §17.5 |
+| F08.5 | Tool Surface & Dispatcher (versioned catalog, type-level enforcement) | `08-5-tool-surface-dispatcher` | P0 | M — Complete (merged to `main`, PR #44) | I.5.2 (least privilege); I.6 (DiD); Parley §4.1.2, §5.5, §10.3, §17.5 |
 | F09 | Privacy filter module (no-model, sentinel-wrapped, CI-gated) | `09-privacy-filter` | P0 | L | I.1; I.6; PRD §4.4, §9; Parley §9, §15.1, §15.2, §17.4–17.6 |
 | F10 | Dossier builder + signer + per-audience projections + verifier | `10-dossier-builder-signer` | P0 | L | I.2; I.C.1; I.A; Parley §4.1.8, §15.4 |
 | F11 | Candidate notification artifact system | `11-candidate-notifications` | P0 | M | I.A (primitive 4); I.A.1 (EU AI Act Art. 86); Parley §13.7 |
@@ -648,7 +648,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 ### Stage 4 checklist
 - [ ] **F08** Parley runner (six Inngest functions)
-- [x] **F08.5** Tool Surface & Dispatcher _(local branch `008-tool-surface-dispatcher`; quickstart evidence recorded)_
+- [x] **F08.5** Tool Surface & Dispatcher _(merged to `main`, PR #44; quickstart evidence recorded)_
 - [ ] **F09** Privacy filter (no-model-invocation, sentinel-wrapped)
 - [ ] **F10** Dossier builder + signer + per-audience projections + verifier
 - [ ] **F11** Candidate notification artifacts
