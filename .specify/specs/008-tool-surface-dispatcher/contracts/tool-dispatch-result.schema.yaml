@@ -1,0 +1,37 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/f08-5/tool-dispatch-result.schema.yaml"
+title: Tool Dispatch Result
+type: object
+additionalProperties: false
+required:
+  - status
+  - tool_ref
+  - disclosure_class
+  - audit_event_id
+properties:
+  status:
+    type: string
+    enum: [ok, tool_unsupported, denied, filtered_pending, adapter_failed, adapter_timeout, schema_invalid]
+  reason_code:
+    type: string
+  tool_ref:
+    type: object
+    additionalProperties: false
+    required: [name, version]
+    properties:
+      name:
+        type: string
+      version:
+        type: string
+  disclosure_class:
+    type: string
+    enum: [principal_self, counterparty_filtered, platform_open]
+  principal_view:
+    type: object
+  counterparty_view_ref:
+    type: string
+  audit_event_id:
+    type: string
+  duration_ms:
+    type: number
+    minimum: 0

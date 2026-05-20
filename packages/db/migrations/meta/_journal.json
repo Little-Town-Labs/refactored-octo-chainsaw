@@ -71,6 +71,13 @@
       "when": 1779296400000,
       "tag": "0009_f07b_rubric_registry_bias_gate",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1779300000000,
+      "tag": "0010_f08_5_tool_surface_dispatcher",
+      "breakpoints": true
     }
   ]
 }

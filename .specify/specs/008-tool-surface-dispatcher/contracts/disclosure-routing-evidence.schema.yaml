@@ -1,0 +1,27 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/f08-5/disclosure-routing-evidence.schema.yaml"
+title: Disclosure Routing Evidence
+type: object
+additionalProperties: false
+required:
+  - routing_id
+  - dispatch_event_id
+  - disclosure_class
+  - route
+  - created_at
+properties:
+  routing_id:
+    type: string
+  dispatch_event_id:
+    type: string
+  disclosure_class:
+    type: string
+    enum: [principal_self, counterparty_filtered, platform_open]
+  route:
+    type: string
+    enum: [principal_only, privacy_filter_required, privacy_filter_completed, platform_open, failed_closed]
+  privacy_filter_ref:
+    type: string
+  created_at:
+    type: string
+    format: date-time

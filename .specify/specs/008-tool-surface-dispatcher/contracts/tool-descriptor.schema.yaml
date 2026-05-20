@@ -1,0 +1,43 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/f08-5/tool-descriptor.schema.yaml"
+title: Tool Descriptor Version
+type: object
+additionalProperties: false
+required:
+  - name
+  - version
+  - input_schema
+  - output_schema
+  - disclosure_class
+  - adapter_ref
+  - status
+  - content_hash
+properties:
+  name:
+    type: string
+    pattern: "^[a-z][a-z0-9_]*$"
+  version:
+    type: string
+    minLength: 1
+  input_schema:
+    type: object
+  output_schema:
+    type: object
+  disclosure_class:
+    type: string
+    enum: [principal_self, counterparty_filtered, platform_open]
+  adapter_ref:
+    type: string
+    minLength: 1
+  status:
+    type: string
+    enum: [draft, published, deprecated]
+  description:
+    type: string
+  content_hash:
+    type: string
+    pattern: "^sha256:[a-f0-9]{64}$"
+  audit_event_ids:
+    type: array
+    items:
+      type: string

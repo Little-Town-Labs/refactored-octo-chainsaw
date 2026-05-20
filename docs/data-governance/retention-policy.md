@@ -226,6 +226,36 @@ class in the register has a section here (M-3).
 | Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
 | Notes | Dispatch gate evidence records non-PII reason codes and rubric/bias-test refs for compliance reconstruction |
 
+### 1.20 `tool_surface_policy`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years after tool surface version is retired or after the last run referencing it reaches terminal retention, whichever is later |
+| Horizon (ISO-8601) | `max(retired-driven:tool_surface_versions.status+P7Y, referenced-run-horizon)` |
+| Lawful basis | GDPR Art. 6(1)(c) accountability and employment-decision audit obligation; GDPR Art. 6(1)(f) legitimate interest in preserving tool policy provenance |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Tool policy records contain descriptor schemas, disclosure classes, adapter refs, hashes, and version metadata, not raw tool outputs |
+
+### 1.21 `tool_dispatch_evidence`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years from dispatch event or bypass finding, or inherited longer incident/counsel horizon if attached to an evidence package |
+| Horizon (ISO-8601) | `P7Y` |
+| Lawful basis | GDPR Art. 6(1)(c) compliance gate evidence; GDPR Art. 6(1)(f) legitimate interest in proving dispatcher-only tool behavior |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Dispatch evidence records non-PII reason codes, tool refs, surface refs, run refs, and audit links; raw sensitive payloads are not stored by default |
+
+### 1.22 `tool_disclosure_evidence`
+
+| Field | Value |
+|---|---|
+| Horizon (human) | 7 years from routing event, or inherited longer incident/counsel horizon if attached to an evidence package |
+| Horizon (ISO-8601) | `P7Y` |
+| Lawful basis | GDPR Art. 6(1)(c) privacy and accountability evidence; GDPR Art. 6(1)(f) legitimate interest in proving fail-closed disclosure routing |
+| Erasure mode | `tombstone` (see [§2](#2-tombstone-procedure-f05)) |
+| Notes | Disclosure evidence records route decisions and privacy-filter refs without raw tool payloads by default |
+
 ---
 
 ## 2. Tombstone procedure (F05)
@@ -279,8 +309,16 @@ in §1 above. (M-3 mechanical check.)
 | `jurisdiction_policy` | §1.12 | `retired-driven:jurisdiction_policies.effective_until+P7Y` | tombstone |
 | `jurisdiction_gate_evidence` | §1.13 | `P7Y` | tombstone |
 | `jurisdiction_kill_switch_evidence` | §1.14 | `P7Y` | tombstone |
+| `agent_contract_policy` | §1.15 | `max(retired-driven:agent_contract_versions.status+P7Y, referenced-run-horizon)` | tombstone |
+| `agent_contract_evidence` | §1.16 | `P7Y` | tombstone |
+| `rubric_policy` | §1.17 | `max(retired-driven:rubric_versions.status+P7Y, referenced-run-horizon)` | tombstone |
+| `rubric_evidence` | §1.18 | `P7Y` | tombstone |
+| `rubric_dispatch_evidence` | §1.19 | `P7Y` | tombstone |
+| `tool_surface_policy` | §1.20 | `max(retired-driven:tool_surface_versions.status+P7Y, referenced-run-horizon)` | tombstone |
+| `tool_dispatch_evidence` | §1.21 | `P7Y` | tombstone |
+| `tool_disclosure_evidence` | §1.22 | `P7Y` | tombstone |
 
-**14 classes declared · 14 classes covered · M-3 ✅**
+**22 classes declared · 22 classes covered · M-3 ✅**
 
 ---
 
@@ -297,6 +335,11 @@ in §1 above. (M-3 mechanical check.)
   posture, gate decisions, and no-deploy kill-switch actions for
   compliance review while routing principal linkages through the F05
   tombstone procedure.
+- **v1.4 (2026-05-20)** — Added F08.5 retention coverage for
+  `tool_surface_policy`, `tool_dispatch_evidence`, and
+  `tool_disclosure_evidence`. These classes preserve tool catalog,
+  dispatcher, bypass, and disclosure-routing evidence without storing
+  raw sensitive tool payloads by default.
 - **v1.0 (2026-05-12)** — Initial declaration. Authored under F03
   T007/T008. Counsel review pending; horizons reflect
   engineer-best-judgment against Constitution §I.4.2 + cited

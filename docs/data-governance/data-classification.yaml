@@ -275,6 +275,44 @@ data_classes:
       GDPR Art. 6(1)(c) — compliance gate evidence; GDPR Art. 6(1)(f) —
       legitimate interest in proving fail-closed dispatch behavior.
 
+  # ------------------------------------------------------------------
+  # F08.5 data classes (Tool surface + dispatcher)
+  # ------------------------------------------------------------------
+  - id: tool_surface_policy
+    description: >-
+      Immutable versioned tool descriptors and tool surfaces, including
+      input/output schemas, disclosure classes, adapter refs, content
+      hashes, publication state, and review provenance.
+    sensitivity: medium
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — accountability and employment-decision audit
+      obligation; GDPR Art. 6(1)(f) — legitimate interest in preserving
+      tool policy provenance and run reconstruction.
+
+  - id: tool_dispatch_evidence
+    description: >-
+      Non-PII dispatcher invocation, unsupported-tool, denial, adapter
+      failure, and bypass-finding evidence, including run refs, reason
+      codes, correlation ids, and audit-event links.
+    sensitivity: medium
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — compliance gate evidence; GDPR Art. 6(1)(f) —
+      legitimate interest in proving dispatcher-only tool behavior.
+
+  - id: tool_disclosure_evidence
+    description: >-
+      Disclosure-routing evidence for tool outputs, including disclosure
+      class, route, privacy-filter refs, dispatch-event refs, and audit
+      links. Raw tool payloads are not stored here by default.
+    sensitivity: medium
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — privacy and accountability evidence; GDPR
+      Art. 6(1)(f) — legitimate interest in proving fail-closed
+      disclosure routing.
+
 # Tables — one entry per pgTable in packages/db/src/schema/.
 # Coverage is enforced by the lint (rule R3).
 tables:
@@ -798,3 +836,120 @@ tables:
       - { name: audit_event_id, class: rubric_dispatch_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
       - { name: correlation_id, class: rubric_dispatch_evidence, erasure: tombstone }
       - { name: created_at, class: rubric_dispatch_evidence, erasure: tombstone }
+
+  - name: tool_descriptor_versions
+    file: packages/db/src/schema/tool-surfaces.ts
+    migration: packages/db/migrations/0010_f08_5_tool_surface_dispatcher.sql
+    primary_class: tool_surface_policy
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: tool_descriptor_id, class: tool_surface_policy, erasure: tombstone }
+      - { name: name, class: tool_surface_policy, erasure: hard_delete }
+      - { name: version, class: tool_surface_policy, erasure: hard_delete }
+      - { name: input_schema, class: tool_surface_policy, erasure: hard_delete }
+      - { name: output_schema, class: tool_surface_policy, erasure: hard_delete }
+      - { name: disclosure_class, class: tool_surface_policy, erasure: hard_delete }
+      - { name: adapter_ref, class: tool_surface_policy, erasure: hard_delete }
+      - { name: status, class: tool_surface_policy, erasure: hard_delete }
+      - { name: description, class: tool_surface_policy, erasure: hard_delete }
+      - { name: content_hash, class: tool_surface_policy, erasure: hard_delete }
+      - { name: audit_event_id, class: tool_surface_policy, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: published_at, class: tool_surface_policy, erasure: hard_delete }
+      - { name: deprecated_at, class: tool_surface_policy, erasure: hard_delete }
+      - { name: created_at, class: tool_surface_policy, erasure: tombstone }
+
+  - name: tool_surface_versions
+    file: packages/db/src/schema/tool-surfaces.ts
+    migration: packages/db/migrations/0010_f08_5_tool_surface_dispatcher.sql
+    primary_class: tool_surface_policy
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: tool_surface_version_id, class: tool_surface_policy, erasure: tombstone }
+      - { name: surface_id, class: tool_surface_policy, erasure: hard_delete }
+      - { name: version, class: tool_surface_policy, erasure: hard_delete }
+      - { name: side_scope, class: tool_surface_policy, erasure: hard_delete }
+      - { name: status, class: tool_surface_policy, erasure: hard_delete }
+      - { name: description, class: tool_surface_policy, erasure: hard_delete }
+      - { name: descriptor_refs, class: tool_surface_policy, erasure: hard_delete }
+      - { name: content_hash, class: tool_surface_policy, erasure: hard_delete }
+      - { name: audit_event_id, class: tool_surface_policy, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: published_at, class: tool_surface_policy, erasure: hard_delete }
+      - { name: deprecated_at, class: tool_surface_policy, erasure: hard_delete }
+      - { name: created_at, class: tool_surface_policy, erasure: tombstone }
+
+  - name: tool_surface_events
+    file: packages/db/src/schema/tool-surfaces.ts
+    migration: packages/db/migrations/0010_f08_5_tool_surface_dispatcher.sql
+    primary_class: tool_dispatch_evidence
+    data_subject_linkage:
+      column: principal_id
+      role: actor
+    columns:
+      - { name: tool_surface_event_id, class: tool_dispatch_evidence, erasure: tombstone }
+      - { name: subject_kind, class: tool_dispatch_evidence, erasure: hard_delete }
+      - { name: subject_ref, class: tool_dispatch_evidence, erasure: hard_delete }
+      - { name: event_type, class: tool_dispatch_evidence, erasure: hard_delete }
+      - { name: reason_code, class: tool_dispatch_evidence, erasure: hard_delete }
+      - { name: principal_id, class: tool_dispatch_evidence, erasure: tombstone, fk: principals.principal_id }
+      - { name: correlation_id, class: tool_dispatch_evidence, erasure: tombstone }
+      - { name: audit_event_id, class: tool_dispatch_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: tool_dispatch_evidence, erasure: tombstone }
+
+  - name: tool_dispatch_events
+    file: packages/db/src/schema/tool-surfaces.ts
+    migration: packages/db/migrations/0010_f08_5_tool_surface_dispatcher.sql
+    primary_class: tool_dispatch_evidence
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: tool_dispatch_event_id, class: tool_dispatch_evidence, erasure: tombstone }
+      - { name: run_id, class: tool_dispatch_evidence, erasure: tombstone }
+      - { name: turn_id, class: tool_dispatch_evidence, erasure: tombstone }
+      - { name: side, class: tool_dispatch_evidence, erasure: hard_delete }
+      - { name: surface_id, class: tool_dispatch_evidence, erasure: hard_delete }
+      - { name: surface_version, class: tool_dispatch_evidence, erasure: hard_delete }
+      - { name: tool_name, class: tool_dispatch_evidence, erasure: hard_delete }
+      - { name: tool_version, class: tool_dispatch_evidence, erasure: hard_delete }
+      - { name: status, class: tool_dispatch_evidence, erasure: hard_delete }
+      - { name: reason_code, class: tool_dispatch_evidence, erasure: hard_delete }
+      - { name: disclosure_class, class: tool_dispatch_evidence, erasure: hard_delete }
+      - { name: audit_event_id, class: tool_dispatch_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: correlation_id, class: tool_dispatch_evidence, erasure: tombstone }
+      - { name: created_at, class: tool_dispatch_evidence, erasure: tombstone }
+
+  - name: disclosure_routing_evidence
+    file: packages/db/src/schema/tool-surfaces.ts
+    migration: packages/db/migrations/0010_f08_5_tool_surface_dispatcher.sql
+    primary_class: tool_disclosure_evidence
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: routing_id, class: tool_disclosure_evidence, erasure: tombstone }
+      - { name: dispatch_event_id, class: tool_disclosure_evidence, erasure: tombstone, fk: tool_dispatch_events.tool_dispatch_event_id }
+      - { name: disclosure_class, class: tool_disclosure_evidence, erasure: hard_delete }
+      - { name: route, class: tool_disclosure_evidence, erasure: hard_delete }
+      - { name: privacy_filter_ref, class: tool_disclosure_evidence, erasure: tombstone }
+      - { name: audit_event_id, class: tool_disclosure_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: tool_disclosure_evidence, erasure: tombstone }
+
+  - name: dispatcher_bypass_findings
+    file: packages/db/src/schema/tool-surfaces.ts
+    migration: packages/db/migrations/0010_f08_5_tool_surface_dispatcher.sql
+    primary_class: tool_dispatch_evidence
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: finding_id, class: tool_dispatch_evidence, erasure: tombstone }
+      - { name: source_path, class: tool_dispatch_evidence, erasure: tombstone }
+      - { name: forbidden_import, class: tool_dispatch_evidence, erasure: hard_delete }
+      - { name: detected_by, class: tool_dispatch_evidence, erasure: hard_delete }
+      - { name: status, class: tool_dispatch_evidence, erasure: hard_delete }
+      - { name: audit_event_id, class: tool_dispatch_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: tool_dispatch_evidence, erasure: tombstone }

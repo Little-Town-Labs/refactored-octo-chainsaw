@@ -462,10 +462,61 @@ Migration: [`0009_f07b_rubric_registry_bias_gate.sql`](../../packages/db/migrati
 | `rubric_dispatch_gate_events_reason_code_check` | CHECK | closed-list gate reason codes | Non-machine-readable dispatch refusal | `packages/rubrics/src/__tests__/dispatch-gate.test.ts` |
 | `rubric_dispatch_gate_events_ref_idx` | INDEX | `(rubric_id, rubric_version, created_at DESC)` | (perf) review listing by rubric ref | `packages/rubrics/src/__tests__/review.test.ts` |
 
+## tool_descriptor_versions
+File: [`packages/db/src/schema/tool-surfaces.ts`](../../packages/db/src/schema/tool-surfaces.ts) ·
+Migration: [`0010_f08_5_tool_surface_dispatcher.sql`](../../packages/db/migrations/0010_f08_5_tool_surface_dispatcher.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `tool_descriptor_versions_pkey` | PK | `tool_descriptor_id uuid` default `uuidv7()` | Duplicate / missing descriptor version | `packages/tool-dispatcher/src/__tests__/publish.test.ts` |
+| `tool_descriptor_versions_ref_unique_idx` | UNIQUE | `UNIQUE (name, version)` | Mutable or ambiguous descriptor refs | `packages/tool-dispatcher/src/__tests__/publish.test.ts` |
+| `tool_descriptor_versions_disclosure_check` | CHECK | closed-list disclosure classes | Unroutable tool outputs | `packages/tool-dispatcher/src/__tests__/disclosure.test.ts` |
+
+## tool_surface_versions
+File: [`packages/db/src/schema/tool-surfaces.ts`](../../packages/db/src/schema/tool-surfaces.ts) ·
+Migration: [`0010_f08_5_tool_surface_dispatcher.sql`](../../packages/db/migrations/0010_f08_5_tool_surface_dispatcher.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `tool_surface_versions_pkey` | PK | `tool_surface_version_id uuid` default `uuidv7()` | Duplicate / missing surface version | `packages/tool-dispatcher/src/__tests__/resolver.test.ts` |
+| `tool_surface_versions_ref_unique_idx` | UNIQUE | `UNIQUE (surface_id, version)` | Catalog drift for pinned contracts | `packages/tool-dispatcher/src/__tests__/publish.test.ts` |
+| `tool_surface_versions_descriptors_check` | CHECK | descriptor refs array is non-empty | Empty advertised tool surface | `packages/tool-dispatcher/src/__tests__/resolver.test.ts` |
+
+## tool_dispatch_events
+File: [`packages/db/src/schema/tool-surfaces.ts`](../../packages/db/src/schema/tool-surfaces.ts) ·
+Migration: [`0010_f08_5_tool_surface_dispatcher.sql`](../../packages/db/migrations/0010_f08_5_tool_surface_dispatcher.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `tool_dispatch_events_pkey` | PK | `tool_dispatch_event_id uuid` default `uuidv7()` | Duplicate / missing dispatch event | `packages/tool-dispatcher/src/__tests__/dispatcher.test.ts` |
+| `tool_dispatch_events_status_check` | CHECK | closed-list dispatch statuses | Ambiguous tool outcome state | `packages/tool-dispatcher/src/__tests__/unsupported-tool.test.ts` |
+| `tool_dispatch_events_run_idx` | INDEX | `(run_id, created_at DESC)` | (perf) review listing by run | `packages/tool-dispatcher/src/__tests__/review.test.ts` |
+
+## disclosure_routing_evidence
+File: [`packages/db/src/schema/tool-surfaces.ts`](../../packages/db/src/schema/tool-surfaces.ts) ·
+Migration: [`0010_f08_5_tool_surface_dispatcher.sql`](../../packages/db/migrations/0010_f08_5_tool_surface_dispatcher.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `disclosure_routing_evidence_pkey` | PK | `routing_id uuid` default `uuidv7()` | Duplicate / missing routing evidence | `packages/tool-dispatcher/src/__tests__/privacy-boundary.test.ts` |
+| `disclosure_routing_evidence_dispatch_event_id_fk` | FK | dispatch event must exist | Orphaned disclosure routing evidence | `packages/tool-dispatcher/src/__tests__/disclosure.test.ts` |
+
+## dispatcher_bypass_findings
+File: [`packages/db/src/schema/tool-surfaces.ts`](../../packages/db/src/schema/tool-surfaces.ts) ·
+Migration: [`0010_f08_5_tool_surface_dispatcher.sql`](../../packages/db/migrations/0010_f08_5_tool_surface_dispatcher.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `dispatcher_bypass_findings_pkey` | PK | `finding_id uuid` default `uuidv7()` | Duplicate / missing bypass finding | `packages/tool-dispatcher/src/__tests__/import-boundary.test.ts` |
+| `dispatcher_bypass_findings_audit_event_id_fk` | FK | audit ref, when present, must exist | Unattributable bypass evidence | `packages/tool-dispatcher/src/__tests__/review-auth.test.ts` |
+
 ---
 
 ## Changelog
 
+- **v1.6 (2026-05-20)** — F08.5 T008 amendment. Added invariants
+  for tool descriptor versions, tool surface versions, dispatch events,
+  disclosure routing evidence, and dispatcher bypass findings.
 - **v1.5 (2026-05-20)** — F07b T008 amendment. Added invariants
   for rubric versions, bias-test artifacts, rubric events, and dispatch
   gate events.
