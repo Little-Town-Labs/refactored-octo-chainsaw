@@ -29,7 +29,7 @@ Invariant **kind** legend:
 - `FK` — foreign-key reference
 - `PK` — primary key
 
-Total: **156 invariants across 18 tables.**
+Total: **178 invariants across 20 tables.**
 
 ---
 
@@ -371,8 +371,54 @@ Migration: [`0007_f06_jurisdiction_policy_gates.sql`](../../packages/db/migratio
 
 ---
 
+## agent_contract_versions
+File: [`packages/db/src/schema/agent-contracts.ts`](../../packages/db/src/schema/agent-contracts.ts) ·
+Migration: [`0008_f07a_agent_contract_registry.sql`](../../packages/db/migrations/0008_f07a_agent_contract_registry.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `agent_contract_versions_pkey` | PK | `agent_contract_version_id uuid` default `uuidv7()` | Duplicate / missing contract version | `packages/agent-contracts/src/__tests__/publish.test.ts` (F07a T012/T014) |
+| `agent_contract_versions_contract_id_check` | CHECK | `contract_id <> ''` | Empty contract ids | `packages/agent-contracts/src/__tests__/publish.test.ts` |
+| `agent_contract_versions_version_check` | CHECK | `version <> ''` | Empty contract versions | `packages/agent-contracts/src/__tests__/publish.test.ts` |
+| `agent_contract_versions_side_check` | CHECK | `side IN ('seeker','employer')` | Invalid agent side drift | `packages/agent-contracts/src/__tests__/resolver.test.ts` |
+| `agent_contract_versions_status_check` | CHECK | `status IN ('draft','published','deprecated','retired')` | Invalid publication status drift | `packages/agent-contracts/src/__tests__/review.test.ts` |
+| `agent_contract_versions_content_hash_check` | CHECK | `content_hash <> ''` | Contract rows without immutable material hash | `packages/agent-contracts/src/__tests__/publish.test.ts` |
+| `agent_contract_versions_description_check` | CHECK | `description <> ''` | Unexplained contract release | `packages/agent-contracts/src/__tests__/publication-audit.test.ts` |
+| `agent_contract_versions_published_shape_check` | CHECK | `published` rows require reviewer, published_at, and audit_event_id | Published contracts without provenance/evidence | `packages/agent-contracts/src/__tests__/publication-audit.test.ts` |
+| `agent_contract_versions_deprecated_shape_check` | CHECK | `deprecated` rows require deprecated_after | Deprecated contracts without dispatch cutoff | `packages/agent-contracts/src/__tests__/resolver.test.ts` |
+| `agent_contract_versions_ref_unique_idx` | UNIQUE | `UNIQUE (contract_id, version)` | Mutable or ambiguous contract refs | `packages/agent-contracts/src/__tests__/publish.test.ts` |
+| `agent_contract_versions_audit_event_idx` | PARTIAL_UNIQUE | `UNIQUE (audit_event_id) WHERE audit_event_id IS NOT NULL` | Reusing publication audit events | `packages/agent-contracts/src/__tests__/publication-audit.test.ts` |
+| `agent_contract_versions_side_status_idx` | INDEX | `(side, status, created_at DESC)` | (perf) review listing by side/status | — |
+| `agent_contract_versions_author_fk` | FK | `author_principal_id → principals.principal_id` | Contract rows without attributable author | `packages/agent-contracts/src/__tests__/publication-audit.test.ts` |
+| `agent_contract_versions_reviewer_fk` | FK | `reviewer_principal_id → principals.principal_id` (nullable) | Review metadata pointing at missing principals | `packages/agent-contracts/src/__tests__/review.test.ts` |
+| `agent_contract_versions_audit_event_fk` | FK | `audit_event_id → audit_log_events.audit_event_id` (nullable) | Published/deprecated versions without canonical audit evidence | `packages/agent-contracts/src/__tests__/publication-audit.test.ts` |
+
+---
+
+## agent_contract_events
+File: [`packages/db/src/schema/agent-contracts.ts`](../../packages/db/src/schema/agent-contracts.ts) ·
+Migration: [`0008_f07a_agent_contract_registry.sql`](../../packages/db/migrations/0008_f07a_agent_contract_registry.sql)
+
+| Invariant | Kind | Rule | Prevents | Test |
+|---|---|---|---|---|
+| `agent_contract_events_pkey` | PK | `agent_contract_event_id uuid` default `uuidv7()` | Duplicate / missing contract event | `packages/agent-contracts/src/__tests__/publication-audit.test.ts` |
+| `agent_contract_events_event_type_check` | CHECK | `event_type IN ('published','deprecated')` | Ambiguous contract event kind | `packages/agent-contracts/src/__tests__/publication-audit.test.ts` |
+| `agent_contract_events_reason_code_check` | CHECK | closed-list publication/deprecation reasons | Non-machine-readable contract release reasons | `packages/agent-contracts/src/__tests__/publication-audit.test.ts` |
+| `agent_contract_events_correlation_id_check` | CHECK | `correlation_id <> ''` | Events without workflow correlation | `packages/agent-contracts/src/__tests__/publication-audit.test.ts` |
+| `agent_contract_events_contract_idx` | INDEX | `(agent_contract_version_id, created_at DESC)` | (perf) contract event history review | `packages/agent-contracts/src/__tests__/review.test.ts` |
+| `agent_contract_events_actor_idx` | INDEX | `(principal_id, created_at DESC)` | (perf) actor-scoped review | — |
+| `agent_contract_events_audit_event_idx` | UNIQUE | `UNIQUE (audit_event_id)` | Reusing one audit event for multiple contract events | `packages/agent-contracts/src/__tests__/publication-audit.test.ts` |
+| `agent_contract_events_contract_fk` | FK | `agent_contract_version_id → agent_contract_versions.agent_contract_version_id` | Events pointing at missing contract versions | `packages/agent-contracts/src/__tests__/publication-audit.test.ts` |
+| `agent_contract_events_principal_fk` | FK | `principal_id → principals.principal_id` | Contract events without attributable actor | `packages/agent-contracts/src/__tests__/publication-audit.test.ts` |
+| `agent_contract_events_reviewer_fk` | FK | `reviewer_principal_id → principals.principal_id` (nullable) | Reviewer metadata pointing at missing principals | `packages/agent-contracts/src/__tests__/review.test.ts` |
+| `agent_contract_events_audit_event_fk` | FK | `audit_event_id → audit_log_events.audit_event_id` | Contract event without canonical audit evidence | `packages/agent-contracts/src/__tests__/publication-audit.test.ts` |
+
+---
+
 ## Changelog
 
+- **v1.4 (2026-05-20)** — F07a T005 amendment. Added 22 invariants
+  for `agent_contract_versions` and `agent_contract_events`.
 - **v1.0 (2026-05-12)** — Authored under F03 T010–T013. 47 invariants
   catalogued across 8 F02 tables. Test cross-references point at F02
   unit-test files; where no direct unit test exists (perf indexes,

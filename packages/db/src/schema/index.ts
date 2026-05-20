@@ -104,3 +104,21 @@ export {
   type NewJurisdictionKillSwitchEventRow,
   type NewJurisdictionPolicyRow,
 } from "./jurisdiction-policy.js";
+
+// F07a — Agent contract registry.
+export {
+  agentContractEvents,
+  type AgentContractEventReasonCode,
+  AGENT_CONTRACT_EVENT_REASON_CODES,
+  AGENT_CONTRACT_EVENT_TYPES,
+  type AgentContractEventRow,
+  type AgentContractEventType,
+  AGENT_CONTRACT_SIDES,
+  AGENT_CONTRACT_STATUSES,
+  agentContractVersions,
+  type AgentContractSide,
+  type AgentContractStatus,
+  type AgentContractVersionRow,
+  type NewAgentContractEventRow,
+  type NewAgentContractVersionRow,
+} from "./agent-contracts.js";

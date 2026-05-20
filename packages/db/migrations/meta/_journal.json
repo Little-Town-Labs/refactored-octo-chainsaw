@@ -57,6 +57,13 @@
       "when": 1779274667790,
       "tag": "0007_f06_jurisdiction_policy_gates",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1779292800000,
+      "tag": "0008_f07a_agent_contract_registry",
+      "breakpoints": true
     }
   ]
 }

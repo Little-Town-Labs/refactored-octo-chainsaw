@@ -1,0 +1,58 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/schemas/f07a/contract-resolution.schema.yaml"
+title: ContractResolution
+type: object
+required:
+  - decision
+  - reason_code
+  - contract_ref
+  - dependency_results
+properties:
+  decision:
+    enum: [allow, deny]
+  reason_code:
+    enum:
+      - contract_resolved
+      - missing_contract
+      - contract_deprecated
+      - contract_schema_invalid
+      - contract_version_mutation_error
+      - prompt_template_unresolvable
+      - rubric_unresolvable
+      - rubric_missing_bias_test
+      - tool_version_unavailable
+      - model_unavailable
+      - unauthorized
+  contract_ref:
+    type: object
+    required: [contract_id, version]
+    additionalProperties: false
+    properties:
+      contract_id: { type: string, minLength: 1 }
+      version: { type: string, minLength: 1 }
+  effective_runtime_settings:
+    type: object
+  runtime_clamps:
+    type: array
+    items:
+      type: object
+      required: [field, requested, effective]
+      additionalProperties: false
+      properties:
+        field: { type: string, minLength: 1 }
+        requested: { type: number }
+        effective: { type: number }
+  dependency_results:
+    type: array
+    items:
+      type: object
+      required: [kind, status]
+      additionalProperties: false
+      properties:
+        kind:
+          enum: [prompt_template, rubric, tool_surface, model]
+        status:
+          enum: [available, unavailable, missing_bias_test]
+        ref:
+          type: object
+additionalProperties: false
