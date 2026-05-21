@@ -1,0 +1,42 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/f12/ai-operation-refusal.schema.yaml"
+title: AIOperationRefusal
+type: object
+required:
+  - operation
+  - reason_code
+  - message
+properties:
+  operation:
+    type: string
+    enum: [publish_prompt, publish_model, publish_manifest, render_prompt, invoke_model, review_read]
+  reason_code:
+    type: string
+    enum:
+      - missing_required_ref
+      - unauthorized_caller
+      - prompt_not_published
+      - model_not_published
+      - manifest_not_active
+      - manifest_signature_invalid
+      - provider_not_allowed
+      - model_not_allowed
+      - budget_preflight_exceeded
+      - budget_fallback_unavailable
+      - prompt_variable_missing
+      - prompt_variable_unexpected
+      - unsafe_prompt_variable
+      - rubric_policy_in_prompt
+      - audit_unavailable
+      - gateway_unavailable
+      - usage_metadata_missing
+      - unscoped_review
+  message:
+    type: string
+    minLength: 1
+  refs:
+    type: object
+  audit_event_id:
+    type: [string, "null"]
+    format: uuid
+additionalProperties: false

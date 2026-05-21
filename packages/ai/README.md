@@ -1,8 +1,6 @@
 # @spyglass/ai
 
-**Status:** alpha — F01 placeholder; populated in F12 (AI
-infrastructure: Gateway client, prompt registry, model/prompt
-versioning, embeddings).
+**Status:** alpha — F12 AI infrastructure slice.
 
 LLM access layer. Per Constitution §I.C.2 the AI supply chain
 (prompts, rubrics, fine-tuned models, model artifacts) is treated as
@@ -11,23 +9,30 @@ release events, not configuration edits.
 
 ## Public API
 
-To be defined in F12. Will export:
+F12 exports:
 
-- A typed Vercel AI Gateway client wrapper using AI Gateway model
-  strings (`provider/model`).
-- A prompt registry — versioned, immutable `(prompt_id, version)`
-  pinning, joined to the Agent Contract Registry (F07a).
-- An embeddings client.
+- Immutable prompt and model profile registries.
+- Signed AI runtime manifest helpers with no-hot-reload posture.
+- Prompt rendering with variable-contract validation and sentinel
+  preservation.
+- A governed invocation surface with fake gateway support for tests.
+- Cost-control, provider/model allowlist, usage-metadata, and scoped
+  review helpers.
+- Direct-provider import boundary scanning.
 
-## F12 implementation guidance (forward-looking)
+Provider SDKs must not be imported by advocate or Parley packages. Model
+traffic goes through this package so prompt/model refs, manifests, cost
+evidence, and audit refs stay reconstructable.
+
+## Gateway Binding Guidance
 
 Per Vercel platform guidance current as of 2026-02-27:
 
-- **Default to AI SDK v6** with AI Gateway model strings; do not wire
+- Default to AI SDK v6 with AI Gateway model strings; do not wire
   provider SDKs directly.
-- **`@ai-sdk/react`** for React hooks where streaming UX is needed.
+- `@ai-sdk/react` for React hooks where streaming UX is needed.
   Keep user-facing AI experiences streaming-first.
-- **Modern tool definitions** with `inputSchema` / `outputSchema`;
+- Modern tool definitions with `inputSchema` / `outputSchema`;
   use `toUIMessageStreamResponse()` and `DefaultChatTransport` over
   v5-era patterns.
 - AI recommendations are scoped to the current task — no forced
@@ -38,8 +43,9 @@ them up rather than re-derive them.
 
 ## Dependencies
 
-`ai` (Vercel AI SDK v6+), `@ai-sdk/react`, AI Gateway provider
-configuration. Will depend on `@spyglass/shared`.
+Production gateway binding may add `ai` and related AI Gateway packages
+behind the adapter in this package. Tests use `FakeGatewayAdapter` and
+must not require live credentials.
 
 ## Stability tier
 

@@ -427,6 +427,45 @@ data_classes:
       GDPR Art. 6(1)(c) — notice compliance evidence; GDPR Art. 6(1)(f)
       — legitimate interest in proving delivery controls were enforced.
 
+  # ------------------------------------------------------------------
+  # F12 data classes (AI infrastructure)
+  # ------------------------------------------------------------------
+  - id: ai_prompt_policy
+    description: >-
+      Immutable prompt-template versions, variable contracts, content
+      hashes, release refs, signatures, publication status, and audit
+      evidence.
+    sensitivity: medium
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — AEDT auditability and AI supply-chain
+      evidence; GDPR Art. 6(1)(f) — legitimate interest in stable
+      prompt governance.
+
+  - id: ai_model_policy
+    description: >-
+      Immutable model profile versions, provider/model identity, risk
+      posture, cost metadata, supply-chain evidence, release refs,
+      signatures, and audit evidence.
+    sensitivity: medium
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — AEDT auditability and AI supply-chain
+      evidence; GDPR Art. 6(1)(f) — legitimate interest in model
+      governance and cost control.
+
+  - id: ai_runtime_evidence
+    description: >-
+      Signed runtime manifests and model invocation records that prove
+      prompt/model refs, provider allowlists, cost decisions, request
+      hashes, response hashes, usage metadata, and audit refs.
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(c) — accountability and AEDT audit evidence;
+      GDPR Art. 6(1)(f) — legitimate interest in abuse prevention,
+      forensic readiness, and AI supply-chain controls.
+
 # Tables — one entry per pgTable in packages/db/src/schema/.
 # Coverage is enforced by the lint (rule R3).
 tables:
@@ -1311,3 +1350,110 @@ tables:
       - { name: status, class: candidate_notification_delivery_evidence, erasure: hard_delete }
       - { name: audit_event_id, class: candidate_notification_delivery_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
       - { name: created_at, class: candidate_notification_delivery_evidence, erasure: tombstone }
+
+  - name: ai_prompt_versions
+    file: packages/db/src/schema/ai-infrastructure.ts
+    migration: packages/db/migrations/0014_f12_ai_infrastructure.sql
+    primary_class: ai_prompt_policy
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: prompt_version_id, class: ai_prompt_policy, erasure: tombstone }
+      - { name: prompt_id, class: ai_prompt_policy, erasure: hard_delete }
+      - { name: version, class: ai_prompt_policy, erasure: hard_delete }
+      - { name: status, class: ai_prompt_policy, erasure: hard_delete }
+      - { name: purpose, class: ai_prompt_policy, erasure: hard_delete }
+      - { name: template_ref, class: ai_prompt_policy, erasure: tombstone }
+      - { name: content_hash, class: ai_prompt_policy, erasure: tombstone }
+      - { name: variable_contract, class: ai_prompt_policy, erasure: tombstone }
+      - { name: allowed_scopes, class: ai_prompt_policy, erasure: tombstone }
+      - { name: rubric_boundary, class: ai_prompt_policy, erasure: hard_delete }
+      - { name: release_manifest_ref, class: ai_prompt_policy, erasure: tombstone }
+      - { name: signature_ref, class: ai_prompt_policy, erasure: tombstone }
+      - { name: published_by, class: ai_prompt_policy, erasure: tombstone, fk: principals.principal_id }
+      - { name: published_at, class: ai_prompt_policy, erasure: tombstone }
+      - { name: audit_event_id, class: ai_prompt_policy, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: ai_prompt_policy, erasure: tombstone }
+
+  - name: ai_model_profile_versions
+    file: packages/db/src/schema/ai-infrastructure.ts
+    migration: packages/db/migrations/0014_f12_ai_infrastructure.sql
+    primary_class: ai_model_policy
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: model_profile_version_id, class: ai_model_policy, erasure: tombstone }
+      - { name: model_profile_id, class: ai_model_policy, erasure: hard_delete }
+      - { name: version, class: ai_model_policy, erasure: hard_delete }
+      - { name: status, class: ai_model_policy, erasure: hard_delete }
+      - { name: provider, class: ai_model_policy, erasure: hard_delete }
+      - { name: model, class: ai_model_policy, erasure: hard_delete }
+      - { name: capability_class, class: ai_model_policy, erasure: hard_delete }
+      - { name: risk_tier, class: ai_model_policy, erasure: hard_delete }
+      - { name: allowed_scopes, class: ai_model_policy, erasure: tombstone }
+      - { name: cost_metadata, class: ai_model_policy, erasure: tombstone }
+      - { name: supply_chain_evidence, class: ai_model_policy, erasure: tombstone }
+      - { name: release_manifest_ref, class: ai_model_policy, erasure: tombstone }
+      - { name: signature_ref, class: ai_model_policy, erasure: tombstone }
+      - { name: published_by, class: ai_model_policy, erasure: tombstone, fk: principals.principal_id }
+      - { name: published_at, class: ai_model_policy, erasure: tombstone }
+      - { name: audit_event_id, class: ai_model_policy, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: ai_model_policy, erasure: tombstone }
+
+  - name: ai_runtime_manifests
+    file: packages/db/src/schema/ai-infrastructure.ts
+    migration: packages/db/migrations/0014_f12_ai_infrastructure.sql
+    primary_class: ai_runtime_evidence
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: runtime_manifest_id, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: manifest_id, class: ai_runtime_evidence, erasure: hard_delete }
+      - { name: version, class: ai_runtime_evidence, erasure: hard_delete }
+      - { name: status, class: ai_runtime_evidence, erasure: hard_delete }
+      - { name: deployment_scope, class: ai_runtime_evidence, erasure: hard_delete }
+      - { name: prompt_refs, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: model_refs, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: caller_scopes, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: provider_allowlist, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: cost_controls, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: fallback_policy, class: ai_runtime_evidence, erasure: hard_delete }
+      - { name: no_hot_reload, class: ai_runtime_evidence, erasure: hard_delete }
+      - { name: content_hash, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: signature_ref, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: published_by, class: ai_runtime_evidence, erasure: tombstone, fk: principals.principal_id }
+      - { name: published_at, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: audit_event_id, class: ai_runtime_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: ai_runtime_evidence, erasure: tombstone }
+
+  - name: ai_model_invocation_records
+    file: packages/db/src/schema/ai-infrastructure.ts
+    migration: packages/db/migrations/0014_f12_ai_infrastructure.sql
+    primary_class: ai_runtime_evidence
+    data_subject_linkage:
+      column: caller_principal_id
+      role: caller
+    columns:
+      - { name: invocation_id, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: status, class: ai_runtime_evidence, erasure: hard_delete }
+      - { name: caller_principal_id, class: ai_runtime_evidence, erasure: tombstone, fk: principals.principal_id }
+      - { name: caller_scope, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: run_ref, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: purpose, class: ai_runtime_evidence, erasure: hard_delete }
+      - { name: prompt_ref, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: model_ref, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: manifest_ref, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: request_hash, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: rendered_prompt_hash, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: response_hash, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: usage_metadata, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: cost_evidence, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: decision, class: ai_runtime_evidence, erasure: hard_delete }
+      - { name: reason_code, class: ai_runtime_evidence, erasure: hard_delete }
+      - { name: started_at, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: completed_at, class: ai_runtime_evidence, erasure: tombstone }
+      - { name: audit_event_id, class: ai_runtime_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
+      - { name: created_at, class: ai_runtime_evidence, erasure: tombstone }

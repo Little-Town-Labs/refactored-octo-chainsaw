@@ -1,0 +1,99 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/f12/model-invocation-record.schema.yaml"
+title: ModelInvocationRecord
+type: object
+required:
+  - invocation_id
+  - status
+  - caller_principal_id
+  - caller_scope
+  - run_ref
+  - purpose
+  - prompt_ref
+  - model_ref
+  - manifest_ref
+  - request_hash
+  - decision
+  - reason_code
+  - started_at
+properties:
+  invocation_id:
+    type: string
+    format: uuid
+  status:
+    type: string
+    enum: [accepted, refused, completed, failed, usage_incomplete]
+  caller_principal_id:
+    type: string
+    format: uuid
+  caller_scope:
+    type: string
+    minLength: 1
+  run_ref:
+    type: string
+    minLength: 1
+  purpose:
+    type: string
+    minLength: 1
+  prompt_ref:
+    type: object
+    required: [prompt_id, version]
+    properties:
+      prompt_id:
+        type: string
+        minLength: 1
+      version:
+        type: string
+        minLength: 1
+    additionalProperties: false
+  model_ref:
+    type: object
+    required: [model_profile_id, version]
+    properties:
+      model_profile_id:
+        type: string
+        minLength: 1
+      version:
+        type: string
+        minLength: 1
+    additionalProperties: false
+  manifest_ref:
+    type: object
+    required: [manifest_id, version]
+    properties:
+      manifest_id:
+        type: string
+        minLength: 1
+      version:
+        type: string
+        minLength: 1
+    additionalProperties: false
+  request_hash:
+    type: string
+    pattern: "^sha256:[a-f0-9]{64}$"
+  rendered_prompt_hash:
+    type: [string, "null"]
+    pattern: "^sha256:[a-f0-9]{64}$"
+  response_hash:
+    type: [string, "null"]
+    pattern: "^sha256:[a-f0-9]{64}$"
+  usage_metadata:
+    type: [object, "null"]
+  cost_evidence:
+    type: [object, "null"]
+  decision:
+    type: string
+    enum: [allowed, refused, downgraded]
+  reason_code:
+    type: string
+    minLength: 1
+  started_at:
+    type: string
+    format: date-time
+  completed_at:
+    type: [string, "null"]
+    format: date-time
+  audit_event_id:
+    type: [string, "null"]
+    format: uuid
+additionalProperties: false
