@@ -1,8 +1,8 @@
 # Project Spyglass — Implementation Roadmap
 
-**Version:** 1.5.0
+**Version:** 1.5.1
 **Created:** 2026-05-06
-**Last Amended:** 2026-05-20
+**Last Amended:** 2026-05-21
 **Owner:** Gary
 **PRD source:** `PRD.md` (Draft v0.1, 2026-05-05)
 **Constitution:** `.specify/memory/constitution.md` (v1.1.0)
@@ -31,7 +31,7 @@ modeling per `.specify/memory/constitution.md` §V.3.
 
 ---
 
-## Current Status (2026-05-20)
+## Current Status (2026-05-21)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
@@ -43,7 +43,7 @@ modeling per `.specify/memory/constitution.md` §V.3.
 | **F06** Jurisdiction policy gates + kill switches | ✅ **Complete** (merged to `main`, PR #41) | DB-backed jurisdiction posture, fail-safe gate evaluator, no-deploy kill switches, non-PII failure artifacts, scoped review reads, runbook, quickstart evidence, and final package gates are complete. |
 | **F07a** Agent Contract Registry | ✅ **Complete** (merged to `main`, PR #42) | Immutable agent contract versions, scoped publication/deprecation, dispatch-time resolution, fail-closed reason codes, provenance/audit evidence, scoped review reads, runbooks, quickstart evidence, and final package gates are complete. |
 | **F07b** Rubric Registry + bias-test dispatch gate | ✅ **Complete** (merged to `main`, PR #43) | Immutable rubric versions, bias-test artifact registration, dispatch refusal for missing/invalid bias evidence, deterministic weighted scoring, scoped review reads, runbook, quickstart evidence, and package gates are complete. |
-| F08–F25 | ⏳ In progress | F08.5 Tool Surface & Dispatcher is complete and merged to `main` in PR #44; F09 Privacy Filter is complete and merged to `main` in PR #45; F10 Dossier Builder + Signer is complete and merged to `main` in PR #46 with quickstart evidence recorded; F11 Candidate Notification Artifact System is complete and merged to `main` in PR #47 with quickstart evidence recorded. |
+| F08–F25 | ⏳ In progress | F08 Parley Runner is complete and merged to `main` in PR #48 with quickstart evidence recorded and CI rerouted to the PowerBox self-hosted runner; F08.5 Tool Surface & Dispatcher is complete and merged to `main` in PR #44; F09 Privacy Filter is complete and merged to `main` in PR #45; F10 Dossier Builder + Signer is complete and merged to `main` in PR #46 with quickstart evidence recorded; F11 Candidate Notification Artifact System is complete and merged to `main` in PR #47 with quickstart evidence recorded. Next Stage 5 candidate: F12 AI Infrastructure. |
 
 ### F02 sub-slice progress (branch `02-identity-auth-aaa`)
 
@@ -191,7 +191,7 @@ Constitution §I.6: missing or unknown jurisdiction = deny.
 
 | ID | Feature | Slug | Priority | Complexity | Constitution refs |
 |----|---------|------|----------|------------|-------------------|
-| F08 | Parley runner (six Inngest functions, run-to-completion) | `08-parley-runner` | P0 | L — Complete on `008-parley-runner` branch; quickstart evidence recorded | II (agent-first runtime); Parley §7, §8, §10.5 |
+| F08 | Parley runner (six Inngest functions, run-to-completion) | `08-parley-runner` | P0 | L — Complete (merged to `main`, PR #48) | II (agent-first runtime); Parley §7, §8, §10.5 |
 | F08.5 | Tool Surface & Dispatcher (versioned catalog, type-level enforcement) | `08-5-tool-surface-dispatcher` | P0 | M — Complete (merged to `main`, PR #44) | I.5.2 (least privilege); I.6 (DiD); Parley §4.1.2, §5.5, §10.3, §17.5 |
 | F09 | Privacy filter module (no-model, sentinel-wrapped, CI-gated) | `09-privacy-filter` | P0 | L — Complete (merged to `main`, PR #45) | I.1; I.6; PRD §4.4, §9; Parley §9, §15.1, §15.2, §17.4–17.6 |
 | F10 | Dossier builder + signer + per-audience projections + verifier | `10-dossier-builder-signer` | P0 | L — Complete (merged to `main`, PR #46) | I.2; I.C.1; I.A; Parley §4.1.8, §15.4 |
@@ -637,8 +637,8 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 ### Stage 2 checklist
 - [x] **F04** Ticket store + state machines _(merged to `main` at `cbcbd56`, PR #38; post-merge handoff notes recorded)_
-- [ ] **F05** Hash-chained audit log + transcript store + tombstone procedure
-- [ ] **Stage 2 gate:** State transitions exhaustively tested; tombstone procedure tested in dev (counsel sign-off deferred to pre-Phase-2); transcript-store access controls distinct from dossier
+- [x] **F05** Hash-chained audit log + transcript store + tombstone procedure _(merged to `main`, PR #40; quickstart evidence recorded)_
+- [x] **Stage 2 gate:** State transitions exhaustively tested; tombstone procedure tested in dev; transcript-store access controls distinct from dossier. Counsel sign-off remains deferred to pre-Phase-2 and does not block Stage 2 closure.
 
 ### Stage 3 checklist
 - [x] **F06** Jurisdiction tagging + policy gates + kill switches _(merged to `main`, PR #41)_
@@ -647,7 +647,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 - [x] **Stage 3 gate:** At least one rubric version with completed bias-test artifact; CI verifies dispatch refusal when `bias_test_ref` is missing; kill switches flippable in staging; `(contract_id, version)` and `(rubric_id, version)` immutability enforced at the storage layer
 
 ### Stage 4 checklist
-- [x] **F08** Parley runner (six Inngest functions) _(complete on `008-parley-runner` branch; quickstart evidence recorded)_
+- [x] **F08** Parley runner (six Inngest functions) _(merged to `main`, PR #48; quickstart evidence recorded)_
 - [x] **F08.5** Tool Surface & Dispatcher _(merged to `main`, PR #44; quickstart evidence recorded)_
 - [x] **F09** Privacy filter (no-model-invocation, sentinel-wrapped) _(merged to `main`, PR #45; quickstart evidence recorded)_
 - [x] **F10** Dossier builder + signer + per-audience projections + verifier _(merged to `main`, PR #46; quickstart evidence recorded)_
@@ -698,22 +698,20 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 ## Next Steps
 
-1. **Engage counsel of record** for Phase 0 / Phase 1 review.
+1. **Begin F12 AI Infrastructure** as the first Stage 5 feature:
+   ```
+   git switch -c 012-ai-infrastructure
+   /speckit-specify 12-ai-infrastructure
+   ```
+2. **Carry forward Stage 5 ordering:** F12 first, then F13/F14 advocate
+   agents, then F15 re-negotiation loop. F12 provides the signed
+   model/prompt supply-chain surface that the advocate agents should pin.
+3. **Engage counsel of record** for Phase 0 / Phase 1 review.
    Constitutional §V.2 requires this before any phase-transition merge.
-2. **Resolve PRD Open Question #9** — Phase 1 jurisdiction set.
-3. **Begin F01 specification:**
-   ```
-   /speckit-specify 01-monorepo-scaffold
-   ```
-4. **Stage-by-stage execution** is preferred. Specify all of Stage 1
-   before implementation begins, then run Stage 1 end-to-end before
-   specifying Stage 2. This avoids spec drift as foundational decisions
-   land.
-5. **Read Parley `SPEC.md` end-to-end** before specifying F08, F08.5,
-   F09, F10. PRD §11.3 calls out the agent-contract,
-   run-state-machine, privacy-filter, audit-log, and rubric-versioning
-   sections specifically; the Stage 4 features depend on every one of
-   them.
+4. **Resolve PRD Open Question #9** — Phase 1 jurisdiction set.
+5. **Read Parley `SPEC.md` Stage 5-relevant sections** before specifying
+   F12–F15, especially model/prompt versioning, no-hot-reload posture,
+   agent identity, run isolation, and auditability requirements.
 
 ---
 
@@ -730,3 +728,4 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 | 1.2.4   | 2026-05-11 | Status update only — no scope changes. Corrected B5.3 status (Vercel-OIDC rejection guard was already complete at commit `3aa4479`, prior entries stale). F02 B7 implementation closed: T063 credential-lifecycle runbook, T064 IdP coverage matrix, T065 compromise tabletop scaffold (execution log empty pending operator-run drill). All three docs at `docs/security/`. B7 gate pending Quickstart Scenario 6 + Gary review + drill execution. PATCH-style status amendment. |
 | 1.2.5   | 2026-05-11 | Status update only — no scope changes. F02 B8 implementation closed: T067 STRIDE threat model (`.specify/specs/02-identity-auth-aaa/threat-model.md`, 0 CRITICAL/HIGH residuals), T068 security-review pass (0/0/3/4/5 across CRITICAL/HIGH/MEDIUM/LOW/INFO; `docs/security/security-review-f02-t068.md`), T069 remediation of all 7 actionable findings (commit `c39440e`), T070 re-verification APPROVE (`docs/security/security-review-f02-t070.md`). Tests: 384 green at HEAD `55ab86b` (242 auth + 142 web). B8 gate remains pending T071 metrics + T072 quickstart end-to-end. PATCH-style status amendment. |
 | 1.3.0   | 2026-05-12 | F03 (Database schema umbrella + Drizzle migrations) merged to `main` at `0ab3b69` via PR #26. Stage 1 closes — F01/F02/F03 all green. Deliverables: 4 governance artifacts under `docs/data-governance/` (data-classification register · retention-policy · schema-conventions · integrity-invariants), schema-lint script (`scripts/check-schema-conventions.sh`, 7 rules, TDD 11/11) wired as required CI gate. Back-check resolved 11 findings via path-b skip-comments (0 unresolved). M-1..M-6 all satisfied; 384 F02 tests still green (no regression). Counsel review of `retention-policy.md` flagged `$counsel_review: pending` — gates Phase 1 jurisdictional admission, not Stage 1 sign-off. MINOR — F03 closure transitions Stage 1 to complete. |
+| 1.5.1   | 2026-05-21 | Status update only — no scope changes. F08 Parley Runner merged to `main` in PR #48 with quickstart evidence recorded and PowerBox self-hosted CI green. Updated Stage 2 checklist to reflect F05 closure, Stage 4 F08 status to merged, and Next Steps to point at F12 AI Infrastructure as the next Stage 5 feature. PATCH-style status amendment. |
