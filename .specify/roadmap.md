@@ -191,7 +191,7 @@ Constitution §I.6: missing or unknown jurisdiction = deny.
 
 | ID | Feature | Slug | Priority | Complexity | Constitution refs |
 |----|---------|------|----------|------------|-------------------|
-| F08 | Parley runner (six Inngest functions, run-to-completion) | `08-parley-runner` | P0 | L | II (agent-first runtime); Parley §7, §8, §10.5 |
+| F08 | Parley runner (six Inngest functions, run-to-completion) | `08-parley-runner` | P0 | L — Complete on `008-parley-runner` branch; quickstart evidence recorded | II (agent-first runtime); Parley §7, §8, §10.5 |
 | F08.5 | Tool Surface & Dispatcher (versioned catalog, type-level enforcement) | `08-5-tool-surface-dispatcher` | P0 | M — Complete (merged to `main`, PR #44) | I.5.2 (least privilege); I.6 (DiD); Parley §4.1.2, §5.5, §10.3, §17.5 |
 | F09 | Privacy filter module (no-model, sentinel-wrapped, CI-gated) | `09-privacy-filter` | P0 | L — Complete (merged to `main`, PR #45) | I.1; I.6; PRD §4.4, §9; Parley §9, §15.1, §15.2, §17.4–17.6 |
 | F10 | Dossier builder + signer + per-audience projections + verifier | `10-dossier-builder-signer` | P0 | L — Complete (merged to `main`, PR #46) | I.2; I.C.1; I.A; Parley §4.1.8, §15.4 |
@@ -647,12 +647,12 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 - [x] **Stage 3 gate:** At least one rubric version with completed bias-test artifact; CI verifies dispatch refusal when `bias_test_ref` is missing; kill switches flippable in staging; `(contract_id, version)` and `(rubric_id, version)` immutability enforced at the storage layer
 
 ### Stage 4 checklist
-- [ ] **F08** Parley runner (six Inngest functions)
+- [x] **F08** Parley runner (six Inngest functions) _(complete on `008-parley-runner` branch; quickstart evidence recorded)_
 - [x] **F08.5** Tool Surface & Dispatcher _(merged to `main`, PR #44; quickstart evidence recorded)_
 - [x] **F09** Privacy filter (no-model-invocation, sentinel-wrapped) _(merged to `main`, PR #45; quickstart evidence recorded)_
 - [x] **F10** Dossier builder + signer + per-audience projections + verifier _(merged to `main`, PR #46; quickstart evidence recorded)_
 - [x] **F11** Candidate notification artifacts _(merged to `main`, PR #47; quickstart evidence recorded)_
-- [ ] **Stage 4 gate:**
+- [x] **Stage 4 gate:**
   - End-to-end synthetic match produces signed, valid dossier with all
     four audience projections
   - Privacy-filter test suite green; no-gateway-reachability test green;

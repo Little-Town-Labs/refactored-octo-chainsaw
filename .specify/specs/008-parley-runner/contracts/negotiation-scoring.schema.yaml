@@ -1,0 +1,72 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/schemas/parley/negotiation-scoring.schema.yaml"
+title: Negotiation Scoring Event
+type: object
+additionalProperties: false
+required:
+  - event_name
+  - event_version
+  - run_id
+  - match_ticket_id
+  - side
+  - rubric_ref
+properties:
+  event_name:
+    type: string
+    enum:
+      - negotiation.scoring.requested
+      - negotiation.scoring.completed
+  event_version:
+    type: integer
+    const: 1
+  run_id:
+    type: string
+    format: uuid
+  match_ticket_id:
+    type: string
+    format: uuid
+  side:
+    type: string
+    enum: [seeker, employer]
+  rubric_ref:
+    type: object
+    additionalProperties: false
+    required: [rubric_id, version]
+    properties:
+      rubric_id:
+        type: string
+        minLength: 1
+      version:
+        type: string
+        minLength: 1
+  output:
+    type: object
+    additionalProperties: false
+    required:
+      - dimension_scores
+      - headline_rationale
+      - flag_proposals
+    properties:
+      dimension_scores:
+        type: array
+        minItems: 1
+        items:
+          type: object
+          additionalProperties: false
+          required: [dimension_id, score, rationale]
+          properties:
+            dimension_id:
+              type: string
+              minLength: 1
+            score:
+              type: number
+            rationale:
+              type: string
+      headline_rationale:
+        type: string
+      flag_proposals:
+        type: array
+        items:
+          type: string
+      model_holistic_score:
+        type: number

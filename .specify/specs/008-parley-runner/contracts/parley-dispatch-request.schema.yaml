@@ -1,0 +1,68 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/schemas/parley/parley-dispatch-request.schema.yaml"
+title: Parley Dispatch Request
+type: object
+additionalProperties: false
+required:
+  - event_name
+  - event_version
+  - correlation_id
+  - match_ticket_id
+  - match_ticket_identifier
+  - attempt
+  - seeker_contract_ref
+  - employer_contract_ref
+  - privacy_ruleset_ref
+properties:
+  event_name:
+    type: string
+    enum:
+      - match_ticket.match_made
+      - match_ticket.renegotiation_requested
+  event_version:
+    type: integer
+    const: 1
+  correlation_id:
+    type: string
+    minLength: 1
+  match_ticket_id:
+    type: string
+    format: uuid
+  match_ticket_identifier:
+    type: string
+    minLength: 1
+  attempt:
+    type: integer
+    minimum: 1
+  seeker_contract_ref:
+    $ref: "#/$defs/contract_ref"
+  employer_contract_ref:
+    $ref: "#/$defs/contract_ref"
+  privacy_ruleset_ref:
+    $ref: "#/$defs/privacy_ruleset_ref"
+  override_reason:
+    type: string
+    minLength: 1
+$defs:
+  contract_ref:
+    type: object
+    additionalProperties: false
+    required: [contract_id, version]
+    properties:
+      contract_id:
+        type: string
+        minLength: 1
+      version:
+        type: string
+        minLength: 1
+  privacy_ruleset_ref:
+    type: object
+    additionalProperties: false
+    required: [ruleset_id, version]
+    properties:
+      ruleset_id:
+        type: string
+        minLength: 1
+      version:
+        type: string
+        minLength: 1

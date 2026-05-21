@@ -284,7 +284,36 @@ importers:
         specifier: ^4.1.1
         version: 4.1.1
 
-  packages/parley: {}
+  packages/parley:
+    dependencies:
+      '@spyglass/agent-contracts':
+        specifier: workspace:*
+        version: link:../agent-contracts
+      '@spyglass/dossiers':
+        specifier: workspace:*
+        version: link:../dossiers
+      '@spyglass/privacy-filter':
+        specifier: workspace:*
+        version: link:../privacy-filter
+      '@spyglass/rubrics':
+        specifier: workspace:*
+        version: link:../rubrics
+      '@spyglass/tool-dispatcher':
+        specifier: workspace:*
+        version: link:../tool-dispatcher
+    devDependencies:
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
+      ajv:
+        specifier: ^8.17.1
+        version: 8.20.0
+      ajv-formats:
+        specifier: ^3.0.1
+        version: 3.0.1(ajv@8.20.0)
+      js-yaml:
+        specifier: ^4.1.1
+        version: 4.1.1
 
   packages/policy-gates:
     dependencies:
