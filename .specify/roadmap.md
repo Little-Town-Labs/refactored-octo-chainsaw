@@ -1,6 +1,6 @@
 # Project Spyglass — Implementation Roadmap
 
-**Version:** 1.5.2
+**Version:** 1.5.3
 **Created:** 2026-05-06
 **Last Amended:** 2026-05-21
 **Owner:** Gary
@@ -43,7 +43,7 @@ modeling per `.specify/memory/constitution.md` §V.3.
 | **F06** Jurisdiction policy gates + kill switches | ✅ **Complete** (merged to `main`, PR #41) | DB-backed jurisdiction posture, fail-safe gate evaluator, no-deploy kill switches, non-PII failure artifacts, scoped review reads, runbook, quickstart evidence, and final package gates are complete. |
 | **F07a** Agent Contract Registry | ✅ **Complete** (merged to `main`, PR #42) | Immutable agent contract versions, scoped publication/deprecation, dispatch-time resolution, fail-closed reason codes, provenance/audit evidence, scoped review reads, runbooks, quickstart evidence, and final package gates are complete. |
 | **F07b** Rubric Registry + bias-test dispatch gate | ✅ **Complete** (merged to `main`, PR #43) | Immutable rubric versions, bias-test artifact registration, dispatch refusal for missing/invalid bias evidence, deterministic weighted scoring, scoped review reads, runbook, quickstart evidence, and package gates are complete. |
-| F08–F25 | ⏳ In progress | F08 Parley Runner is complete and merged to `main` in PR #48 with quickstart evidence recorded and CI rerouted to the PowerBox self-hosted runner; F08.5 Tool Surface & Dispatcher is complete and merged to `main` in PR #44; F09 Privacy Filter is complete and merged to `main` in PR #45; F10 Dossier Builder + Signer is complete and merged to `main` in PR #46 with quickstart evidence recorded; F11 Candidate Notification Artifact System is complete and merged to `main` in PR #47 with quickstart evidence recorded. F12 AI Infrastructure is implemented on branch `012-ai-infrastructure` with quickstart evidence recorded and pending PR/merge. Next Stage 5 candidates: F13/F14 advocate agents. |
+| F08–F25 | ⏳ In progress | F08 Parley Runner is complete and merged to `main` in PR #48 with quickstart evidence recorded and CI rerouted to the PowerBox self-hosted runner; F08.5 Tool Surface & Dispatcher is complete and merged to `main` in PR #44; F09 Privacy Filter is complete and merged to `main` in PR #45; F10 Dossier Builder + Signer is complete and merged to `main` in PR #46 with quickstart evidence recorded; F11 Candidate Notification Artifact System is complete and merged to `main` in PR #47 with quickstart evidence recorded. F12 AI Infrastructure is complete and merged to `main` in PR #49 with quickstart evidence recorded. Next Stage 5 candidates: F13/F14 advocate agents. |
 
 ### F02 sub-slice progress (branch `02-identity-auth-aaa`)
 
@@ -295,7 +295,7 @@ and tested standalone before F08 integration.
 
 | ID | Feature | Slug | Priority | Complexity | Constitution refs |
 |----|---------|------|----------|------------|-------------------|
-| F12 | AI infrastructure (Gateway client, prompt registry, model/prompt versioning) | `12-ai-infrastructure` | P0 | M — Implemented on branch `012-ai-infrastructure`; pending PR/merge | I.C.2 (AI supply chain); II |
+| F12 | AI infrastructure (Gateway client, prompt registry, model/prompt versioning) | `12-ai-infrastructure` | P0 | M — Complete (merged to `main`, PR #49) | I.C.2 (AI supply chain); II |
 | F13 | Seeker advocate agent | `13-seeker-advocate` | P0 | L | II; I.4.1 (purpose limitation on seeker data) |
 | F14 | Employer advocate agent | `14-employer-advocate` | P0 | L | II; I.A (rubric is the regulated surface) |
 | F15 | Re-negotiation loop logic (fresh `run_id`, no state inheritance) | `15-renegotiation-loop` | P1 | S | I.A.1 (OWASP LLM Top 10 — cost/abuse); PRD §4.7; Parley §7.2, §9 invariant 5 |
@@ -664,7 +664,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
     inconclusive dossier on failure
 
 ### Stage 5 checklist
-- [x] **F12** AI infrastructure _(implemented on branch `012-ai-infrastructure`; quickstart evidence recorded; pending PR/merge)_
+- [x] **F12** AI infrastructure _(merged to `main`, PR #49; quickstart evidence recorded)_
 - [ ] **F13** Seeker advocate agent
 - [ ] **F14** Employer advocate agent
 - [ ] **F15** Re-negotiation loop
@@ -698,18 +698,16 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 ## Next Steps
 
-1. **Publish and merge F12 AI Infrastructure** from branch
-   `012-ai-infrastructure`, preserving quickstart evidence and
-   `/security-review` notes.
-2. **Begin Stage 5 advocate agents:** F13/F14 can now pin signed
+1. **Begin Stage 5 advocate agents:** F13/F14 can now pin signed
    prompt/model/runtime manifest refs from F12. F15 re-negotiation loop
    remains after the advocate-agent baseline.
-3. **Engage counsel of record** for Phase 0 / Phase 1 review.
+2. **Engage counsel of record** for Phase 0 / Phase 1 review.
    Constitutional §V.2 requires this before any phase-transition merge.
-4. **Resolve PRD Open Question #9** — Phase 1 jurisdiction set.
-5. **Read Parley `SPEC.md` Stage 5-relevant sections** before specifying
-   F12–F15, especially model/prompt versioning, no-hot-reload posture,
-   agent identity, run isolation, and auditability requirements.
+3. **Resolve PRD Open Question #9** — Phase 1 jurisdiction set.
+4. **Read Parley `SPEC.md` Stage 5-relevant sections** before specifying
+   F13–F15, especially agent identity, signed model/prompt/runtime
+   manifest refs, run isolation, eval harness criteria, and auditability
+   requirements.
 
 ---
 
@@ -717,6 +715,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 | Version | Date       | Change |
 |---------|------------|--------|
+| 1.5.3   | 2026-05-21 | Status update for F12 merge: AI Infrastructure is complete and merged to `main` in PR #49, branch cleanup complete, and Stage 5 next steps now begin with F13/F14 advocate agents. PATCH-style status amendment. |
 | 1.5.2   | 2026-05-21 | Status update for F12 branch implementation: AI infrastructure spec/plan/tasks completed, governed `@spyglass/ai` package slice implemented, F12 DB schema/migration added, quickstart evidence recorded, and Stage 5 next steps advanced to F13/F14 advocate agents after F12 PR/merge. PATCH-style status amendment. |
 | 1.0.0   | 2026-05-06 | Initial roadmap. 25 features across 8 phases extracted from PRD v0.1; aligned to Constitution v1.1.0. |
 | 1.1.0   | 2026-05-06 | Refined against `/mnt/f/parley/SPEC.md` and `PARLEY_ADAPTATIONS.md`. Split F07 into F07a (Agent Contract Registry) + F07b (Rubric Registry + bias-test dispatch gate). Added F08.5 (Tool Surface & Dispatcher). Expanded F05 to cover canonical transcript store per Parley §13. Added sub-deliverables to F08 (six Inngest functions, run-to-completion, no hot-reload, in-memory NegotiationContext, round-cap min-across-sides), F09 (no-model-invocation CI gate, sentinel wrapping, sentinel-injection test, fail-closed), F10 (per-audience projections pre-computed, deterministic canonical signing, verification helper, inconclusive-dossier failure mode), F15 (fresh `run_id`, explicit event trigger, no state inheritance). Added Open Questions Surfaced by Parley section. Total features 25 → 27. MINOR — additions and strengthenings only. |
