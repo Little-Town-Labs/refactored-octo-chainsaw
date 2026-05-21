@@ -1,0 +1,48 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: SeekerAdvocateRefusal
+type: object
+required:
+  - run_id
+  - side
+  - operation
+  - reason_code
+  - message
+  - created_at
+properties:
+  run_id:
+    type: string
+    minLength: 1
+  side:
+    const: seeker
+  operation:
+    enum:
+      - turn
+      - score
+  reason_code:
+    enum:
+      - missing_required_ref
+      - invalid_frozen_ref
+      - unauthorized_manifest_ref
+      - unfiltered_counterparty_data
+      - unsupported_tool
+      - prior_run_context_refused
+      - unsafe_prompt_variable
+      - budget_preflight_exceeded
+      - gateway_unavailable
+      - scoring_dimensions_invalid
+      - human_input_pause_refused
+      - audit_unavailable
+  message:
+    type: string
+    minLength: 1
+  affected_refs:
+    type: object
+    additionalProperties: true
+  audit_refs:
+    type: array
+    items:
+      type: string
+  created_at:
+    type: string
+    format: date-time
+additionalProperties: false

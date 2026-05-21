@@ -466,6 +466,24 @@ data_classes:
       GDPR Art. 6(1)(f) — legitimate interest in abuse prevention,
       forensic readiness, and AI supply-chain controls.
 
+  # ------------------------------------------------------------------
+  # F13 data classes (Seeker advocate agent)
+  # ------------------------------------------------------------------
+  - id: seeker_advocate_evidence
+    description: >-
+      Transient seeker-side advocate turn, scoring, refusal, and eval
+      evidence returned to Parley and dossier production. Includes frozen
+      prompt/model/manifest/contract/rubric/privacy/tool refs, model
+      invocation refs, per-dimension score evidence, inconclusive flags,
+      and reviewer-readable eval case outcomes.
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(b) — performance of contract for seeker-side match
+      evaluation; GDPR Art. 6(1)(c) — AEDT auditability; GDPR Art.
+      6(1)(f) — legitimate interest in agent-quality review and forensic
+      readiness.
+
 # Tables — one entry per pgTable in packages/db/src/schema/.
 # Coverage is enforced by the lint (rule R3).
 tables:

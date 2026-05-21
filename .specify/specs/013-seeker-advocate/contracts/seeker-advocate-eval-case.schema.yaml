@@ -1,0 +1,55 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: SeekerAdvocateEvalCase
+type: object
+required:
+  - eval_case_id
+  - category
+  - expected_outcome
+  - actual_outcome
+  - pass
+  - evidence_refs
+properties:
+  eval_case_id:
+    type: string
+    minLength: 1
+  category:
+    enum:
+      - strong_match
+      - weak_match
+      - insufficient_evidence
+      - privacy_attack
+      - prompt_injection
+      - unsupported_tool
+      - budget_refusal
+  expected_outcome:
+    enum:
+      - accepted_turn
+      - accepted_scoring
+      - inconclusive
+      - refusal
+  actual_outcome:
+    enum:
+      - accepted_turn
+      - accepted_scoring
+      - inconclusive
+      - refusal
+      - failed
+  required_reason_codes:
+    type: array
+    items:
+      type: string
+  expected_score_shape:
+    type: string
+  privacy_attack_present:
+    type: boolean
+  prompt_injection_present:
+    type: boolean
+  budget_condition:
+    type: string
+  pass:
+    type: boolean
+  evidence_refs:
+    type: array
+    items:
+      type: string
+additionalProperties: false

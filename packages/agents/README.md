@@ -1,7 +1,7 @@
 # @spyglass/agents
 
-**Status:** alpha — F01 placeholder; populated in F13 (seeker
-advocate) and F14 (employer advocate).
+**Status:** alpha — F13 seeker advocate in progress; F14 employer
+advocate follows as a separate feature.
 
 Seeker and employer advocate LLM logic — prompts, scoring against
 versioned rubrics, tool wiring. Each agent operates against a versioned
@@ -10,13 +10,15 @@ per-dimension scores against a versioned rubric (Parley §5.4).
 
 ## Public API
 
-To be defined in F13/F14. Will export the seeker- and employer-side
-agent driver functions consumed by the Parley runner (`@spyglass/parley`).
+F13 exports the seeker-side agent driver functions consumed by the Parley
+runner (`@spyglass/parley`). The implementation is intentionally
+seeker-only: employer-side advocate behavior remains F14.
 
 ## Dependencies
 
-Will depend on `@spyglass/shared`, `@spyglass/ai`,
-`@spyglass/parley` (interfaces only).
+Depends on `@spyglass/ai` for all governed model invocation, plus
+Parley, contract, rubric, privacy-filter, and tool-dispatcher types.
+Provider SDKs must not be imported here.
 
 ## Stability tier
 
