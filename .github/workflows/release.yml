@@ -85,9 +85,11 @@ jobs:
       - name: install gitleaks binary
         run: |
           VERSION=8.21.4
+          mkdir -p "$RUNNER_TEMP/bin"
           curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz" \
-            | tar -xz -C /tmp gitleaks
-          sudo install /tmp/gitleaks /usr/local/bin/gitleaks
+            | tar -xz -C "$RUNNER_TEMP/bin" gitleaks
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/bin/gitleaks" version
       - run: gitleaks detect --redact --no-banner --verbose
 
   # ── Build + SBOM (depends on all gates) ────────────────────────────
