@@ -130,11 +130,17 @@ jobs:
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
-      - uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
-        with:
-          scan-args: |-
-            --recursive
-            ./
+      - name: install osv-scanner binary
+        run: |
+          VERSION=2.3.8
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -sSL "https://github.com/google/osv-scanner/releases/download/v${VERSION}/osv-scanner_linux_amd64" \
+            -o "$RUNNER_TEMP/bin/osv-scanner"
+          chmod +x "$RUNNER_TEMP/bin/osv-scanner"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/bin/osv-scanner" --version
+      - name: scan workspace
+        run: osv-scanner --recursive ./
 
   dep-signatures:
     name: dep-signatures (npm audit signatures + exceptions register)
