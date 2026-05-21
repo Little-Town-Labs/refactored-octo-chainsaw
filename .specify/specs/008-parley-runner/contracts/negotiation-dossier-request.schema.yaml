@@ -1,0 +1,57 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/schemas/parley/negotiation-dossier-request.schema.yaml"
+title: Negotiation Dossier Request
+type: object
+additionalProperties: false
+required:
+  - event_name
+  - event_version
+  - run_id
+  - match_ticket_id
+  - status
+  - contract_refs
+  - privacy_ruleset_ref
+  - harness_version
+properties:
+  event_name:
+    type: string
+    const: negotiation.dossier.requested
+  event_version:
+    type: integer
+    const: 1
+  run_id:
+    type: string
+    format: uuid
+  match_ticket_id:
+    type: string
+    format: uuid
+  status:
+    type: string
+    enum: [conclusive, inconclusive]
+  contract_refs:
+    type: object
+    additionalProperties: false
+    required: [seeker, employer]
+    properties:
+      seeker:
+        $ref: "parley-dispatch-request.schema.yaml#/$defs/contract_ref"
+      employer:
+        $ref: "parley-dispatch-request.schema.yaml#/$defs/contract_ref"
+  privacy_ruleset_ref:
+    $ref: "parley-dispatch-request.schema.yaml#/$defs/privacy_ruleset_ref"
+  harness_version:
+    type: string
+    minLength: 1
+  inconclusive_flags:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [reason_code, source_ref, resolution_hint]
+      properties:
+        reason_code:
+          type: string
+        source_ref:
+          type: string
+        resolution_hint:
+          type: string

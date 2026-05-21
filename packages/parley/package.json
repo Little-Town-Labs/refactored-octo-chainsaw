@@ -18,6 +18,20 @@
     "build": "tsc -b",
     "type-check": "tsc --noEmit -p tsconfig.json",
     "test": "jest --passWithNoTests",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "dev-run:f08": "tsx scripts/f08-staged-dev-run.ts"
+  },
+  "dependencies": {
+    "@spyglass/agent-contracts": "workspace:*",
+    "@spyglass/dossiers": "workspace:*",
+    "@spyglass/privacy-filter": "workspace:*",
+    "@spyglass/rubrics": "workspace:*",
+    "@spyglass/tool-dispatcher": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "js-yaml": "^4.1.1"
   }
 }

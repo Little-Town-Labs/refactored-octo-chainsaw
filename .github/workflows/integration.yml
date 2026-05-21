@@ -47,7 +47,7 @@ jobs:
       github.event_name == 'workflow_dispatch' ||
       contains(github.event.pull_request.labels.*.name, 'integration')
     name: scenario tests (Neon branch)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     environment: ci
     timeout-minutes: 15
     env:

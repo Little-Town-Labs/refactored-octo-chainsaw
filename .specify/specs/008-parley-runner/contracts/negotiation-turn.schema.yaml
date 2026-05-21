@@ -1,0 +1,64 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/schemas/parley/negotiation-turn.schema.yaml"
+title: Negotiation Turn Event
+type: object
+additionalProperties: false
+required:
+  - event_name
+  - event_version
+  - run_id
+  - match_ticket_id
+  - side
+  - round
+  - phase
+  - contract_ref
+  - privacy_ruleset_ref
+properties:
+  event_name:
+    type: string
+    enum:
+      - negotiation.turn.requested
+      - negotiation.turn.completed
+  event_version:
+    type: integer
+    const: 1
+  run_id:
+    type: string
+    format: uuid
+  match_ticket_id:
+    type: string
+    format: uuid
+  side:
+    type: string
+    enum: [seeker, employer]
+  round:
+    type: integer
+    minimum: 1
+  phase:
+    type: string
+    const: negotiation
+  contract_ref:
+    $ref: "parley-dispatch-request.schema.yaml#/$defs/contract_ref"
+  privacy_ruleset_ref:
+    $ref: "parley-dispatch-request.schema.yaml#/$defs/privacy_ruleset_ref"
+  output:
+    type: object
+    additionalProperties: false
+    required:
+      - message_to_counterparty
+      - internal_notes
+      - done_signal
+      - flag_proposals
+    properties:
+      message_to_counterparty:
+        type: string
+      internal_notes:
+        type: string
+      done_signal:
+        type: boolean
+      flag_proposals:
+        type: array
+        items:
+          type: string
+      model_invocation_ref:
+        type: string

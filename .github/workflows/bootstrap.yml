@@ -36,7 +36,7 @@ permissions:
 jobs:
   idempotency:
     name: bootstrap twice; warm pass ≤ 120 s
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       # bootstrap.sh's Node-version guard reads .nvmrc and refuses to
