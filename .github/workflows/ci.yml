@@ -45,7 +45,7 @@ jobs:
 
   lint:
     name: lint (eslint)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
@@ -53,7 +53,7 @@ jobs:
 
   format:
     name: format (prettier --check)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
@@ -61,7 +61,7 @@ jobs:
 
   type-check:
     name: type-check
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
@@ -76,7 +76,7 @@ jobs:
 
   test:
     name: test (jest, with coverage)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
@@ -97,7 +97,7 @@ jobs:
 
   publint:
     name: publint
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
@@ -118,7 +118,7 @@ jobs:
 
   audit:
     name: audit (pnpm audit, high+critical fail)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
@@ -127,7 +127,7 @@ jobs:
 
   osv-scan:
     name: osv-scanner
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       - uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
@@ -138,7 +138,7 @@ jobs:
 
   dep-signatures:
     name: dep-signatures (npm audit signatures + exceptions register)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
@@ -147,7 +147,7 @@ jobs:
 
   sbom:
     name: sbom (cdxgen, pnpm-aware)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
@@ -168,7 +168,7 @@ jobs:
 
   license:
     name: license (allowlist)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
@@ -189,7 +189,7 @@ jobs:
 
   secret-scan:
     name: secret-scan (gitleaks)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
         with:
@@ -212,7 +212,7 @@ jobs:
 
   env-drift:
     name: env-drift (.env.example vs schema)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
@@ -227,7 +227,7 @@ jobs:
 
   nvmrc-consistency:
     name: .nvmrc ↔ engines.node consistency
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       - name: verify versions agree
@@ -235,7 +235,7 @@ jobs:
 
   guard-env-files:
     name: guard tracked .env files
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       - name: reject any tracked .env* (other than .env.example)
@@ -258,7 +258,7 @@ jobs:
     # explicit `withAnonymous` opt-out via *.anonymous.ts naming). On
     # the B1 surface no handlers exist yet; the gate exits 0 cleanly.
     name: principal-coverage (NFR-11)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       - name: scan handlers for guard coverage
@@ -270,7 +270,7 @@ jobs:
     # state-machine has a positive test and every illegal pair has a
     # negative test. Scanner is additive at B1; tightens at T012.
     name: tickets-state-machine (F04 FR-2)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       - name: tickets state-machine coverage
@@ -285,7 +285,7 @@ jobs:
     # SQL against audit-relevant tables (forbidden outside the
     # tombstone procedure — Constitution §I.4.3).
     name: schema-conventions (F03 FR-6)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       - name: lint Drizzle schema + register coverage + migrations
@@ -298,7 +298,7 @@ jobs:
     # Structural scan for credential values being passed to console.*
     # or logger.* calls. Fails closed on any match.
     name: no-credentials-in-logs (NFR-6)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
       - name: scan for credential-shaped values in log calls

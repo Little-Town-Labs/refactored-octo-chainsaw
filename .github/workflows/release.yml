@@ -30,7 +30,7 @@ jobs:
 
   test:
     name: test (jest)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     permissions:
       contents: read
     steps:
@@ -40,7 +40,7 @@ jobs:
 
   type-check:
     name: type-check
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     permissions:
       contents: read
     steps:
@@ -50,7 +50,7 @@ jobs:
 
   audit:
     name: audit (pnpm + osv)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     permissions:
       contents: read
     steps:
@@ -65,7 +65,7 @@ jobs:
 
   dep-signatures:
     name: dep-signatures (provenance + register)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     permissions:
       contents: read
     steps:
@@ -75,7 +75,7 @@ jobs:
 
   secret-scan:
     name: secret-scan (gitleaks)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     permissions:
       contents: read
     steps:
@@ -94,7 +94,7 @@ jobs:
 
   build:
     name: build + sbom
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     permissions:
       contents: read
     needs: [test, type-check, audit, dep-signatures, secret-scan]
@@ -153,7 +153,7 @@ jobs:
 
   sign:
     name: sign (Sigstore cosign keyless)
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     needs: build
     permissions:
       contents: write # upload signature bundle to artifacts
@@ -189,7 +189,7 @@ jobs:
 
   github-release:
     name: github release
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
     needs: [build, sign, provenance]
     permissions:
       contents: write
