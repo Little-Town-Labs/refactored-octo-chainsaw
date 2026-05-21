@@ -169,7 +169,30 @@ importers:
 
   packages/agents: {}
 
-  packages/ai: {}
+  packages/ai:
+    dependencies:
+      '@spyglass/db':
+        specifier: workspace:*
+        version: link:../db
+      drizzle-orm:
+        specifier: ^0.45.2
+        version: 0.45.2(@types/pg@8.20.0)(pg@8.21.0)
+    devDependencies:
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
+      '@types/node':
+        specifier: ^24.12.4
+        version: 24.12.4
+      ajv:
+        specifier: ^8.17.1
+        version: 8.20.0
+      ajv-formats:
+        specifier: ^3.0.1
+        version: 3.0.1(ajv@8.20.0)
+      js-yaml:
+        specifier: ^4.1.1
+        version: 4.1.1
 
   packages/api-contracts: {}
 

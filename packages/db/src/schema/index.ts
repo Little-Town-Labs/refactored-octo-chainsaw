@@ -260,3 +260,29 @@ export {
   type NotificationGateEventRow,
   type NoticeTemplateVersionRow,
 } from "./candidate-notifications.js";
+
+// F12 — AI infrastructure.
+export {
+  AI_RUNTIME_MANIFEST_STATUSES,
+  AI_VERSION_STATUSES,
+  aiRuntimeManifests,
+  type AiRuntimeManifestRow,
+  type AiRuntimeManifestStatus,
+  type AiVersionStatus,
+  MODEL_CAPABILITY_CLASSES,
+  MODEL_INVOCATION_DECISIONS,
+  MODEL_INVOCATION_STATUSES,
+  modelInvocationRecords,
+  type ModelCapabilityClass,
+  type ModelInvocationDecision,
+  type ModelInvocationRecordRow,
+  type ModelInvocationStatus,
+  modelProfileVersions,
+  type ModelProfileVersionRow,
+  type NewAiRuntimeManifestRow,
+  type NewModelInvocationRecordRow,
+  type NewModelProfileVersionRow,
+  type NewPromptVersionRow,
+  promptVersions,
+  type PromptVersionRow,
+} from "./ai-infrastructure.js";

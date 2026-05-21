@@ -1,0 +1,81 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/f12/prompt-version.schema.yaml"
+title: PromptVersion
+type: object
+required:
+  - prompt_id
+  - version
+  - status
+  - purpose
+  - template_ref
+  - content_hash
+  - variable_contract
+  - allowed_scopes
+  - rubric_boundary
+properties:
+  prompt_id:
+    type: string
+    minLength: 1
+  version:
+    type: string
+    minLength: 1
+  status:
+    type: string
+    enum: [draft, published, deprecated, retired, superseded]
+  purpose:
+    type: string
+    minLength: 1
+  template_ref:
+    type: string
+    minLength: 1
+  content_hash:
+    type: string
+    pattern: "^sha256:[a-f0-9]{64}$"
+  variable_contract:
+    type: object
+    required: [variables]
+    properties:
+      variables:
+        type: array
+        items:
+          type: object
+          required: [name, value_type, required, trust_class]
+          properties:
+            name:
+              type: string
+              minLength: 1
+            value_type:
+              type: string
+              enum: [string, number, boolean, object, array]
+            required:
+              type: boolean
+            trust_class:
+              type: string
+              enum: [trusted_system, trusted_policy, untrusted_candidate, untrusted_employer, untrusted_tool]
+            sentinel_required:
+              type: boolean
+          additionalProperties: false
+    additionalProperties: false
+  allowed_scopes:
+    type: array
+    minItems: 1
+    items:
+      type: string
+      minLength: 1
+  rubric_boundary:
+    type: string
+    enum: [no_rubric_weights, no_scoring_policy]
+  release_manifest_ref:
+    type: [string, "null"]
+  signature_ref:
+    type: [string, "null"]
+  published_by:
+    type: [string, "null"]
+    format: uuid
+  published_at:
+    type: [string, "null"]
+    format: date-time
+  audit_event_id:
+    type: [string, "null"]
+    format: uuid
+additionalProperties: false
