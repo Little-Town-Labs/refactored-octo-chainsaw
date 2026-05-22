@@ -1,0 +1,136 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/channel-message.schema.json"
+title: ChannelMessage
+type: object
+additionalProperties: false
+required:
+  - message_id
+  - direction
+  - channel
+  - participant
+  - thread
+  - idempotency_key
+  - occurred_at
+  - content
+  - intent
+  - disclosure
+  - audit
+properties:
+  message_id:
+    type: string
+    minLength: 1
+  direction:
+    enum: [inbound, outbound]
+  channel:
+    type: object
+    additionalProperties: false
+    required: [kind, version]
+    properties:
+      kind:
+        enum: [telegram, email, web_chat, a2a_delegate]
+      version:
+        type: string
+        minLength: 1
+      enabled:
+        type: boolean
+  participant:
+    type: object
+    additionalProperties: false
+    required: [link_status, role]
+    properties:
+      participant_id:
+        type: string
+      principal_id:
+        type: string
+      channel_account_id:
+        type: string
+      link_status:
+        enum: [verified, pending_verification, disabled, unknown]
+      role:
+        enum: [seeker, operator, system]
+  thread:
+    type: object
+    additionalProperties: false
+    required: [thread_id, state]
+    properties:
+      thread_id:
+        type: string
+        minLength: 1
+      native_thread_ref:
+        type: string
+      seeker_ticket_id:
+        type: string
+      match_ticket_id:
+        type: string
+      state:
+        enum: [open, awaiting_verification, paused, closed, errored]
+  idempotency_key:
+    type: string
+    minLength: 1
+  occurred_at:
+    type: string
+    format: date-time
+  received_at:
+    type: string
+    format: date-time
+  content:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required: [kind, classification]
+      properties:
+        kind:
+          enum: [text, command, attachment_ref, rich_card, system_notice]
+        text:
+          type: string
+        command:
+          type: string
+        attachment_ref:
+          type: string
+        rich_card:
+          type: object
+        classification:
+          enum: [untrusted_user_input, approved_projection, system_generated, provider_metadata]
+  intent:
+    type: object
+    additionalProperties: false
+    required: [family, supported]
+    properties:
+      family:
+        type: string
+      supported:
+        type: boolean
+      confidence:
+        type: number
+        minimum: 0
+        maximum: 1
+  disclosure:
+    type: object
+    additionalProperties: false
+    required: [posture]
+    properties:
+      posture:
+        enum: [untrusted_inbound, approved_projection, system_notice, refused]
+      projection_ref:
+        type: string
+      privacy_ruleset_ref:
+        type: string
+  delivery:
+    $ref: "./delivery-outcome.schema.yaml"
+  audit:
+    type: object
+    additionalProperties: false
+    required: [correlation_id, source]
+    properties:
+      correlation_id:
+        type: string
+        minLength: 1
+      source:
+        type: string
+        minLength: 1
+      event_id:
+        type: string
+  metadata:
+    type: object

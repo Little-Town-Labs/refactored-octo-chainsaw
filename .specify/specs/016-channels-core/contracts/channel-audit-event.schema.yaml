@@ -1,0 +1,41 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/channel-audit-event.schema.json"
+title: ChannelAuditEvent
+type: object
+additionalProperties: false
+required:
+  - event_id
+  - event_type
+  - channel_kind
+  - occurred_at
+  - correlation_id
+properties:
+  event_id:
+    type: string
+    minLength: 1
+  event_type:
+    enum:
+      - channel.normalized
+      - channel.refused
+      - channel.duplicate_suppressed
+      - channel.outbound_rendered
+      - channel.delivery_recorded
+      - channel.capability_registered
+  message_id:
+    type: string
+  channel_kind:
+    enum: [telegram, email, web_chat, a2a_delegate]
+  principal_id:
+    type: string
+  reason_code:
+    type: string
+  occurred_at:
+    type: string
+    format: date-time
+  correlation_id:
+    type: string
+    minLength: 1
+  native_ref:
+    type: string
+  evidence:
+    type: object

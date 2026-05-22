@@ -18,6 +18,7 @@
     "build": "tsc -b",
     "type-check": "tsc --noEmit -p tsconfig.json",
     "test": "jest --passWithNoTests",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "dev-run:f16": "tsx scripts/f16-staged-dev-run.ts"
   }
 }
