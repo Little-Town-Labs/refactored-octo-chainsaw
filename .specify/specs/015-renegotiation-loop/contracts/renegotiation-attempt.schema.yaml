@@ -1,0 +1,94 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://spyglass.local/contracts/renegotiation-attempt.schema.yaml
+title: Re-negotiation Attempt
+type: object
+additionalProperties: false
+required:
+  - attempt_id
+  - match_ticket_id
+  - attempt
+  - run_id
+  - request_id
+  - requester_side
+  - status
+  - effective_round_cap
+  - cost_ceiling
+  - cost_observed
+  - prior_run_id
+  - isolation_boundary
+  - created_at
+properties:
+  attempt_id:
+    type: string
+    minLength: 1
+  match_ticket_id:
+    type: string
+    minLength: 1
+  attempt:
+    type: integer
+    minimum: 1
+  run_id:
+    type: string
+    minLength: 1
+  request_id:
+    type: string
+    minLength: 1
+  requester_side:
+    enum: [seeker, employer]
+  status:
+    enum: [accepted, dispatched, running, complete, inconclusive, refused, terminated]
+  effective_round_cap:
+    type: integer
+    minimum: 1
+  cost_ceiling:
+    type: number
+    minimum: 0
+  cost_observed:
+    type: number
+    minimum: 0
+  prior_run_id:
+    type: string
+    minLength: 1
+  prior_dossier_id:
+    anyOf:
+      - type: string
+        minLength: 1
+      - type: "null"
+  isolation_boundary:
+    type: object
+    additionalProperties: false
+    required:
+      - prompt_history_entries
+      - tool_call_entries
+      - seeker_scratch_entries
+      - employer_scratch_entries
+      - prior_context_rehydrated
+    properties:
+      prompt_history_entries:
+        const: 0
+      tool_call_entries:
+        const: 0
+      seeker_scratch_entries:
+        const: 0
+      employer_scratch_entries:
+        const: 0
+      prior_context_rehydrated:
+        const: false
+  created_at:
+    type: string
+    format: date-time
+  started_at:
+    anyOf:
+      - type: string
+        format: date-time
+      - type: "null"
+  completed_at:
+    anyOf:
+      - type: string
+        format: date-time
+      - type: "null"
+  terminal_reason:
+    anyOf:
+      - type: string
+        minLength: 1
+      - type: "null"

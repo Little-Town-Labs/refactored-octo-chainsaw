@@ -1,0 +1,60 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://spyglass.local/contracts/renegotiation-request.schema.yaml
+title: Re-negotiation Request
+type: object
+additionalProperties: false
+required:
+  - request_id
+  - event_name
+  - event_version
+  - match_ticket_id
+  - match_ticket_identifier
+  - requester_side
+  - requester_principal_id
+  - requester_scopes
+  - prior_run_id
+  - requested_attempt
+  - reason_code
+  - requested_at
+properties:
+  request_id:
+    type: string
+    minLength: 1
+  event_name:
+    const: match_ticket.renegotiation_requested
+  event_version:
+    const: 1
+  match_ticket_id:
+    type: string
+    minLength: 1
+  match_ticket_identifier:
+    type: string
+    minLength: 1
+  requester_side:
+    enum: [seeker, employer]
+  requester_principal_id:
+    type: string
+    minLength: 1
+  requester_scopes:
+    type: array
+    minItems: 1
+    items:
+      type: string
+      minLength: 1
+  prior_run_id:
+    type: string
+    minLength: 1
+  prior_dossier_id:
+    anyOf:
+      - type: string
+        minLength: 1
+      - type: "null"
+  requested_attempt:
+    type: integer
+    minimum: 1
+  reason_code:
+    type: string
+    minLength: 1
+  requested_at:
+    type: string
+    format: date-time
