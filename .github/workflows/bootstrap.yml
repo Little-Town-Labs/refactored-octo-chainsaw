@@ -39,20 +39,14 @@ jobs:
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
       - uses: actions/checkout@v5
-      # bootstrap.sh's Node-version guard reads .nvmrc and refuses to
-      # continue under an older Node. ubuntu-24.04 runners ship with
-      # Node 20 preinstalled; pin to .nvmrc (Node 24) before running.
-      #
-      # setup-node@v5 auto-detects `packageManager: pnpm@…` from
-      # package.json and uses pnpm for its cache-key step, so pnpm
-      # must already be on PATH. Install via pnpm/action-setup ahead
-      # of setup-node (mirrors .github/actions/setup).
-      - uses: pnpm/action-setup@v6
-        with:
-          version: 9.15.0
+      # bootstrap.sh reads .nvmrc and refuses to continue under an older Node.
+      # Install Node 24 before pnpm so pnpm/action-setup runs on a supported runtime.
       - uses: actions/setup-node@v5
         with:
           node-version-file: ".nvmrc"
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 9.15.0
       - name: first run (full setup)
         run: bash scripts/bootstrap.sh
       - name: second run (must be fast — NFR-2 ≤ 2 min)
