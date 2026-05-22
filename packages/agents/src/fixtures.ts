@@ -20,6 +20,12 @@ import type { ToolSurfaceRef } from "@spyglass/tool-dispatcher";
 
 import type {
   FilteredCounterpartyProjection,
+  EmployerAdvocateFrozenRefs,
+  EmployerAdvocatePrincipalView,
+  EmployerAdvocateRunInput,
+  EmployerAdvocateRuntime,
+  EmployerAdvocateScoreDraft,
+  EmployerAdvocateScoringInput,
   SeekerAdvocateFrozenRefs,
   SeekerAdvocateRunInput,
   SeekerAdvocateRuntime,
@@ -299,6 +305,241 @@ export function scoreDraftFixture(
       },
     ],
     headline_rationale: "The role appears useful from the seeker's perspective.",
+    flag_proposals: [],
+    ...overrides,
+  };
+}
+
+export const EMPLOYER_AGENT_ID = "88888888-8888-4888-8888-888888888888";
+
+export const employerAgent: ScopedAiPrincipal = {
+  principal_id: EMPLOYER_AGENT_ID,
+  principal_kind: "agent",
+  scopes: ["ai:invoke"],
+};
+
+export function employerPromptFixture(overrides: Partial<PromptVersion> = {}): PromptVersion {
+  return promptFixture({
+    prompt_version_id: "84444444-4444-4444-8444-444444444444",
+    prompt_id: "employer-advocate",
+    purpose: "employer_advocate",
+    template_ref: "prompts/employer-advocate.md",
+    template: "Assess this employer-side match context: {{candidate_context}}",
+    content_hash: "f14-prompt-hash",
+    release_manifest_ref: "manifest:f14-runtime@1.0.0",
+    signature_ref: "sigstore://f14/prompt",
+    published_at: new Date("2026-05-22T12:00:00.000Z"),
+    created_at: new Date("2026-05-22T12:00:00.000Z"),
+    ...overrides,
+  });
+}
+
+export function employerModelFixture(
+  overrides: Partial<ModelProfileVersion> = {},
+): ModelProfileVersion {
+  return modelFixture({
+    model_profile_version_id: "85555555-5555-4555-8555-555555555555",
+    release_manifest_ref: "manifest:f14-runtime@1.0.0",
+    signature_ref: "sigstore://f14/model",
+    published_at: new Date("2026-05-22T12:00:00.000Z"),
+    created_at: new Date("2026-05-22T12:00:00.000Z"),
+    ...overrides,
+  });
+}
+
+export function employerManifestFixture(
+  overrides: Partial<AiRuntimeManifest> = {},
+): AiRuntimeManifest {
+  const base = manifestFixture({
+    runtime_manifest_id: "86666666-6666-4666-8666-666666666666",
+    manifest_id: "f14-runtime",
+    prompt_refs: [{ prompt_id: "employer-advocate", version: "1.0.0" }],
+    signature_ref: "sigstore://f14/manifest",
+    published_at: new Date("2026-05-22T12:00:00.000Z"),
+    created_at: new Date("2026-05-22T12:00:00.000Z"),
+    ...overrides,
+  });
+  return { ...base, content_hash: overrides.content_hash ?? computeRuntimeManifestHash(base) };
+}
+
+export function employerRubricFixture(overrides: Partial<RubricVersion> = {}): RubricVersion {
+  return {
+    rubric_version_id: "87777777-7777-4777-8777-777777777777",
+    rubric_id: "employer-standard",
+    version: "1.0.0",
+    side: "employer",
+    status: "published",
+    dimensions: [
+      {
+        dimension_id: "skills_fit",
+        label: "Skills fit",
+        description: "How well the seeker matches role skills.",
+        min_score: 0,
+        max_score: 10,
+        weight: 0.55,
+        required: true,
+      },
+      {
+        dimension_id: "role_constraints_fit",
+        label: "Role constraints fit",
+        description: "How well constraints match the employer's role needs.",
+        min_score: 0,
+        max_score: 10,
+        weight: 0.45,
+        required: true,
+      },
+    ],
+    aggregation_policy: {
+      kind: "weighted_sum",
+      weight_normalization: "sum_to_one",
+      rounding: "half_away_from_zero_4dp",
+    },
+    bias_test_ref: { bias_test_artifact_id: "bias-test-f14" },
+    content_hash: "employer-rubric-hash",
+    description: "Employer standard rubric",
+    author_principal_id: OPERATOR_ID,
+    reviewer_principal_id: OPERATOR_ID,
+    published_at: new Date("2026-05-22T12:00:00.000Z"),
+    deprecated_after: null,
+    audit_event_id: AUDIT_ID,
+    created_at: new Date("2026-05-22T12:00:00.000Z"),
+    ...overrides,
+  };
+}
+
+export const employerContractRef: ContractRef = {
+  contract_id: "employer-advocate",
+  version: "1.0.0",
+};
+export const employerPrivacyRulesetRef: PrivacyRulesetRef = {
+  ruleset_id: "phase0-employer",
+  version: "1.0.0",
+};
+export const employerToolSurfaceRef: ToolSurfaceRef = {
+  id: "employer-tools",
+  version: "1.0.0",
+};
+
+export function employerFrozenRefs(): EmployerAdvocateFrozenRefs {
+  return {
+    contract_ref: employerContractRef,
+    prompt_ref: { prompt_id: "employer-advocate", version: "1.0.0" },
+    model_ref: { model_profile_id: "advocate-reasoning", version: "1.0.0" },
+    manifest_ref: { manifest_id: "f14-runtime", version: "1.0.0" },
+    rubric_ref: { rubric_id: "employer-standard", version: "1.0.0" },
+    privacy_ruleset_ref: employerPrivacyRulesetRef,
+    tool_surface_ref: employerToolSurfaceRef,
+  };
+}
+
+export function employerPrincipalView(): EmployerAdvocatePrincipalView {
+  return {
+    employer_ticket_id: "emp_123",
+    role_summary: "Senior TypeScript platform engineer for agentic hiring infrastructure.",
+    requirements: ["TypeScript", "distributed systems", "security-minded delivery"],
+    constraints: ["remote", "US time zones", "startup pace"],
+    threshold: 6,
+  };
+}
+
+export function seekerProjection(
+  payload: Record<string, unknown> = {
+    skills: ["TypeScript", "Node.js", "agent systems"],
+    work_mode: "remote",
+    experience_level: "senior",
+  },
+): FilteredCounterpartyProjection {
+  return { projection_ref: "projection_f14", filtered: true, payload };
+}
+
+export function employerContextFixture(
+  overrides: Partial<NegotiationContext> = {},
+): NegotiationContext {
+  return {
+    run_id: "run_f14",
+    side: "employer",
+    principal_view: { ...employerPrincipalView() },
+    counterparty_view: seekerProjection().payload,
+    prompt_history: [],
+    tool_call_log: [],
+    rubric_scratch: {
+      skills_fit: { score: 8, rationale: "The seeker matches core TypeScript needs." },
+      role_constraints_fit: { score: 7, rationale: "The seeker constraints match role needs." },
+    },
+    projection_refs: ["projection_f14"],
+    released: false,
+    ...overrides,
+  };
+}
+
+export async function seededEmployerRuntime(
+  options: { readonly manifest?: Partial<AiRuntimeManifest> } = {},
+): Promise<EmployerAdvocateRuntime> {
+  const repository = new MemoryAiRepository();
+  await publishPromptVersion(repository, employerPromptFixture());
+  await publishModelProfileVersion(repository, employerModelFixture());
+  await publishRuntimeManifest(repository, employerManifestFixture(options.manifest ?? {}));
+  return {
+    repository,
+    gateway: new FakeGatewayAdapter(),
+    caller: employerAgent,
+    caller_scope: "ai:invoke",
+  };
+}
+
+export async function employerRunInputFixture(
+  overrides: Partial<Omit<EmployerAdvocateRunInput, "runtime">> & {
+    readonly runtime?: EmployerAdvocateRuntime;
+  } = {},
+): Promise<EmployerAdvocateRunInput> {
+  const runtime = overrides.runtime ?? (await seededEmployerRuntime());
+  return {
+    run_id: "run_f14",
+    match_ticket_id: "match_f14",
+    operation: "turn",
+    round: 1,
+    refs: employerFrozenRefs(),
+    principal_view: employerPrincipalView(),
+    counterparty_projection: seekerProjection(),
+    context: employerContextFixture(),
+    allowed_tool_names: ["read_employer_req", "read_filtered_seeker_projection"],
+    runtime,
+    ...overrides,
+  };
+}
+
+export async function employerScoringInputFixture(
+  overrides: Partial<Omit<EmployerAdvocateScoringInput, "runtime">> & {
+    readonly runtime?: EmployerAdvocateRuntime;
+  } = {},
+): Promise<EmployerAdvocateScoringInput> {
+  const runtime = overrides.runtime ?? (await seededEmployerRuntime());
+  return {
+    ...(await employerRunInputFixture({ runtime })),
+    operation: "score",
+    rubric: employerRubricFixture(),
+    score_draft: employerScoreDraftFixture(),
+    ...overrides,
+  };
+}
+
+export function employerScoreDraftFixture(
+  overrides: Partial<EmployerAdvocateScoreDraft> = {},
+): EmployerAdvocateScoreDraft {
+  return {
+    dimension_scores: [
+      {
+        dimension_id: "skills_fit",
+        score: 8,
+        rationale: "The seeker has strong TypeScript and agent-system experience.",
+      },
+      {
+        dimension_id: "role_constraints_fit",
+        score: 7,
+        rationale: "The seeker's work model fits the employer constraints.",
+      },
+    ],
+    headline_rationale: "The seeker appears useful from the employer's perspective.",
     flag_proposals: [],
     ...overrides,
   };

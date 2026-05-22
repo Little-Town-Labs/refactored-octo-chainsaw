@@ -484,6 +484,26 @@ data_classes:
       6(1)(f) — legitimate interest in agent-quality review and forensic
       readiness.
 
+  # ------------------------------------------------------------------
+  # F14 data classes (Employer advocate agent)
+  # ------------------------------------------------------------------
+  - id: employer_advocate_evidence
+    description: >-
+      Transient employer-side advocate turn, scoring, refusal, regulated
+      surface boundary, protected-class boundary, rubric-bias-gate, and
+      eval evidence returned to Parley and dossier production. Includes
+      frozen prompt/model/manifest/contract/rubric/privacy/tool refs,
+      model invocation refs, per-dimension score evidence, inconclusive
+      flags, rejected decision-content evidence, and reviewer-readable
+      eval case outcomes.
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(b) — performance of contract for employer-side match
+      evaluation; GDPR Art. 6(1)(c) — AEDT auditability and regulated
+      scoring evidence; GDPR Art. 6(1)(f) — legitimate interest in
+      agent-quality review, abuse prevention, and forensic readiness.
+
 # Tables — one entry per pgTable in packages/db/src/schema/.
 # Coverage is enforced by the lint (rule R3).
 tables:

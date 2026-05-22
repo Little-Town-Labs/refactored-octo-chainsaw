@@ -19,7 +19,8 @@
     "type-check": "tsc --noEmit -p tsconfig.json",
     "test": "jest --passWithNoTests",
     "lint": "eslint .",
-    "dev-run:f13": "tsx scripts/f13-staged-dev-run.ts"
+    "dev-run:f13": "tsx scripts/f13-staged-dev-run.ts",
+    "dev-run:f14": "tsx scripts/f14-staged-dev-run.ts"
   },
   "dependencies": {
     "@spyglass/agent-contracts": "workspace:*",
