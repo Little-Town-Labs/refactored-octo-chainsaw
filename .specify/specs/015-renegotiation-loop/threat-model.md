@@ -54,3 +54,11 @@
 - F15 creates alarm records but does not implement live paging or alert delivery; later operations features must decide routing.
 - Product research may later revise the default cap, but F15 enforces the current default of 3 unless stricter contract caps apply.
 - Durable storage migrations are deferred; task generation must ensure in-memory tests preserve the future durable contract shape.
+
+## Implementation Notes
+
+- `packages/parley/src/renegotiation.ts` centralizes request evaluation so advocate code cannot bypass F15 eligibility, cap, cost, idempotency, or silence policy.
+- Accepted requests allocate a run through `ParleyRunRepository.claimRun` with `request_id` as the fresh run id and preserve the existing active-run guard for the same match ticket.
+- `freshIsolationBoundary()` records zero inherited prompt history, tool-call log, seeker scratch, employer scratch, and prior-context rehydration counters for every accepted attempt.
+- `InMemoryRenegotiationRepository` records decisions, attempts, audit events, and alarms using deterministic ids so duplicate request handling is observable in tests.
+- Runtime cost breach handling updates the attempt to `terminated`, records `cost_ceiling_exceeded`, and emits both alarm and termination audit evidence. Later live alert routing remains out of scope for F15.

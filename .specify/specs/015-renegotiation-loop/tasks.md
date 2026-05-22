@@ -12,10 +12,10 @@
 
 **Purpose**: Prepare the existing `@spyglass/parley` package for F15 re-negotiation orchestration.
 
-- [ ] T001 Add `dev-run:f15` script to `packages/parley/package.json` while preserving existing F08 scripts
-- [ ] T002 [P] Add F15 contract schema fixture paths in `packages/parley/src/__tests__/contracts.test.ts` covering `contracts/renegotiation-*.schema.yaml`
-- [ ] T003 [P] Add F15 staged dev-run placeholder file in `packages/parley/scripts/f15-staged-dev-run.ts`
-- [ ] T004 [P] Add F15 public export placeholders for re-negotiation types in `packages/parley/src/index.ts`
+- [x] T001 Add `dev-run:f15` script to `packages/parley/package.json` while preserving existing F08 scripts
+- [x] T002 [P] Add F15 contract schema fixture paths in `packages/parley/src/__tests__/contracts.test.ts` covering `contracts/renegotiation-*.schema.yaml`
+- [x] T003 [P] Add F15 staged dev-run placeholder file in `packages/parley/scripts/f15-staged-dev-run.ts`
+- [x] T004 [P] Add F15 public export placeholders for re-negotiation types in `packages/parley/src/index.ts`
 
 ---
 
@@ -25,12 +25,12 @@
 
 **Critical**: No user story work can begin until this phase is complete.
 
-- [ ] T005 Define re-negotiation request, decision, attempt, isolation, cost ceiling, alarm, side, status, and reason-code types in `packages/parley/src/types.ts` for FR-001 through FR-017
-- [ ] T006 [P] Add deterministic F15 fixtures for asymmetric outcomes, contracts, attempts, cost ceilings, principals, prior runs, prior dossiers, legal holds, tombstones, and duplicate events in `packages/parley/src/__tests__/fixtures.ts`
-- [ ] T007 [P] Add F15 contract schema validation tests in `packages/parley/src/__tests__/contracts.test.ts` for request, decision, attempt, and alarm schemas
-- [ ] T008 [P] Add re-negotiation event constants and trigger exports in `packages/parley/src/events.ts` for FR-001
-- [ ] T009 Add `packages/parley/src/renegotiation.ts` with typed policy interfaces, default platform cap of 3, and no-op dependency adapters for FR-008 and FR-009
-- [ ] T010 Export F15 re-negotiation types and policy entry points from `packages/parley/src/index.ts`
+- [x] T005 Define re-negotiation request, decision, attempt, isolation, cost ceiling, alarm, side, status, and reason-code types in `packages/parley/src/types.ts` for FR-001 through FR-017
+- [x] T006 [P] Add deterministic F15 fixtures for asymmetric outcomes, contracts, attempts, cost ceilings, principals, prior runs, prior dossiers, legal holds, tombstones, and duplicate events in `packages/parley/src/__tests__/fixtures.ts`
+- [x] T007 [P] Add F15 contract schema validation tests in `packages/parley/src/__tests__/contracts.test.ts` for request, decision, attempt, and alarm schemas
+- [x] T008 [P] Add re-negotiation event constants and trigger exports in `packages/parley/src/events.ts` for FR-001
+- [x] T009 Add `packages/parley/src/renegotiation.ts` with typed policy interfaces, default platform cap of 3, and no-op dependency adapters for FR-008 and FR-009
+- [x] T010 Export F15 re-negotiation types and policy entry points from `packages/parley/src/index.ts`
 
 **Checkpoint**: Foundation ready. User story implementation can start.
 
@@ -44,20 +44,20 @@
 
 ### Tests for User Story 1
 
-- [ ] T011 [P] [US1] Add accepted re-negotiation contract tests in `packages/parley/src/__tests__/renegotiation-contract.test.ts` for FR-001, FR-002, FR-003, and SC-001
-- [ ] T012 [P] [US1] Add fresh run isolation tests in `packages/parley/src/__tests__/renegotiation-isolation.test.ts` for FR-004, FR-005, and SC-002
-- [ ] T013 [P] [US1] Add same-ticket attempt sequencing tests in `packages/parley/src/__tests__/renegotiation-attempt.test.ts` for FR-003
-- [ ] T014 [P] [US1] Add audit evidence tests for accepted request and fresh-run allocation in `packages/parley/src/__tests__/renegotiation-audit.test.ts` for FR-012
+- [x] T011 [P] [US1] Add accepted re-negotiation contract tests in `packages/parley/src/__tests__/renegotiation-contract.test.ts` for FR-001, FR-002, FR-003, and SC-001
+- [x] T012 [P] [US1] Add fresh run isolation tests in `packages/parley/src/__tests__/renegotiation-isolation.test.ts` for FR-004, FR-005, and SC-002
+- [x] T013 [P] [US1] Add same-ticket attempt sequencing tests in `packages/parley/src/__tests__/renegotiation-attempt.test.ts` for FR-003
+- [x] T014 [P] [US1] Add audit evidence tests for accepted request and fresh-run allocation in `packages/parley/src/__tests__/renegotiation-audit.test.ts` for FR-012
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement request normalization and explicit event validation in `packages/parley/src/renegotiation.ts` for FR-001
-- [ ] T016 [US1] Implement asymmetric prior-outcome eligibility and cleared-side requester validation in `packages/parley/src/renegotiation.ts` for FR-006
-- [ ] T017 [US1] Implement fresh `run_id` allocation and same-ticket attempt creation in `packages/parley/src/renegotiation.ts` for FR-002 and FR-003
-- [ ] T018 [US1] Implement immutable prior run and dossier reference handling in `packages/parley/src/renegotiation.ts` for FR-005
-- [ ] T019 [US1] Implement run isolation boundary construction with zero inherited context counters in `packages/parley/src/renegotiation.ts` for FR-004 and SC-002
-- [ ] T020 [US1] Implement accepted decision and audit evidence emission in `packages/parley/src/renegotiation.ts` for FR-012
-- [ ] T021 [US1] Integrate accepted re-negotiation dispatch with existing Parley run repository semantics in `packages/parley/src/dispatcher.ts` for FR-002
+- [x] T015 [US1] Implement request normalization and explicit event validation in `packages/parley/src/renegotiation.ts` for FR-001
+- [x] T016 [US1] Implement asymmetric prior-outcome eligibility and cleared-side requester validation in `packages/parley/src/renegotiation.ts` for FR-006
+- [x] T017 [US1] Implement fresh `run_id` allocation and same-ticket attempt creation in `packages/parley/src/renegotiation.ts` for FR-002 and FR-003
+- [x] T018 [US1] Implement immutable prior run and dossier reference handling in `packages/parley/src/renegotiation.ts` for FR-005
+- [x] T019 [US1] Implement run isolation boundary construction with zero inherited context counters in `packages/parley/src/renegotiation.ts` for FR-004 and SC-002
+- [x] T020 [US1] Implement accepted decision and audit evidence emission in `packages/parley/src/renegotiation.ts` for FR-012
+- [x] T021 [US1] Integrate accepted re-negotiation dispatch with existing Parley run repository semantics in `packages/parley/src/dispatcher.ts` for FR-002
 
 **Checkpoint**: User Story 1 is independently functional and testable.
 
@@ -71,20 +71,20 @@
 
 ### Tests for User Story 2
 
-- [ ] T022 [P] [US2] Add unauthorized and non-cleared-side refusal tests in `packages/parley/src/__tests__/renegotiation-refusal.test.ts` for FR-007 and SC-006
-- [ ] T023 [P] [US2] Add closed, withdrawn, legal-hold, tombstone, and missing-reference refusal tests in `packages/parley/src/__tests__/renegotiation-lifecycle.test.ts` for FR-007 and SC-006
-- [ ] T024 [P] [US2] Add duplicate replay and active-run idempotency tests in `packages/parley/src/__tests__/renegotiation-idempotency.test.ts` for FR-011 and SC-003
-- [ ] T025 [P] [US2] Add non-cleared-side silence posture tests in `packages/parley/src/__tests__/renegotiation-silence.test.ts` for FR-013
-- [ ] T026 [P] [US2] Add privacy, tool-dispatch, advocate, and dossier failure termination tests in `packages/parley/src/__tests__/renegotiation-fail-safe.test.ts` for FR-014 and FR-015
+- [x] T022 [P] [US2] Add unauthorized and non-cleared-side refusal tests in `packages/parley/src/__tests__/renegotiation-refusal.test.ts` for FR-007 and SC-006
+- [x] T023 [P] [US2] Add closed, withdrawn, legal-hold, tombstone, and missing-reference refusal tests in `packages/parley/src/__tests__/renegotiation-lifecycle.test.ts` for FR-007 and SC-006
+- [x] T024 [P] [US2] Add duplicate replay and active-run idempotency tests in `packages/parley/src/__tests__/renegotiation-idempotency.test.ts` for FR-011 and SC-003
+- [x] T025 [P] [US2] Add non-cleared-side silence posture tests in `packages/parley/src/__tests__/renegotiation-silence.test.ts` for FR-013
+- [x] T026 [P] [US2] Add privacy, tool-dispatch, advocate, and dossier failure termination tests in `packages/parley/src/__tests__/renegotiation-fail-safe.test.ts` for FR-014 and FR-015
 
 ### Implementation for User Story 2
 
-- [ ] T027 [US2] Implement authorization, requester-side, closed-ticket, withdrawn-ticket, legal-hold, tombstone, and missing-reference refusal policy in `packages/parley/src/renegotiation.ts` for FR-007
-- [ ] T028 [US2] Implement duplicate request replay and active-run idempotency handling in `packages/parley/src/renegotiation.ts` for FR-011
-- [ ] T029 [US2] Implement refusal decision mapping with stable reason codes in `packages/parley/src/renegotiation.ts` for FR-007 and FR-012
-- [ ] T030 [US2] Implement non-cleared-side default silence metadata in `packages/parley/src/renegotiation.ts` for FR-013
-- [ ] T031 [US2] Implement privacy-filter, tool-dispatch, advocate invocation, and dossier-production fail-safe termination mapping in `packages/parley/src/renegotiation.ts` for FR-014 and FR-015
-- [ ] T032 [US2] Add refusal and idempotency audit evidence emission in `packages/parley/src/renegotiation.ts` for FR-012
+- [x] T027 [US2] Implement authorization, requester-side, closed-ticket, withdrawn-ticket, legal-hold, tombstone, and missing-reference refusal policy in `packages/parley/src/renegotiation.ts` for FR-007
+- [x] T028 [US2] Implement duplicate request replay and active-run idempotency handling in `packages/parley/src/renegotiation.ts` for FR-011
+- [x] T029 [US2] Implement refusal decision mapping with stable reason codes in `packages/parley/src/renegotiation.ts` for FR-007 and FR-012
+- [x] T030 [US2] Implement non-cleared-side default silence metadata in `packages/parley/src/renegotiation.ts` for FR-013
+- [x] T031 [US2] Implement privacy-filter, tool-dispatch, advocate invocation, and dossier-production fail-safe termination mapping in `packages/parley/src/renegotiation.ts` for FR-014 and FR-015
+- [x] T032 [US2] Add refusal and idempotency audit evidence emission in `packages/parley/src/renegotiation.ts` for FR-012
 
 **Checkpoint**: User Stories 1 and 2 are independently functional and testable.
 
@@ -98,20 +98,20 @@
 
 ### Tests for User Story 3
 
-- [ ] T033 [P] [US3] Add effective round-cap calculation tests in `packages/parley/src/__tests__/renegotiation-cap.test.ts` for FR-008 and SC-004
-- [ ] T034 [P] [US3] Add preflight cost ceiling refusal tests in `packages/parley/src/__tests__/renegotiation-cost.test.ts` for FR-009, FR-010, and SC-005
-- [ ] T035 [P] [US3] Add runtime cost breach termination tests in `packages/parley/src/__tests__/renegotiation-runtime-cost.test.ts` for FR-009, FR-010, and SC-005
-- [ ] T036 [P] [US3] Add alarm contract and audit evidence tests in `packages/parley/src/__tests__/renegotiation-alarm.test.ts` for FR-010 and FR-012
-- [ ] T037 [P] [US3] Add later-surface outcome projection tests in `packages/parley/src/__tests__/renegotiation-outcome.test.ts` for FR-016 and FR-017
+- [x] T033 [P] [US3] Add effective round-cap calculation tests in `packages/parley/src/__tests__/renegotiation-cap.test.ts` for FR-008 and SC-004
+- [x] T034 [P] [US3] Add preflight cost ceiling refusal tests in `packages/parley/src/__tests__/renegotiation-cost.test.ts` for FR-009, FR-010, and SC-005
+- [x] T035 [P] [US3] Add runtime cost breach termination tests in `packages/parley/src/__tests__/renegotiation-runtime-cost.test.ts` for FR-009, FR-010, and SC-005
+- [x] T036 [P] [US3] Add alarm contract and audit evidence tests in `packages/parley/src/__tests__/renegotiation-alarm.test.ts` for FR-010 and FR-012
+- [x] T037 [P] [US3] Add later-surface outcome projection tests in `packages/parley/src/__tests__/renegotiation-outcome.test.ts` for FR-016 and FR-017
 
 ### Implementation for User Story 3
 
-- [ ] T038 [US3] Implement effective cap calculation as min seeker cap, employer cap, and platform default cap in `packages/parley/src/renegotiation.ts` for FR-008
-- [ ] T039 [US3] Implement round-cap refusal policy and cap audit evidence in `packages/parley/src/renegotiation.ts` for FR-008 and FR-012
-- [ ] T040 [US3] Implement preflight cost ceiling policy and refusal audit evidence in `packages/parley/src/renegotiation.ts` for FR-009 and FR-012
-- [ ] T041 [US3] Implement runtime cost observation and safe termination mapping in `packages/parley/src/renegotiation.ts` for FR-009 and FR-015
-- [ ] T042 [US3] Implement operator-visible alarm record creation for preflight and runtime breaches in `packages/parley/src/renegotiation.ts` for FR-010
-- [ ] T043 [US3] Implement outcome projection shape for later channel and employer surfaces without hidden run state in `packages/parley/src/renegotiation.ts` for FR-016 and FR-017
+- [x] T038 [US3] Implement effective cap calculation as min seeker cap, employer cap, and platform default cap in `packages/parley/src/renegotiation.ts` for FR-008
+- [x] T039 [US3] Implement round-cap refusal policy and cap audit evidence in `packages/parley/src/renegotiation.ts` for FR-008 and FR-012
+- [x] T040 [US3] Implement preflight cost ceiling policy and refusal audit evidence in `packages/parley/src/renegotiation.ts` for FR-009 and FR-012
+- [x] T041 [US3] Implement runtime cost observation and safe termination mapping in `packages/parley/src/renegotiation.ts` for FR-009 and FR-015
+- [x] T042 [US3] Implement operator-visible alarm record creation for preflight and runtime breaches in `packages/parley/src/renegotiation.ts` for FR-010
+- [x] T043 [US3] Implement outcome projection shape for later channel and employer surfaces without hidden run state in `packages/parley/src/renegotiation.ts` for FR-016 and FR-017
 
 **Checkpoint**: All user stories are independently functional and testable.
 
@@ -121,19 +121,19 @@
 
 **Purpose**: Final verification, documentation, and Spec Kit closure.
 
-- [ ] T044 [P] Update `docs/runbooks/parley-renegotiation.md` with F15 eligibility, refusal, cost, alarm, and silence posture notes
-- [ ] T045 [P] Update `docs/data-governance/data-classification.yaml` with F15 request, decision, attempt, isolation, cost, and alarm payload classifications
-- [ ] T046 [P] Add implementation notes to `.specify/specs/015-renegotiation-loop/threat-model.md` after code lands
-- [ ] T047 Add F15 staged dev-run scenarios and evidence writer in `packages/parley/scripts/f15-staged-dev-run.ts` for SC-007
-- [ ] T048 Run `pnpm --filter @spyglass/parley test` and record result in `.specify/specs/015-renegotiation-loop/quickstart-run-2026-05-22.md`
-- [ ] T049 Run `pnpm --filter @spyglass/parley type-check` and record result in `.specify/specs/015-renegotiation-loop/quickstart-run-2026-05-22.md`
-- [ ] T050 Run `pnpm --filter @spyglass/parley lint` and record result in `.specify/specs/015-renegotiation-loop/quickstart-run-2026-05-22.md`
-- [ ] T051 Run `pnpm --filter @spyglass/parley build` and record result in `.specify/specs/015-renegotiation-loop/quickstart-run-2026-05-22.md`
-- [ ] T052 Run `pnpm --filter @spyglass/parley dev-run:f15` and record evidence for SC-001 through SC-007 in `.specify/specs/015-renegotiation-loop/quickstart-run-2026-05-22.md`
-- [ ] T053 Run `/speckit-analyze` and save findings in `.specify/specs/015-renegotiation-loop/analyze-report.md`
-- [ ] T054 Run `/code-review` and save findings in `.specify/specs/015-renegotiation-loop/code-review-t054.md`
-- [ ] T055 Run `/security-review` and save findings in `.specify/specs/015-renegotiation-loop/security-review-t055.md`
-- [ ] T056 Update `.specify/roadmap.md` with F15 implementation status and next-feature notes
+- [x] T044 [P] Update `docs/runbooks/parley-renegotiation.md` with F15 eligibility, refusal, cost, alarm, and silence posture notes
+- [x] T045 [P] Update `docs/data-governance/data-classification.yaml` with F15 request, decision, attempt, isolation, cost, and alarm payload classifications
+- [x] T046 [P] Add implementation notes to `.specify/specs/015-renegotiation-loop/threat-model.md` after code lands
+- [x] T047 Add F15 staged dev-run scenarios and evidence writer in `packages/parley/scripts/f15-staged-dev-run.ts` for SC-007
+- [x] T048 Run `pnpm --filter @spyglass/parley test` and record result in `.specify/specs/015-renegotiation-loop/quickstart-run-2026-05-22.md`
+- [x] T049 Run `pnpm --filter @spyglass/parley type-check` and record result in `.specify/specs/015-renegotiation-loop/quickstart-run-2026-05-22.md`
+- [x] T050 Run `pnpm --filter @spyglass/parley lint` and record result in `.specify/specs/015-renegotiation-loop/quickstart-run-2026-05-22.md`
+- [x] T051 Run `pnpm --filter @spyglass/parley build` and record result in `.specify/specs/015-renegotiation-loop/quickstart-run-2026-05-22.md`
+- [x] T052 Run `pnpm --filter @spyglass/parley dev-run:f15` and record evidence for SC-001 through SC-007 in `.specify/specs/015-renegotiation-loop/quickstart-run-2026-05-22.md`
+- [x] T053 Run `/speckit-analyze` and save findings in `.specify/specs/015-renegotiation-loop/analyze-report.md`
+- [x] T054 Run `/code-review` and save findings in `.specify/specs/015-renegotiation-loop/code-review-t054.md`
+- [x] T055 Run `/security-review` and save findings in `.specify/specs/015-renegotiation-loop/security-review-t055.md`
+- [x] T056 Update `.specify/roadmap.md` with F15 implementation status and next-feature notes
 
 ---
 

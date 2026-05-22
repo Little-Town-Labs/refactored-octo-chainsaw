@@ -1,3 +1,4 @@
+import type { RenegotiationMatchTicketSnapshot, RenegotiationRequest } from "../types.js";
 import type {
   AgentContractEvent,
   AgentContractEventQuery,
@@ -337,4 +338,48 @@ export class MemoryToolRepo implements ToolRepository {
 
 function contractKey(contract: { readonly contract_id: string; readonly version: string }): string {
   return `${contract.contract_id}@${contract.version}`;
+}
+
+export function renegotiationRequest(
+  overrides: Partial<RenegotiationRequest> = {},
+): RenegotiationRequest {
+  return {
+    request_id: "00000000-0000-7000-8000-000000001501",
+    event_name: "match_ticket.renegotiation_requested",
+    event_version: 1,
+    match_ticket_id: "00000000-0000-7000-8000-000000001502",
+    match_ticket_identifier: "MT-2026-01501",
+    requester_side: "seeker",
+    requester_principal_id: "principal-seeker-1",
+    requester_scopes: ["match_ticket:renegotiate"],
+    prior_run_id: "00000000-0000-7000-8000-000000001500",
+    prior_dossier_id: "dossier-01500",
+    requested_attempt: 2,
+    reason_code: "pushback_after_counterparty_no",
+    requested_at: fixedDate,
+    ...overrides,
+  };
+}
+
+export function renegotiationMatchTicket(
+  overrides: Partial<RenegotiationMatchTicketSnapshot> = {},
+): RenegotiationMatchTicketSnapshot {
+  return {
+    match_ticket_id: "00000000-0000-7000-8000-000000001502",
+    match_ticket_identifier: "MT-2026-01501",
+    status: "open",
+    current_attempt: 1,
+    prior_outcome: "seeker_cleared",
+    authorized_sides: ["seeker", "employer"],
+    prior_run_ids: ["00000000-0000-7000-8000-000000001500"],
+    legal_hold: false,
+    tombstoned: false,
+    seeker_contract_ref: { contract_id: "seeker.contract", version: "1.0.0" },
+    employer_contract_ref: { contract_id: "employer.contract", version: "1.0.0" },
+    privacy_ruleset_ref: { ruleset_id: "standard", version: "1.0.0" },
+    seeker_round_cap: 3,
+    employer_round_cap: 2,
+    cost_ceiling: 12,
+    ...overrides,
+  };
 }

@@ -86,3 +86,7 @@ export function assertNoPollingFunctions(
   );
   if (offender) throw new Error(`polling trigger not allowed: ${offender.name}`);
 }
+
+export const MATCH_TICKET_RENEGOTIATION_REQUESTED = "match_ticket.renegotiation_requested";
+
+export const RENEGOTIATION_TRIGGER_EVENTS = [MATCH_TICKET_RENEGOTIATION_REQUESTED] as const;
