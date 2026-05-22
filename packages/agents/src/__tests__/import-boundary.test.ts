@@ -21,3 +21,9 @@ describe("direct provider import boundary", () => {
     expect(scanDirectProviderImports([file])).toEqual([]);
   });
 });
+
+test("employer advocate source files stay behind governed AI imports", () => {
+  expect(
+    scanDirectProviderImports(["src/employer-advocate.ts", "src/employer-scoring.ts"]),
+  ).toEqual([]);
+});
