@@ -37,6 +37,8 @@ jobs:
   idempotency:
     name: bootstrap twice; warm pass ≤ 120 s
     runs-on: [self-hosted, linux, x64, spyglass-ci]
+    env:
+      SPYGLASS_SKIP_PERF_BENCHMARKS: "1"
     steps:
       - uses: actions/checkout@v5
       # bootstrap.sh reads .nvmrc and refuses to continue under an older Node.

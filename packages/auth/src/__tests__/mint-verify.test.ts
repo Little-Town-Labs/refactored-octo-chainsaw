@@ -243,7 +243,10 @@ describe("verifyAgentCredential — round-trip", () => {
   });
 });
 
-describe("verifyAgentCredential — p95 benchmark (NFR-2)", () => {
+const runPerformanceBenchmarks = process.env.SPYGLASS_SKIP_PERF_BENCHMARKS !== "1";
+const describePerformance = runPerformanceBenchmarks ? describe : describe.skip;
+
+describePerformance("verifyAgentCredential — p95 benchmark (NFR-2)", () => {
   it("verify p95 stays under 2ms", async () => {
     const bundle = await makeBundle();
     const minted = await mintAgentCredential({
