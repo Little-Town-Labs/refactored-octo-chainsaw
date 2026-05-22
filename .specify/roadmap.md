@@ -1,6 +1,6 @@
 # Project Spyglass — Implementation Roadmap
 
-**Version:** 1.5.10
+**Version:** 1.5.11
 **Created:** 2026-05-06
 **Last Amended:** 2026-05-22
 **Owner:** Gary
@@ -31,7 +31,7 @@ modeling per `.specify/memory/constitution.md` §V.3.
 
 ---
 
-## Current Status (2026-05-21)
+## Current Status (2026-05-22)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
@@ -43,7 +43,7 @@ modeling per `.specify/memory/constitution.md` §V.3.
 | **F06** Jurisdiction policy gates + kill switches | ✅ **Complete** (merged to `main`, PR #41) | DB-backed jurisdiction posture, fail-safe gate evaluator, no-deploy kill switches, non-PII failure artifacts, scoped review reads, runbook, quickstart evidence, and final package gates are complete. |
 | **F07a** Agent Contract Registry | ✅ **Complete** (merged to `main`, PR #42) | Immutable agent contract versions, scoped publication/deprecation, dispatch-time resolution, fail-closed reason codes, provenance/audit evidence, scoped review reads, runbooks, quickstart evidence, and final package gates are complete. |
 | **F07b** Rubric Registry + bias-test dispatch gate | ✅ **Complete** (merged to `main`, PR #43) | Immutable rubric versions, bias-test artifact registration, dispatch refusal for missing/invalid bias evidence, deterministic weighted scoring, scoped review reads, runbook, quickstart evidence, and package gates are complete. |
-| F08–F25 | ⏳ In progress | F08 Parley Runner is complete and merged to `main` in PR #48 with quickstart evidence recorded and CI rerouted to the PowerBox self-hosted runner; F08.5 Tool Surface & Dispatcher is complete and merged to `main` in PR #44; F09 Privacy Filter is complete and merged to `main` in PR #45; F10 Dossier Builder + Signer is complete and merged to `main` in PR #46 with quickstart evidence recorded; F11 Candidate Notification Artifact System is complete and merged to `main` in PR #47 with quickstart evidence recorded. F12 AI Infrastructure is complete and merged to `main` in PR #49 with quickstart evidence recorded. F13 Seeker Advocate Agent is complete and merged to `main` in PR #50 with quickstart evidence recorded. F14 Employer Advocate Agent package slice is implemented on branch `014-employer-advocate` with quickstart evidence recorded; PR/merge pending. |
+| F08–F25 | ⏳ In progress | F08 Parley Runner is complete and merged to `main` in PR #48 with quickstart evidence recorded and CI rerouted to the PowerBox self-hosted runner; F08.5 Tool Surface & Dispatcher is complete and merged to `main` in PR #44; F09 Privacy Filter is complete and merged to `main` in PR #45; F10 Dossier Builder + Signer is complete and merged to `main` in PR #46 with quickstart evidence recorded; F11 Candidate Notification Artifact System is complete and merged to `main` in PR #47 with quickstart evidence recorded. F12 AI Infrastructure is complete and merged to `main` in PR #49 with quickstart evidence recorded. F13 Seeker Advocate Agent is complete and merged to `main` in PR #50 with quickstart evidence recorded. F14 Employer Advocate Agent is complete and merged to `main` in PR #51 with quickstart evidence recorded. |
 
 ### F02 sub-slice progress (branch `02-identity-auth-aaa`)
 
@@ -666,7 +666,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 ### Stage 5 checklist
 - [x] **F12** AI infrastructure _(merged to `main`, PR #49; quickstart evidence recorded)_
 - [x] **F13** Seeker advocate agent _(merged to `main`, PR #50; quickstart evidence recorded)_
-- [ ] **F14** Employer advocate agent _(implemented on branch `014-employer-advocate`; quickstart evidence recorded; PR/merge pending)_
+- [x] **F14** Employer advocate agent _(merged to `main`, PR #51; quickstart evidence recorded)_
 - [ ] **F15** Re-negotiation loop
 - [ ] **Stage 5 gate:** Eval harness baseline cleared; cost ceiling enforced; re-negotiation produces a fresh `run_id` with no state inheritance
 
@@ -698,13 +698,12 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 ## Next Steps
 
-1. **Review and publish F14 Employer Advocate Agent:** complete PR review,
-   merge F14, then advance Stage 5 to F15 re-negotiation loop logic.
+1. **Start F15 Re-negotiation Loop:** specify the fresh-run re-negotiation flow now that both advocate baselines are merged.
 2. **Engage counsel of record** for Phase 0 / Phase 1 review.
    Constitutional §V.2 requires this before any phase-transition merge.
 3. **Resolve PRD Open Question #9** — Phase 1 jurisdiction set.
 4. **Read Parley `SPEC.md` Stage 5-relevant sections** before specifying
-   F14–F15, especially agent identity, signed model/prompt/runtime
+   F15, especially agent identity, signed model/prompt/runtime
    manifest refs, run isolation, eval harness criteria, and auditability
    requirements.
 
@@ -714,6 +713,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 | Version | Date       | Change |
 |---------|------------|--------|
+| 1.5.11  | 2026-05-22 | Status update for F14 merge: Employer Advocate Agent is complete and merged to `main` in PR #51, branch cleanup is ready, and Stage 5 next work is F15 Re-negotiation Loop. PATCH-style status amendment. |
 | 1.5.10  | 2026-05-22 | Status update for F14 implementation: Employer Advocate Agent package slice implemented, quickstart/eval evidence recorded, analysis/code/security review artifacts added, and F15 advanced as the next Stage 5 feature after F14 PR/merge. PATCH-style status amendment. |
 | 1.5.9   | 2026-05-22 | Status update for F14 task generation: Employer Advocate Agent tasks initialized for branch `014-employer-advocate`; next step is analysis remediation then implementation. PATCH-style status amendment. |
 | 1.5.8   | 2026-05-22 | Status update for F14 planning: Employer Advocate Agent plan, research, data model, threat model, contracts, and quickstart artifacts initialized for branch `014-employer-advocate`. PATCH-style status amendment. |
