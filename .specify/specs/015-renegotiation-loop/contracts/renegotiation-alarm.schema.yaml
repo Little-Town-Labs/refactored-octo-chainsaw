@@ -1,0 +1,46 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://spyglass.local/contracts/renegotiation-alarm.schema.yaml
+title: Re-negotiation Alarm
+type: object
+additionalProperties: false
+required:
+  - alarm_id
+  - alarm_type
+  - severity
+  - match_ticket_id
+  - attempt
+  - threshold
+  - observed
+  - audit_event_ref
+  - raised_at
+properties:
+  alarm_id:
+    type: string
+    minLength: 1
+  alarm_type:
+    enum: [cost_ceiling_exceeded, round_cap_exhausted, duplicate_run_allocation_attempt]
+  severity:
+    enum: [warning, high, critical]
+  match_ticket_id:
+    type: string
+    minLength: 1
+  attempt:
+    type: integer
+    minimum: 1
+  run_id:
+    anyOf:
+      - type: string
+        minLength: 1
+      - type: "null"
+  threshold:
+    type: number
+    minimum: 0
+  observed:
+    type: number
+    minimum: 0
+  audit_event_ref:
+    type: string
+    minLength: 1
+  raised_at:
+    type: string
+    format: date-time

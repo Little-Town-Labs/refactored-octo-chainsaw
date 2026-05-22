@@ -504,6 +504,34 @@ data_classes:
       scoring evidence; GDPR Art. 6(1)(f) — legitimate interest in
       agent-quality review, abuse prevention, and forensic readiness.
 
+  # ------------------------------------------------------------------
+  # F15 data classes (Parley re-negotiation loop)
+  # ------------------------------------------------------------------
+  - id: parley_renegotiation_policy
+    description: >-
+      Re-negotiation request, decision, attempt, isolation-boundary, cost,
+      alarm, and outcome projection records used to control fresh Parley runs
+      after asymmetric outcomes. These records may link to match tickets,
+      principals, prior runs, and dossiers, but must not contain inherited
+      prompt history or scratch state.
+    sensitivity: high
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(b) — performance of contract for matching service
+      execution; GDPR Art. 6(1)(c) / Art. 6(1)(f) for AEDT auditability,
+      cost-control evidence, and dispute handling.
+
+  - id: parley_renegotiation_alarm
+    description: >-
+      Operator-visible threshold evidence for re-negotiation cap, duplicate
+      allocation, and cost-ceiling breaches. Contains operational refs,
+      thresholds, observed values, and audit refs, not raw negotiation content.
+    sensitivity: medium
+    erasure_mode: tombstone
+    default_lawful_basis: >-
+      GDPR Art. 6(1)(f) — legitimate interest in platform abuse prevention,
+      cost control, operational safety, and forensic readiness.
+
 # Tables — one entry per pgTable in packages/db/src/schema/.
 # Coverage is enforced by the lint (rule R3).
 tables:
@@ -1495,3 +1523,41 @@ tables:
       - { name: completed_at, class: ai_runtime_evidence, erasure: tombstone }
       - { name: audit_event_id, class: ai_runtime_evidence, erasure: tombstone, fk: audit_log_events.audit_event_id }
       - { name: created_at, class: ai_runtime_evidence, erasure: tombstone }
+
+  - name: parley_renegotiation_attempts
+    file: packages/parley/src/renegotiation.ts
+    migration: package-local-in-memory-fixture
+    primary_class: parley_renegotiation_policy
+    data_subject_linkage:
+      column: requester_principal_id
+      role: requester
+    columns:
+      - { name: request_id, class: parley_renegotiation_policy, erasure: tombstone }
+      - { name: match_ticket_id, class: parley_renegotiation_policy, erasure: tombstone }
+      - { name: requester_principal_id, class: parley_renegotiation_policy, erasure: tombstone, fk: principals.principal_id }
+      - { name: requester_side, class: parley_renegotiation_policy, erasure: hard_delete }
+      - { name: prior_run_id, class: parley_renegotiation_policy, erasure: tombstone }
+      - { name: prior_dossier_id, class: parley_renegotiation_policy, erasure: tombstone }
+      - { name: run_id, class: parley_renegotiation_policy, erasure: tombstone }
+      - { name: effective_round_cap, class: parley_renegotiation_policy, erasure: hard_delete }
+      - { name: cost_ceiling, class: parley_renegotiation_policy, erasure: tombstone }
+      - { name: isolation_boundary, class: parley_renegotiation_policy, erasure: tombstone }
+      - { name: reason_code, class: parley_renegotiation_policy, erasure: hard_delete }
+      - { name: audit_event_ref, class: parley_renegotiation_policy, erasure: tombstone }
+
+  - name: parley_renegotiation_alarms
+    file: packages/parley/src/renegotiation.ts
+    migration: package-local-in-memory-fixture
+    primary_class: parley_renegotiation_alarm
+    data_subject_linkage:
+      column: null
+      role: none
+    columns:
+      - { name: alarm_id, class: parley_renegotiation_alarm, erasure: tombstone }
+      - { name: alarm_type, class: parley_renegotiation_alarm, erasure: hard_delete }
+      - { name: match_ticket_id, class: parley_renegotiation_alarm, erasure: tombstone }
+      - { name: attempt, class: parley_renegotiation_alarm, erasure: hard_delete }
+      - { name: run_id, class: parley_renegotiation_alarm, erasure: tombstone }
+      - { name: threshold, class: parley_renegotiation_alarm, erasure: tombstone }
+      - { name: observed, class: parley_renegotiation_alarm, erasure: tombstone }
+      - { name: audit_event_ref, class: parley_renegotiation_alarm, erasure: tombstone }

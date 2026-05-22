@@ -7,6 +7,7 @@ export * from "./events.js";
 export * from "./filter-worker.js";
 export * from "./invalidator.js";
 export * from "./repo.js";
+export * from "./renegotiation.js";
 export * from "./scoring.js";
 export * from "./side-runner.js";
 export * from "./tool-scan.js";

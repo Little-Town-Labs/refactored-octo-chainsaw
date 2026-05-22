@@ -1,0 +1,76 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://spyglass.local/contracts/renegotiation-decision.schema.yaml
+title: Re-negotiation Decision
+type: object
+additionalProperties: false
+required:
+  - decision_id
+  - request_id
+  - decision
+  - reason_code
+  - match_ticket_id
+  - attempt
+  - run_id
+  - effective_round_cap
+  - cost_ceiling
+  - estimated_cost
+  - audit_event_ref
+  - notification_policy
+  - decided_at
+properties:
+  decision_id:
+    type: string
+    minLength: 1
+  request_id:
+    type: string
+    minLength: 1
+  decision:
+    enum: [allow, deny, idempotent_replay]
+  reason_code:
+    enum:
+      - renegotiation_allowed
+      - duplicate_request
+      - unauthorized_requester
+      - requester_not_cleared_side
+      - match_ticket_not_found
+      - match_ticket_not_eligible
+      - prior_outcome_not_asymmetric
+      - round_cap_exhausted
+      - cost_ceiling_exceeded
+      - legal_hold_blocks_processing
+      - tombstone_blocks_processing
+      - active_run_exists
+      - missing_required_reference
+  match_ticket_id:
+    type: string
+    minLength: 1
+  attempt:
+    type: integer
+    minimum: 1
+  run_id:
+    anyOf:
+      - type: string
+        minLength: 1
+      - type: "null"
+  effective_round_cap:
+    type: integer
+    minimum: 1
+  cost_ceiling:
+    type: number
+    minimum: 0
+  estimated_cost:
+    type: number
+    minimum: 0
+  audit_event_ref:
+    type: string
+    minLength: 1
+  notification_policy:
+    type: object
+    additionalProperties: false
+    required: [non_cleared_side_notified]
+    properties:
+      non_cleared_side_notified:
+        const: false
+  decided_at:
+    type: string
+    format: date-time

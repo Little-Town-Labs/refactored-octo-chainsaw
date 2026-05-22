@@ -192,3 +192,165 @@ export interface ToolSurfaceResolution {
   readonly ref: ToolSurfaceRef;
   readonly descriptors: readonly ToolDescriptorVersion[];
 }
+
+export const RENEGOTIATION_EVENT_NAME = "match_ticket.renegotiation_requested" as const;
+export const DEFAULT_RENEGOTIATION_ROUND_CAP = 3;
+
+export const RENEGOTIATION_REASON_CODES = [
+  "renegotiation_allowed",
+  "duplicate_request",
+  "unauthorized_requester",
+  "requester_not_cleared_side",
+  "match_ticket_not_found",
+  "match_ticket_not_eligible",
+  "prior_outcome_not_asymmetric",
+  "round_cap_exhausted",
+  "cost_ceiling_exceeded",
+  "legal_hold_blocks_processing",
+  "tombstone_blocks_processing",
+  "active_run_exists",
+  "missing_required_reference",
+] as const;
+export type RenegotiationReasonCode = (typeof RENEGOTIATION_REASON_CODES)[number];
+
+export type RenegotiationDecisionKind = "allow" | "deny" | "idempotent_replay";
+export type RenegotiationAttemptStatus =
+  | "accepted"
+  | "dispatched"
+  | "running"
+  | "complete"
+  | "inconclusive"
+  | "refused"
+  | "terminated";
+export type RenegotiationPriorOutcome =
+  | "seeker_cleared"
+  | "employer_cleared"
+  | "both_cleared"
+  | "none_cleared"
+  | "inconclusive";
+export type RenegotiationMatchStatus = "open" | "negotiating" | "closed" | "withdrawn";
+export type RenegotiationAlarmType =
+  | "cost_ceiling_exceeded"
+  | "round_cap_exhausted"
+  | "duplicate_run_allocation_attempt";
+export type RenegotiationAlarmSeverity = "warning" | "high" | "critical";
+
+export interface RenegotiationRequest {
+  readonly request_id: string;
+  readonly event_name: typeof RENEGOTIATION_EVENT_NAME;
+  readonly event_version: 1;
+  readonly match_ticket_id: string;
+  readonly match_ticket_identifier: string;
+  readonly requester_side: ParleySide;
+  readonly requester_principal_id: string;
+  readonly requester_scopes: readonly string[];
+  readonly prior_run_id: string;
+  readonly prior_dossier_id?: string | null;
+  readonly requested_attempt: number;
+  readonly reason_code: string;
+  readonly requested_at: Date;
+}
+
+export interface RenegotiationMatchTicketSnapshot {
+  readonly match_ticket_id: string;
+  readonly match_ticket_identifier: string;
+  readonly status: RenegotiationMatchStatus;
+  readonly current_attempt: number;
+  readonly prior_outcome: RenegotiationPriorOutcome;
+  readonly authorized_sides: readonly ParleySide[];
+  readonly prior_run_ids: readonly string[];
+  readonly legal_hold: boolean;
+  readonly tombstoned: boolean;
+  readonly seeker_contract_ref: ContractRef;
+  readonly employer_contract_ref: ContractRef;
+  readonly privacy_ruleset_ref: PrivacyRulesetRef;
+  readonly seeker_round_cap?: number;
+  readonly employer_round_cap?: number;
+  readonly cost_ceiling: number;
+}
+
+export interface RenegotiationIsolationBoundary {
+  readonly prompt_history_entries: 0;
+  readonly tool_call_entries: 0;
+  readonly seeker_scratch_entries: 0;
+  readonly employer_scratch_entries: 0;
+  readonly prior_context_rehydrated: false;
+  readonly allowed_reference_types: readonly string[];
+}
+
+export interface RenegotiationAttempt {
+  readonly attempt_id: string;
+  readonly match_ticket_id: string;
+  readonly attempt: number;
+  readonly run_id: string;
+  readonly request_id: string;
+  readonly requester_side: ParleySide;
+  readonly status: RenegotiationAttemptStatus;
+  readonly effective_round_cap: number;
+  readonly cost_ceiling: number;
+  readonly cost_observed: number;
+  readonly prior_run_id: string;
+  readonly prior_dossier_id: string | null;
+  readonly isolation_boundary: RenegotiationIsolationBoundary;
+  readonly created_at: Date;
+  readonly started_at: Date | null;
+  readonly completed_at: Date | null;
+  readonly terminal_reason: string | null;
+}
+
+export interface RenegotiationAuditEvent {
+  readonly audit_event_id: string;
+  readonly event_name:
+    | "renegotiation.request.accepted"
+    | "renegotiation.request.refused"
+    | "renegotiation.request.replayed"
+    | "renegotiation.run.allocated"
+    | "renegotiation.cost.alarm"
+    | "renegotiation.run.terminated";
+  readonly match_ticket_id: string;
+  readonly request_id: string;
+  readonly run_id: string | null;
+  readonly reason_code: RenegotiationReasonCode;
+  readonly created_at: Date;
+}
+
+export interface RenegotiationAlarm {
+  readonly alarm_id: string;
+  readonly alarm_type: RenegotiationAlarmType;
+  readonly severity: RenegotiationAlarmSeverity;
+  readonly match_ticket_id: string;
+  readonly attempt: number;
+  readonly run_id: string | null;
+  readonly threshold: number;
+  readonly observed: number;
+  readonly audit_event_ref: string;
+  readonly raised_at: Date;
+}
+
+export interface RenegotiationDecision {
+  readonly decision_id: string;
+  readonly request_id: string;
+  readonly decision: RenegotiationDecisionKind;
+  readonly reason_code: RenegotiationReasonCode;
+  readonly match_ticket_id: string;
+  readonly attempt: number;
+  readonly run_id: string | null;
+  readonly effective_round_cap: number;
+  readonly cost_ceiling: number;
+  readonly estimated_cost: number;
+  readonly audit_event_ref: string;
+  readonly notification_policy: { readonly non_cleared_side_notified: false };
+  readonly decided_at: Date;
+  readonly attempt_record?: RenegotiationAttempt;
+  readonly alarms: readonly RenegotiationAlarm[];
+}
+
+export interface RenegotiationOutcomeProjection {
+  readonly match_ticket_id: string;
+  readonly attempt: number;
+  readonly decision: RenegotiationDecisionKind;
+  readonly reason_code: RenegotiationReasonCode;
+  readonly run_id: string | null;
+  readonly hidden_run_state_exposed: false;
+  readonly non_cleared_side_notified: false;
+}
