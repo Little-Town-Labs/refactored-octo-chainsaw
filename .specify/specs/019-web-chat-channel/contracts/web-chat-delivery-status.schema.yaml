@@ -1,0 +1,31 @@
+title: WebChatDeliveryStatus
+type: object
+required:
+  - messageId
+  - status
+properties:
+  messageId:
+    type: string
+  status:
+    type: string
+    enum:
+      - rendered
+      - displayed
+      - acknowledged
+      - retryable_failure
+      - terminal_failure
+      - expired
+      - cancelled
+      - refused
+      - unsupported
+      - duplicate
+  reasonCode:
+    type: string
+  retryAfter:
+    type: string
+    format: date-time
+  nativeRefs:
+    type: object
+    additionalProperties:
+      type: string
+additionalProperties: false

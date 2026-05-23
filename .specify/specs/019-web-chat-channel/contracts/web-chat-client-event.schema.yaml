@@ -1,0 +1,55 @@
+title: WebChatClientEvent
+type: object
+required:
+  - eventId
+  - eventKind
+  - threadId
+  - session
+properties:
+  eventId:
+    type: string
+    description: Stable client event identifier used for retry idempotency.
+  eventKind:
+    type: string
+    enum: [text, action, verification, acknowledgement, status, attachment_reference]
+  threadId:
+    type: string
+  actionId:
+    type: string
+  session:
+    type: object
+    required: [sessionId, principalId, expiresAt]
+    properties:
+      sessionId:
+        type: string
+      principalId:
+        type: string
+      expiresAt:
+        type: string
+        format: date-time
+      assurance:
+        type: string
+  content:
+    type: object
+    additionalProperties: true
+    description: User-controlled event content that must be treated as untrusted.
+  clientContext:
+    type: object
+    additionalProperties: false
+    properties:
+      locale:
+        type: string
+      route:
+        type: string
+      referrer:
+        type: string
+      clientTimestamp:
+        type: string
+        format: date-time
+      userAgentHint:
+        type: string
+  nativeRefs:
+    type: object
+    additionalProperties:
+      type: string
+additionalProperties: false

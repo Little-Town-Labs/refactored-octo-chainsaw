@@ -1,6 +1,6 @@
 # Project Spyglass — Implementation Roadmap
 
-**Version:** 1.5.23
+**Version:** 1.5.25
 **Created:** 2026-05-06
 **Last Amended:** 2026-05-23
 **Owner:** Gary
@@ -43,7 +43,7 @@ modeling per `.specify/memory/constitution.md` §V.3.
 | **F06** Jurisdiction policy gates + kill switches | ✅ **Complete** (merged to `main`, PR #41) | DB-backed jurisdiction posture, fail-safe gate evaluator, no-deploy kill switches, non-PII failure artifacts, scoped review reads, runbook, quickstart evidence, and final package gates are complete. |
 | **F07a** Agent Contract Registry | ✅ **Complete** (merged to `main`, PR #42) | Immutable agent contract versions, scoped publication/deprecation, dispatch-time resolution, fail-closed reason codes, provenance/audit evidence, scoped review reads, runbooks, quickstart evidence, and final package gates are complete. |
 | **F07b** Rubric Registry + bias-test dispatch gate | ✅ **Complete** (merged to `main`, PR #43) | Immutable rubric versions, bias-test artifact registration, dispatch refusal for missing/invalid bias evidence, deterministic weighted scoring, scoped review reads, runbook, quickstart evidence, and package gates are complete. |
-| F08–F25 | ⏳ In progress | F08 Parley Runner is complete and merged to `main` in PR #48 with quickstart evidence recorded and CI rerouted to the PowerBox self-hosted runner; F08.5 Tool Surface & Dispatcher is complete and merged to `main` in PR #44; F09 Privacy Filter is complete and merged to `main` in PR #45; F10 Dossier Builder + Signer is complete and merged to `main` in PR #46 with quickstart evidence recorded; F11 Candidate Notification Artifact System is complete and merged to `main` in PR #47 with quickstart evidence recorded. F12 AI Infrastructure is complete and merged to `main` in PR #49 with quickstart evidence recorded. F13 Seeker Advocate Agent is complete and merged to `main` in PR #50 with quickstart evidence recorded. F14 Employer Advocate Agent is complete and merged to `main` in PR #51 with quickstart evidence recorded. F15 Re-negotiation Loop is complete and merged to `main` in PR #52 with quickstart evidence recorded. F16 Channel adapter framework is complete and merged to `main` in PR #53 with quickstart evidence recorded. F17 Telegram channel adapter is complete and merged to `main` in PR #54 with quickstart evidence recorded. F18 Email channel adapter is complete and merged to `main` in PR #55 with quickstart evidence recorded. |
+| F08–F25 | ⏳ In progress | F08 Parley Runner is complete and merged to `main` in PR #48 with quickstart evidence recorded and CI rerouted to the PowerBox self-hosted runner; F08.5 Tool Surface & Dispatcher is complete and merged to `main` in PR #44; F09 Privacy Filter is complete and merged to `main` in PR #45; F10 Dossier Builder + Signer is complete and merged to `main` in PR #46 with quickstart evidence recorded; F11 Candidate Notification Artifact System is complete and merged to `main` in PR #47 with quickstart evidence recorded. F12 AI Infrastructure is complete and merged to `main` in PR #49 with quickstart evidence recorded. F13 Seeker Advocate Agent is complete and merged to `main` in PR #50 with quickstart evidence recorded. F14 Employer Advocate Agent is complete and merged to `main` in PR #51 with quickstart evidence recorded. F15 Re-negotiation Loop is complete and merged to `main` in PR #52 with quickstart evidence recorded. F16 Channel adapter framework is complete and merged to `main` in PR #53 with quickstart evidence recorded. F17 Telegram channel adapter is complete and merged to `main` in PR #54 with quickstart evidence recorded. F18 Email channel adapter is complete and merged to `main` in PR #55 with quickstart evidence recorded. F19 Web-chat channel adapter package slice is implemented in `@spyglass/web-chat-channel`; quickstart evidence, analyze report, code review, and security/accessibility review are recorded. PR/merge follow-through remains pending. |
 
 ### F02 sub-slice progress (branch `02-identity-auth-aaa`)
 
@@ -328,7 +328,7 @@ and tested standalone before F08 integration.
 | F16 | Channel adapter framework + `ChannelMessage` interface | `16-channels-core` | P0 | M — Complete (merged to `main`, PR #53) | III.2 (semantic clarity for adapters); IV (SoC) |
 | F17 | Telegram channel adapter | `17-telegram-channel` | P0 | M — Complete (merged to `main`, PR #54) | III.1 (human surface) |
 | F18 | Email channel adapter (inbound/outbound + threading) | `18-email-channel` | P0 | M — Complete (merged to `main`, PR #55) | III.1 |
-| F19 | Web-chat channel adapter (Clerk-authed) | `19-web-chat-channel` | P1 | S | III.1; III.4 (WCAG 2.2 AA) |
+| F19 | Web-chat channel adapter (Clerk-authed) | `19-web-chat-channel` | P1 | S — Implemented on branch `019-web-chat-channel`; PR pending | III.1; III.4 (WCAG 2.2 AA) |
 | F20 | Conversational onboarding & seeker product flows | `20-seeker-conversational-flows` | P0 | XL | I.4.1 (data minimization); III.1; PRD §6.1 |
 
 **Stage 6 goal.** The seeker product surface. F20 carries every
@@ -674,7 +674,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 - [x] **F16** Channel adapter framework _(merged to `main`, PR #53; quickstart evidence recorded)_
 - [x] **F17** Telegram channel adapter _(merged to `main`, PR #54; quickstart evidence recorded)_
 - [x] **F18** Email channel adapter _(merged to `main`, PR #55; quickstart evidence recorded)_
-- [ ] **F19** Web-chat channel adapter
+- [ ] **F19** Web-chat channel adapter _(implemented on branch `019-web-chat-channel`; quickstart evidence recorded; PR pending)_
 - [ ] **F20** Conversational onboarding & flows
 - [ ] **Stage 6 gate:** Seeker can complete onboarding end-to-end via Telegram and email; demographic opt-in counsel-reviewed
 
@@ -698,7 +698,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 ## Next Steps
 
-1. **Start F19 Web-chat channel adapter:** read PRD and Parley channel-surface sections, then run the Spec Kit specify -> clarify/plan/tasks flow for `19-web-chat-channel`.
+1. **Review, commit, push, and open the F19 PR:** branch `019-web-chat-channel` contains the implemented `@spyglass/web-chat-channel` package, quickstart evidence, analysis, code review, and security/accessibility review.
 2. **Engage counsel of record** for Phase 0 / Phase 1 review.
    Constitutional §V.2 requires this before any phase-transition merge.
 3. **Resolve PRD Open Question #9** — Phase 1 jurisdiction set.
@@ -710,6 +710,8 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 | Version | Date       | Change |
 |---------|------------|--------|
+| 1.5.25  | 2026-05-23 | Status update for F19 implementation: Web-chat channel adapter package slice implemented in `@spyglass/web-chat-channel`, quickstart evidence recorded, analyze/code/security-accessibility review artifacts added, and PR/merge follow-through remains pending. PATCH-style status amendment. |
+| 1.5.24  | 2026-05-23 | Status update for F19 planning: Web-chat channel adapter is active on branch `019-web-chat-channel`, active Spec Kit pointers target `.specify/specs/019-web-chat-channel`, clarify decisions are recorded, and spec/plan/tasks artifacts are initialized with `/speckit-analyze` as the next step. PATCH-style status amendment. |
 | 1.5.23  | 2026-05-23 | Status update for F18 merge: Email channel adapter is complete and merged to `main` in PR #55, quickstart evidence is recorded, local/remote branch cleanup is complete, and Stage 6 next work is F19 Web-chat channel adapter. PATCH-style status amendment. |
 | 1.5.22  | 2026-05-23 | Status update for F18 implementation: Email channel adapter package slice implemented in `@spyglass/email-channel`, quickstart evidence recorded, analyze/code/security review artifacts added, and PR/merge follow-through remains pending. PATCH-style status amendment. |
 | 1.5.21  | 2026-05-23 | Status update for F18 start: Email channel adapter is active on branch `018-email-channel`, active Spec Kit pointers target `.specify/specs/018-email-channel`, and specify/clarify/plan artifacts are initialized with Resend-first provider-parsed inbound and Spyglass reply-alias threading decisions recorded. PATCH-style status amendment. |

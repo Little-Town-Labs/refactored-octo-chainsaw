@@ -585,6 +585,15 @@ importers:
         specifier: ^4.1.1
         version: 4.1.1
 
+  packages/web-chat-channel:
+    dependencies:
+      '@spyglass/channels-core':
+        specifier: workspace:*
+        version: link:../channels-core
+      '@spyglass/shared':
+        specifier: workspace:*
+        version: link:../shared
+
 packages:
 
   '@adobe/css-tools@4.4.4':
