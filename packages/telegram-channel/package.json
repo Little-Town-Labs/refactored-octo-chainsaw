@@ -1,0 +1,29 @@
+{
+  "name": "@spyglass/telegram-channel",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "type-check": "tsc --noEmit -p tsconfig.json",
+    "test": "jest --passWithNoTests",
+    "lint": "eslint .",
+    "dev-run:f17": "tsx scripts/f17-staged-dev-run.ts"
+  },
+  "dependencies": {
+    "@spyglass/channels-core": "workspace:*",
+    "@spyglass/shared": "workspace:*",
+    "grammy": "^1.42.0"
+  }
+}

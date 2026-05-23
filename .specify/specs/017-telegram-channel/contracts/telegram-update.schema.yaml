@@ -1,0 +1,23 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/telegram-update.schema.json"
+title: TelegramNativeUpdate
+type: object
+additionalProperties: false
+required:
+  - update_id
+properties:
+  update_id:
+    type: integer
+    minimum: 0
+  message:
+    type: object
+  edited_message:
+    type: object
+  callback_query:
+    type: object
+  unsupported:
+    type: object
+description: >
+  Bounded Telegram Bot API update input accepted by the F17 adapter.
+  The implementation may accept provider-native fields, but only
+  documented fields may become canonical semantic content.

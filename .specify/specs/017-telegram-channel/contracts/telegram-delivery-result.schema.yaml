@@ -1,0 +1,48 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/telegram-delivery-result.schema.json"
+title: TelegramDeliveryResult
+type: object
+additionalProperties: false
+required:
+  - status
+  - reason_code
+  - occurred_at
+properties:
+  status:
+    enum:
+      - delivered
+      - accepted_for_delivery
+      - retryable_failure
+      - terminal_failure
+      - refused
+      - unsupported
+      - provider_rate_limited
+  reason_code:
+    enum:
+      - delivered
+      - accepted_by_provider
+      - unsupported_intent
+      - unauthenticated_channel_link
+      - unauthorized_participant
+      - malformed_payload
+      - over_size_payload
+      - privacy_projection_unavailable
+      - delivery_provider_unavailable
+      - provider_throttled
+      - provider_rejected
+      - duplicate_suppressed
+  occurred_at:
+    type: string
+    format: date-time
+  retry_after:
+    type: string
+    format: date-time
+  native_ref:
+    type: string
+  audit_event_id:
+    type: string
+  provider_metadata:
+    type: object
+description: >
+  Provider-neutral delivery result for Telegram rendering and send attempts.
+  Native provider details are bounded metadata only.

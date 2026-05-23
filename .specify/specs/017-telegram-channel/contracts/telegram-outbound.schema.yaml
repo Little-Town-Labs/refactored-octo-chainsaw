@@ -1,0 +1,33 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/telegram-outbound.schema.json"
+title: TelegramOutboundPayload
+type: object
+additionalProperties: false
+required:
+  - chat_id
+  - text
+  - source_message_id
+properties:
+  chat_id:
+    oneOf:
+      - type: integer
+      - type: string
+        minLength: 1
+  text:
+    type: string
+    minLength: 1
+  parse_mode:
+    enum: [MarkdownV2, HTML, plain]
+  reply_to_message_id:
+    type: integer
+  source_message_id:
+    type: string
+    minLength: 1
+  correlation_id:
+    type: string
+  fallback_used:
+    type: boolean
+description: >
+  Telegram-sendable payload produced only from approved canonical outbound
+  ChannelMessage content. Raw counterparty data and unfiltered dossier
+  internals are not valid inputs to this contract.
