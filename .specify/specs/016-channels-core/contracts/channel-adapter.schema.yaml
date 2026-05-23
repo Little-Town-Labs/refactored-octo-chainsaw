@@ -1,0 +1,42 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/channel-adapter.schema.json"
+title: ChannelAdapterCapability
+type: object
+additionalProperties: false
+required:
+  - adapter_name
+  - adapter_version
+  - channel_kind
+  - content_parts
+  - max_text_chars
+  - acknowledgement_mode
+  - retry_mode
+properties:
+  adapter_name:
+    type: string
+    minLength: 1
+  adapter_version:
+    type: string
+    minLength: 1
+  channel_kind:
+    enum: [telegram, email, web_chat, a2a_delegate]
+  content_parts:
+    type: array
+    minItems: 1
+    items:
+      enum: [text, command, attachment_ref, rich_card, system_notice]
+  max_text_chars:
+    type: integer
+    minimum: 1
+  supports_rich_cards:
+    type: boolean
+  supports_attachments:
+    type: boolean
+  supports_threads:
+    type: boolean
+  acknowledgement_mode:
+    enum: [sync, async, none]
+  retry_mode:
+    enum: [provider_retry, platform_retry, manual_review]
+  notes:
+    type: string
