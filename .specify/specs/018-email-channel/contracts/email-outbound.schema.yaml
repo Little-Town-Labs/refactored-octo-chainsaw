@@ -1,0 +1,71 @@
+openapi: 3.1.0
+info:
+  title: Email Outbound Render Contract
+  version: 0.1.0
+components:
+  schemas:
+    EmailOutboundRender:
+      type: object
+      additionalProperties: false
+      required:
+        - target
+        - subject
+        - text_body
+        - source_message_id
+        - disclosure_posture
+      properties:
+        target:
+          type: object
+          additionalProperties: false
+          required: [email, thread_id]
+          properties:
+            email:
+              type: string
+              format: email
+              maxLength: 320
+            thread_id:
+              type: string
+              minLength: 1
+              maxLength: 128
+            reply_alias:
+              type: string
+              maxLength: 256
+        subject:
+          type: string
+          minLength: 1
+          maxLength: 160
+        text_body:
+          type: string
+          minLength: 1
+          maxLength: 20000
+        html_body:
+          type: string
+          maxLength: 40000
+        headers:
+          type: object
+          additionalProperties: false
+          properties:
+            message_id:
+              type: string
+              maxLength: 512
+            in_reply_to:
+              type: string
+              maxLength: 512
+            references:
+              type: array
+              maxItems: 20
+              items:
+                type: string
+                maxLength: 512
+        source_message_id:
+          type: string
+          minLength: 1
+          maxLength: 128
+        disclosure_posture:
+          type: string
+          enum: [approved_projection, system_generated]
+        fallback_used:
+          type: boolean
+        audit_correlation_id:
+          type: string
+          maxLength: 128

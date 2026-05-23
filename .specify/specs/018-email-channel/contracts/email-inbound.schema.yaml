@@ -1,0 +1,126 @@
+openapi: 3.1.0
+info:
+  title: Email Inbound Event Contract
+  version: 0.1.0
+components:
+  schemas:
+    EmailInboundEvent:
+      type: object
+      additionalProperties: false
+      required:
+        - provider
+        - event_kind
+        - provider_event_id
+        - received_at
+      properties:
+        provider:
+          type: string
+          enum: [resend, postmark, ses, fixture]
+        event_kind:
+          type: string
+          enum:
+            - inbound_message
+            - delivery
+            - deferred
+            - bounce
+            - complaint
+            - suppression
+            - unsupported
+        provider_event_id:
+          type: string
+          minLength: 1
+          maxLength: 256
+        message_id:
+          type: string
+          maxLength: 512
+        from:
+          $ref: "#/components/schemas/EmailAddressRef"
+        to:
+          type: array
+          maxItems: 20
+          items:
+            $ref: "#/components/schemas/EmailAddressRef"
+        reply_alias:
+          type: string
+          maxLength: 256
+        reference_headers:
+          type: object
+          additionalProperties: false
+          properties:
+            message_id:
+              type: string
+              maxLength: 512
+            in_reply_to:
+              type: string
+              maxLength: 512
+            references:
+              type: array
+              maxItems: 20
+              items:
+                type: string
+                maxLength: 512
+        subject:
+          type: string
+          maxLength: 512
+        text_body:
+          type: string
+          maxLength: 20000
+        has_html:
+          type: boolean
+        attachment_refs:
+          type: array
+          maxItems: 10
+          items:
+            $ref: "#/components/schemas/AttachmentRef"
+        spam_signals:
+          type: object
+          additionalProperties: false
+          properties:
+            provider_score:
+              type: number
+            provider_status:
+              type: string
+              maxLength: 128
+            spoof_risk:
+              type: boolean
+        occurred_at:
+          type: string
+          format: date-time
+        received_at:
+          type: string
+          format: date-time
+    EmailAddressRef:
+      type: object
+      additionalProperties: false
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 320
+        name:
+          type: string
+          maxLength: 256
+        mailbox_hash:
+          type: string
+          maxLength: 256
+    AttachmentRef:
+      type: object
+      additionalProperties: false
+      required: [provider_ref, filename]
+      properties:
+        provider_ref:
+          type: string
+          minLength: 1
+          maxLength: 512
+        filename:
+          type: string
+          minLength: 1
+          maxLength: 256
+        content_type:
+          type: string
+          maxLength: 128
+        size_bytes:
+          type: integer
+          minimum: 0
+          maximum: 10485760

@@ -1,0 +1,43 @@
+openapi: 3.1.0
+info:
+  title: Email Delivery Result Contract
+  version: 0.1.0
+components:
+  schemas:
+    EmailDeliveryResult:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+        - reason_code
+        - occurred_at
+      properties:
+        status:
+          type: string
+          enum:
+            - delivered
+            - accepted_for_delivery
+            - retryable_failure
+            - terminal_failure
+            - refused
+            - unsupported
+            - provider_rate_limited
+        reason_code:
+          type: string
+          minLength: 1
+          maxLength: 128
+        occurred_at:
+          type: string
+          format: date-time
+        retry_after:
+          type: string
+          format: date-time
+        native_ref:
+          type: string
+          maxLength: 512
+        provider_metadata:
+          type: object
+          additionalProperties: true
+        audit_event_id:
+          type: string
+          maxLength: 128
