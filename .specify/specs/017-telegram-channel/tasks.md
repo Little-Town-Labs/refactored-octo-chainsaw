@@ -131,7 +131,7 @@
 - [x] T051 Perform code review and record findings in `.specify/specs/017-telegram-channel/code-review-t051.md`
 - [x] T052 Perform security review and record findings in `.specify/specs/017-telegram-channel/security-review-t052.md`
 - [x] T053 Update `.specify/roadmap.md` with F17 implementation status and next-step guidance
-- [ ] T054 Review final diff, commit branch `017-telegram-channel`, push, open PR, verify checks/mergeability, and follow through to merge
+- [x] T054 Review final diff, commit branch `017-telegram-channel`, push, open PR, verify checks/mergeability, and follow through to merge
 
 ---
 
