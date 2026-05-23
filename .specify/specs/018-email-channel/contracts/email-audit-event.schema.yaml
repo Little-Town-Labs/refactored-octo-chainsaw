@@ -1,0 +1,60 @@
+openapi: 3.1.0
+info:
+  title: Email Audit Event Contract
+  version: 0.1.0
+components:
+  schemas:
+    EmailAuditEvent:
+      type: object
+      additionalProperties: false
+      required:
+        - event_id
+        - event_type
+        - channel_kind
+        - occurred_at
+        - correlation_id
+      properties:
+        event_id:
+          type: string
+          minLength: 1
+          maxLength: 128
+        event_type:
+          type: string
+          enum:
+            - email.normalized
+            - email.refused
+            - email.duplicate_suppressed
+            - email.outbound_rendered
+            - email.delivery_recorded
+            - email.bounce_recorded
+            - email.complaint_recorded
+            - email.unsubscribe_refused
+            - email.capability_registered
+        channel_kind:
+          type: string
+          const: email
+        message_id:
+          type: string
+          maxLength: 128
+        principal_id:
+          type: string
+          maxLength: 128
+        thread_id:
+          type: string
+          maxLength: 128
+        reason_code:
+          type: string
+          maxLength: 128
+        provider:
+          type: string
+          maxLength: 64
+        native_ref:
+          type: string
+          maxLength: 512
+        occurred_at:
+          type: string
+          format: date-time
+        correlation_id:
+          type: string
+          minLength: 1
+          maxLength: 128

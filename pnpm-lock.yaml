@@ -306,6 +306,15 @@ importers:
         specifier: ^4.1.1
         version: 4.1.1
 
+  packages/email-channel:
+    dependencies:
+      '@spyglass/channels-core':
+        specifier: workspace:*
+        version: link:../channels-core
+      '@spyglass/shared':
+        specifier: workspace:*
+        version: link:../shared
+
   packages/notifications:
     dependencies:
       '@spyglass/audit-log':
