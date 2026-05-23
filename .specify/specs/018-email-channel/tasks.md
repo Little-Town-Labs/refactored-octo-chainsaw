@@ -146,7 +146,7 @@
 - [x] T060 Perform code review and record findings in `.specify/specs/018-email-channel/code-review-t060.md`
 - [x] T061 Perform security review and record findings in `.specify/specs/018-email-channel/security-review-t061.md`
 - [x] T062 Update `.specify/roadmap.md` with F18 implementation status and next-step guidance
-- [ ] T063 Review final diff, commit branch `018-email-channel`, push, open PR, verify checks/mergeability, and follow through to merge
+- [x] T063 Review final diff, commit branch `018-email-channel`, push, open PR, verify checks/mergeability, and follow through to merge
 
 ---
 
