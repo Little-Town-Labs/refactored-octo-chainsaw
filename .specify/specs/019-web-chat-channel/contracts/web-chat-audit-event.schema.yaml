@@ -1,0 +1,38 @@
+title: WebChatAuditEvent
+type: object
+required:
+  - eventType
+  - occurredAt
+  - correlationId
+properties:
+  eventType:
+    type: string
+    enum:
+      - web_chat.normalized
+      - web_chat.refused
+      - web_chat.duplicate
+      - web_chat.rendered
+      - web_chat.delivery_status_recorded
+      - web_chat.accessibility_contract_validated
+      - web_chat.unsupported_intent_refused
+      - web_chat.capability_registered
+  occurredAt:
+    type: string
+    format: date-time
+  correlationId:
+    type: string
+  participantId:
+    type: string
+  sessionRef:
+    type: string
+  threadId:
+    type: string
+  reasonCode:
+    type: string
+  status:
+    type: string
+  nativeRefs:
+    type: object
+    additionalProperties:
+      type: string
+additionalProperties: false
