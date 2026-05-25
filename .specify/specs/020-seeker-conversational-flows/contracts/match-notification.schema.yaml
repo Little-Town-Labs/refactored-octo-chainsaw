@@ -1,0 +1,39 @@
+schema: match-notification
+version: 1
+type: object
+required:
+  - eventId
+  - seekerId
+  - matchTicketId
+  - notificationKind
+  - policyDecisionRef
+  - idempotencyKey
+properties:
+  eventId:
+    type: string
+  channel:
+    type: string
+    enum: [telegram, email, web-chat]
+  seekerId:
+    type: string
+  seekerTicketId:
+    type: string
+  matchTicketId:
+    type: string
+  notificationKind:
+    type: string
+    enum: [threshold-cleared, one-side-cleared, inconclusive, threshold-check-in]
+  approvedProjectionRef:
+    type: string
+  policyDecisionRef:
+    type: string
+  reviewActionIds:
+    type: array
+    items:
+      type: string
+  idempotencyKey:
+    type: string
+  occurredAt:
+    type: string
+    format: date-time
+additionalProperties: false
