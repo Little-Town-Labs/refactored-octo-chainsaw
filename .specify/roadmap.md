@@ -1,6 +1,6 @@
 # Project Spyglass — Implementation Roadmap
 
-**Version:** 1.5.31
+**Version:** 1.5.32
 **Created:** 2026-05-06
 **Last Amended:** 2026-05-25
 **Owner:** Gary
@@ -43,7 +43,7 @@ modeling per `.specify/memory/constitution.md` §V.3.
 | **F06** Jurisdiction policy gates + kill switches | ✅ **Complete** (merged to `main`, PR #41) | DB-backed jurisdiction posture, fail-safe gate evaluator, no-deploy kill switches, non-PII failure artifacts, scoped review reads, runbook, quickstart evidence, and final package gates are complete. |
 | **F07a** Agent Contract Registry | ✅ **Complete** (merged to `main`, PR #42) | Immutable agent contract versions, scoped publication/deprecation, dispatch-time resolution, fail-closed reason codes, provenance/audit evidence, scoped review reads, runbooks, quickstart evidence, and final package gates are complete. |
 | **F07b** Rubric Registry + bias-test dispatch gate | ✅ **Complete** (merged to `main`, PR #43) | Immutable rubric versions, bias-test artifact registration, dispatch refusal for missing/invalid bias evidence, deterministic weighted scoring, scoped review reads, runbook, quickstart evidence, and package gates are complete. |
-| F08–F25 | ⏳ In progress | F08 Parley Runner is complete and merged to `main` in PR #48 with quickstart evidence recorded and CI rerouted to the PowerBox self-hosted runner; F08.5 Tool Surface & Dispatcher is complete and merged to `main` in PR #44; F09 Privacy Filter is complete and merged to `main` in PR #45; F10 Dossier Builder + Signer is complete and merged to `main` in PR #46 with quickstart evidence recorded; F11 Candidate Notification Artifact System is complete and merged to `main` in PR #47 with quickstart evidence recorded. F12 AI Infrastructure is complete and merged to `main` in PR #49 with quickstart evidence recorded. F13 Seeker Advocate Agent is complete and merged to `main` in PR #50 with quickstart evidence recorded. F14 Employer Advocate Agent is complete and merged to `main` in PR #51 with quickstart evidence recorded. F15 Re-negotiation Loop is complete and merged to `main` in PR #52 with quickstart evidence recorded. F16 Channel adapter framework is complete and merged to `main` in PR #53 with quickstart evidence recorded. F17 Telegram channel adapter is complete and merged to `main` in PR #54 with quickstart evidence recorded. F18 Email channel adapter is complete and merged to `main` in PR #55 with quickstart evidence recorded. F19 Web-chat channel adapter is complete and merged to `main` in PR #56 with quickstart evidence recorded. F20 Conversational onboarding & seeker product flows is complete and merged to `main` in PR #57 with quickstart evidence recorded. F21 Seeker web surface is implemented on branch `021-seeker-web-surface` with quickstart evidence recorded; PR publication remains pending. |
+| F08–F25 | ⏳ In progress | F08 Parley Runner is complete and merged to `main` in PR #48 with quickstart evidence recorded and CI rerouted to the PowerBox self-hosted runner; F08.5 Tool Surface & Dispatcher is complete and merged to `main` in PR #44; F09 Privacy Filter is complete and merged to `main` in PR #45; F10 Dossier Builder + Signer is complete and merged to `main` in PR #46 with quickstart evidence recorded; F11 Candidate Notification Artifact System is complete and merged to `main` in PR #47 with quickstart evidence recorded. F12 AI Infrastructure is complete and merged to `main` in PR #49 with quickstart evidence recorded. F13 Seeker Advocate Agent is complete and merged to `main` in PR #50 with quickstart evidence recorded. F14 Employer Advocate Agent is complete and merged to `main` in PR #51 with quickstart evidence recorded. F15 Re-negotiation Loop is complete and merged to `main` in PR #52 with quickstart evidence recorded. F16 Channel adapter framework is complete and merged to `main` in PR #53 with quickstart evidence recorded. F17 Telegram channel adapter is complete and merged to `main` in PR #54 with quickstart evidence recorded. F18 Email channel adapter is complete and merged to `main` in PR #55 with quickstart evidence recorded. F19 Web-chat channel adapter is complete and merged to `main` in PR #56 with quickstart evidence recorded. F20 Conversational onboarding & seeker product flows is complete and merged to `main` in PR #57 with quickstart evidence recorded. F21 Seeker web surface is complete and merged to `main` in PR #58 with quickstart evidence recorded. Next roadmap work is F22 Employer admin console. |
 
 ### F02 sub-slice progress (branch `02-identity-auth-aaa`)
 
@@ -352,7 +352,7 @@ insight reports, and the demographic opt-in flow with segregated storage.
 
 | ID | Feature | Slug | Priority | Complexity | Constitution refs |
 |----|---------|------|----------|------------|-------------------|
-| F21 | Seeker web surface (landing + Clerk profile + agents.md/llms.txt + A2A cards) | `21-seeker-web-surface` | P0 | M — Active (`021-seeker-web-surface`) | III (dual-audience landing page); II (A2A agent cards) |
+| F21 | Seeker web surface (landing + Clerk profile + agents.md/llms.txt + A2A cards) | `21-seeker-web-surface` | P0 | M | III (dual-audience landing page); II (A2A agent cards) |
 | F22 | Employer admin console | `22-employer-admin-console` | P0 | L | III.1; III.4 (WCAG); I.5.1 (MFA for admin seats) |
 | F23 | Employer REST API + signed-webhook delivery | `23-employer-api-webhooks` | P0 | M | II; III.2 (OpenAPI 3.1 contracts); III.3 (deprecation policy); I.C.1 (webhook signing) |
 
@@ -679,7 +679,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 - [ ] **Stage 6 gate:** Seeker can complete onboarding end-to-end via Telegram and email; demographic opt-in counsel-reviewed
 
 ### Stage 7 checklist
-- [ ] **F21** Seeker web surface _(implemented on `021-seeker-web-surface`; quickstart evidence recorded; PR pending)_
+- [x] **F21** Seeker web surface _(merged to `main`, PR #58; quickstart evidence recorded)_
 - [ ] **F22** Employer admin console
 - [ ] **F23** Employer REST API + signed webhooks
 - [ ] **Stage 7 gate:** Employer can post req, receive signed-dossier webhook; seeker landing live with `agents.md` and `llms.txt`; WCAG 2.2 AA verified
@@ -698,7 +698,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 ## Next Steps
 
-1. **Publish F21 PR:** review final diff, commit, push `021-seeker-web-surface`, open PR, and verify checks/mergeability.
+1. **Start F22 Employer admin console:** run the Spec Kit specify → clarify/plan/tasks flow for `22-employer-admin-console`, reading PRD employer/admin sections, identity/admin access requirements, and existing operator console patterns before drafting the spec.
 2. **Engage counsel of record** for Phase 0 / Phase 1 review.
    Constitutional §V.2 requires this before any phase-transition merge.
 3. **Resolve PRD Open Question #9** — Phase 1 jurisdiction set.
@@ -710,6 +710,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 | Version | Date       | Change |
 |---------|------------|--------|
+| 1.5.32  | 2026-05-25 | Status update for F21 merge: Seeker web surface is complete and merged to `main` in PR #58, quickstart evidence is recorded, local/remote branch cleanup is complete, and Stage 7 next work is F22 Employer admin console. PATCH-style status amendment. |
 | 1.5.31  | 2026-05-25 | Status update for F21 implementation: Seeker web surface is implemented on branch `021-seeker-web-surface`, quickstart evidence is recorded, code/security-accessibility reviews are added, and PR/merge follow-through remains pending. PATCH-style status amendment. |
 | 1.5.30  | 2026-05-25 | Status update for F21 start: Seeker web surface is active on branch `021-seeker-web-surface`, active Spec Kit pointers target `.specify/specs/021-seeker-web-surface`, and specify/clarify/plan/tasks artifacts are initialized with `/speckit-analyze` as the next step. PATCH-style status amendment. |
 | 1.5.29  | 2026-05-25 | Status update for F20 merge: Conversational onboarding & seeker product flows is complete and merged to `main` in PR #57, quickstart evidence is recorded, and next roadmap work is F21 Seeker web surface. PATCH-style status amendment. |
