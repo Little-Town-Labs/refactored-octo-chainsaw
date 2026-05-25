@@ -79,6 +79,9 @@ importers:
       '@clerk/nextjs':
         specifier: 7.3.7
         version: 7.3.7(next@16.2.6(@babel/core@7.29.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      '@spyglass/a2a':
+        specifier: workspace:*
+        version: link:../../packages/a2a
       '@spyglass/audit-log':
         specifier: workspace:*
         version: link:../../packages/audit-log

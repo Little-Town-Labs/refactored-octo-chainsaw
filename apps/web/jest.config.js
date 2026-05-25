@@ -14,6 +14,7 @@ export default {
   displayName: "@spyglass/web",
   testEnvironment: "jsdom",
   setupFiles: ["<rootDir>/jest.setup.js"],
+  setupFilesAfterEnv: ["@testing-library/jest-dom"],
   // Override the base transform: route .js files through SWC's
   // ecmascript parser (jose's ESM source) and .ts/.tsx through the
   // typescript parser. The base config uses one entry that runs

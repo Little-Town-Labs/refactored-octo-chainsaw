@@ -1,20 +1,43 @@
-# Spyglass — agents.md (placeholder)
+# Spyglass agents.md
 
-This file is reserved for the Spyglass agent-discovery surface and
-will be populated in **F21** (Seeker web surface, per
-`.specify/roadmap.md`).
+Spyglass is a two-sided AI hiring platform. The seeker product is conversation-first:
+seekers work with a Spyglass-hosted advocate through Telegram, email, and Clerk-authenticated
+web chat. The public web surface is limited to account setup, profile/account management,
+public discovery, and agent-readable instructions.
 
-When populated, it will describe — for autonomous agents browsing
-the public web surface — what Spyglass is, how to onboard, where the
-A2A agent cards live, and what scopes are available.
+## Human Entry Points
 
-Until F21, this is a stub. The path is reserved per F01 spec
-**FR-33** (dual-audience documentation surface).
+- Landing page: `/`
+- Seeker sign up: `/sign-up`
+- Seeker sign in: `/sign-in`
+- Seeker account/profile management: `/profile`
 
-## Pointers (forward-looking)
+## Agent Entry Points
 
-- A2A agent cards: `/.well-known/agents/<agent-name>`
-- API contracts: see the public OpenAPI spec at `/api/openapi.yaml`
-  (lands in F23)
-- Constitution: governance posture lives in
-  `.specify/memory/constitution.md` in source.
+- LLM-readable site summary: `/llms.txt`
+- A2A card index: `/.well-known/a2a/index.json`
+- A2A card: `/.well-known/a2a/seeker-intake.json`
+- A2A card: `/.well-known/a2a/employer-intake.json`
+- A2A card: `/.well-known/a2a/match-coordinator.json`
+- A2A card: `/.well-known/a2a/negotiation-participant.json`
+- A2A card: `/.well-known/a2a/dossier-reader.json`
+
+## A2A Status
+
+F21 publishes A2A discovery cards for future interop. Runtime A2A protocol handlers are
+not live in v0 and are not required for the v0 customer flow. Cards describe availability,
+auth posture, unsupported actions, and documentation pointers.
+
+## Unsupported Actions
+
+Spyglass does not provide a seeker dashboard, ticket-list web UI, analytics view,
+recommended-jobs grid, job-browsing surface, public seeker profile, raw transcript view,
+hidden run-state view, direct employer messaging, or external agent replacement for the
+Spyglass-hosted seeker advocate in v0.
+
+## Governance References
+
+The public source of product scope is the landing page plus this file and `/llms.txt`.
+Detailed governance lives in repository specs and the constitution; public discovery files
+do not expose private tickets, dossiers, transcripts, scoring internals, secrets, or
+operational runbooks.

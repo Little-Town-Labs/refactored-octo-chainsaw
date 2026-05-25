@@ -1,0 +1,44 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/f21/a2a-card-index.schema.yaml"
+title: "F21 A2A Card Index"
+type: object
+required:
+  - version
+  - cards
+additionalProperties: false
+properties:
+  version:
+    type: string
+    pattern: "^v[0-9]+$"
+  cards:
+    type: array
+    minItems: 5
+    maxItems: 5
+    items:
+      type: object
+      required: [id, href, availability, runtime_status]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          enum:
+            - seeker-intake
+            - employer-intake
+            - match-coordinator
+            - negotiation-participant
+            - dossier-reader
+        href:
+          type: string
+          pattern: "^/\\.well-known/a2a/[a-z-]+\\.json$"
+        availability:
+          type: string
+          enum:
+            - discovery-only
+            - future-interop
+            - live
+        runtime_status:
+          type: string
+          enum:
+            - no-runtime-handler
+            - handler-deferred
+            - handler-live
