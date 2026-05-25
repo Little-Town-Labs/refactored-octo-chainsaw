@@ -13,8 +13,10 @@ const draftFields = {
   comp_band_max: 180000,
   currency: "USD",
   jurisdictions: ["US-CA"],
+  decision_locus_jurisdiction: "US-CA",
   work_mode: "remote" as const,
   headcount_total: 3,
+  threshold: 75,
 };
 
 describe("employer-req repo", () => {

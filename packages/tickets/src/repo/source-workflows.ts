@@ -23,7 +23,9 @@ export interface AmendTicketPatch {
   readonly comp_band_min?: number;
   readonly comp_band_max?: number;
   readonly jurisdictions?: string[];
+  readonly decision_locus_jurisdiction?: string;
   readonly work_mode?: SeekerTicketRow["work_mode"];
+  readonly threshold?: number;
   readonly flags?: string[];
 }
 

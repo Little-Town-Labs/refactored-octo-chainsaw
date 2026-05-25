@@ -158,6 +158,7 @@ export const defaultTicketProjection: TicketProjectionMap = {
         state: row.state,
         jurisdictions: row.jurisdictions,
         role_title: row.role_title,
+        decision_locus_jurisdiction: row.decision_locus_jurisdiction,
       };
     },
   },

@@ -22,8 +22,10 @@ export interface EmployerReqDraftFields {
   readonly comp_band_max: number;
   readonly currency: string;
   readonly jurisdictions: string[];
+  readonly decision_locus_jurisdiction: string;
   readonly work_mode: NewEmployerReqTicketRow["work_mode"];
   readonly headcount_total: number;
+  readonly threshold: number;
   readonly flags?: string[];
 }
 
@@ -60,9 +62,11 @@ export function createEmployerReqRepo(options: EmployerReqRepoOptions) {
           comp_band_max: fields.comp_band_max,
           currency: fields.currency,
           jurisdictions: fields.jurisdictions,
+          decision_locus_jurisdiction: fields.decision_locus_jurisdiction,
           work_mode: fields.work_mode,
           headcount_total: fields.headcount_total,
           headcount_filled: 0,
+          threshold: fields.threshold,
           flags: fields.flags ?? [],
         });
       });

@@ -47,8 +47,10 @@ export interface EmployerRequisitionInput {
   readonly comp_band_max: number;
   readonly currency: string;
   readonly jurisdictions: string[];
+  readonly decision_locus_jurisdiction: string;
   readonly work_mode: "remote" | "hybrid" | "onsite";
   readonly headcount_total: number;
+  readonly threshold: number;
   readonly flags: string[];
 }
 
@@ -81,8 +83,10 @@ const employerRequisitionSchema = z
       .trim()
       .regex(/^[A-Z]{3}$/),
     jurisdictions: z.array(z.string().trim().min(1)).min(1),
+    decision_locus_jurisdiction: z.string().trim().min(1),
     work_mode: workModeSchema,
     headcount_total: z.coerce.number().int().min(1),
+    threshold: z.coerce.number().int().min(0).max(100),
     flags: z.array(z.string().trim().min(1)).default([]),
   })
   .refine((value) => value.comp_band_min <= value.comp_band_max, {
@@ -135,8 +139,10 @@ export function parseEmployerRequisitionInput(
     comp_band_max: stringValue(formData, "comp_band_max"),
     currency: stringValue(formData, "currency"),
     jurisdictions: stringList(formData, "jurisdictions"),
+    decision_locus_jurisdiction: stringValue(formData, "decision_locus_jurisdiction"),
     work_mode: stringValue(formData, "work_mode"),
     headcount_total: stringValue(formData, "headcount_total"),
+    threshold: stringValue(formData, "threshold"),
     flags: stringList(formData, "flags"),
   });
   if (!parsed.success) return { ok: false, errors: errorsFor(parsed.error) };

@@ -4,8 +4,11 @@
 // rely on stable column names and nullability across schema changes.
 
 import {
+  employerOrganizationProfiles,
   organizations,
   principals,
+  type EmployerOrganizationProfileRow,
+  type EmployerReqTicketRow,
   type NewOrganizationRow,
   type NewPrincipalRow,
   type OrganizationRow,
@@ -47,6 +50,40 @@ describe("F02 schema — principals (data-model §principals)", () => {
     // drizzle-orm exposes table metadata via Symbol.for('drizzle:Name').
     const name = (principals as unknown as Record<symbol, unknown>)[Symbol.for("drizzle:Name")];
     expect(name).toBe("principals");
+  });
+});
+
+describe("F22 schema — employer admin console", () => {
+  it("employer organization profiles are separate from Clerk-mirror organizations", () => {
+    const _typeOnly: EmployerOrganizationProfileRow = {
+      profile_id: "00000000-0000-0000-0000-000000000020",
+      org_id: "00000000-0000-0000-0000-000000000010",
+      company_name: "Acme Corp",
+      company_summary: "Builds hiring tools",
+      mission: "Match well",
+      culture: "Clear",
+      benefits: "Health",
+      workplace_policy: "Remote",
+      updated_by: "00000000-0000-0000-0000-000000000001",
+      created_at: new Date(),
+      updated_at: new Date(),
+    };
+    expect(_typeOnly.company_name).toBe("Acme Corp");
+  });
+
+  it("table name is 'employer_organization_profiles'", () => {
+    const name = (employerOrganizationProfiles as unknown as Record<symbol, unknown>)[
+      Symbol.for("drizzle:Name")
+    ];
+    expect(name).toBe("employer_organization_profiles");
+  });
+
+  it("employer req rows include F22 threshold and decision locus fields", () => {
+    const _typeOnly: Pick<EmployerReqTicketRow, "threshold" | "decision_locus_jurisdiction"> = {
+      threshold: 75,
+      decision_locus_jurisdiction: "US-CA",
+    };
+    expect(_typeOnly.threshold).toBe(75);
   });
 });
 
