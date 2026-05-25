@@ -43,7 +43,9 @@ function parsePatch(formData: FormData): AmendTicketPatch {
     comp_band_min?: number;
     comp_band_max?: number;
     jurisdictions?: string[];
+    decision_locus_jurisdiction?: string;
     work_mode?: NonNullable<AmendTicketPatch["work_mode"]>;
+    threshold?: number;
     flags?: string[];
   } = {};
   const compBandMin = formNumber(formData, "comp_band_min");
@@ -52,10 +54,14 @@ function parsePatch(formData: FormData): AmendTicketPatch {
   if (compBandMax !== undefined) patch.comp_band_max = compBandMax;
   const jurisdictions = formList(formData, "jurisdictions");
   if (jurisdictions !== undefined) patch.jurisdictions = jurisdictions;
+  const decisionLocus = formString(formData, "decision_locus_jurisdiction");
+  if (decisionLocus !== undefined) patch.decision_locus_jurisdiction = decisionLocus;
   const workMode = formString(formData, "work_mode");
   if (workMode !== undefined) {
     patch.work_mode = workMode as NonNullable<AmendTicketPatch["work_mode"]>;
   }
+  const threshold = formNumber(formData, "threshold");
+  if (threshold !== undefined) patch.threshold = threshold;
   const flags = formList(formData, "flags");
   if (flags !== undefined) patch.flags = flags;
   return patch;

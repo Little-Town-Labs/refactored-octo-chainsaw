@@ -40,6 +40,11 @@ export {
   type WorkMode,
 } from "./seeker-tickets.js";
 export {
+  employerOrganizationProfiles,
+  type EmployerOrganizationProfileRow,
+  type NewEmployerOrganizationProfileRow,
+} from "./employer-organization-profiles.js";
+export {
   employerReqTickets,
   type NewEmployerReqTicketRow,
   type EmployerReqTicketRow,

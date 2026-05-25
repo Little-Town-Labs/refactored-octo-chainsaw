@@ -54,8 +54,10 @@ describe("ticket lifecycle smoke", () => {
       comp_band_max: 180000,
       currency: "USD",
       jurisdictions: ["US-CA"],
+      decision_locus_jurisdiction: "US-CA",
       work_mode: "remote",
       headcount_total: 1,
+      threshold: 75,
     });
     await employerRepo.transition({
       employer_req_ticket_id: employerDraft.employer_req_ticket_id,

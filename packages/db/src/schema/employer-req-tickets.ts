@@ -74,9 +74,11 @@ export const employerReqTickets = pgTable(
     comp_band_max: integer("comp_band_max").notNull(),
     currency: text("currency").notNull(),
     jurisdictions: jsonb("jurisdictions").$type<string[]>().notNull(),
+    decision_locus_jurisdiction: text("decision_locus_jurisdiction").notNull(),
     work_mode: text("work_mode").notNull(),
     headcount_total: integer("headcount_total").notNull(),
     headcount_filled: integer("headcount_filled").notNull().default(0),
+    threshold: integer("threshold").notNull().default(75),
     flags: jsonb("flags")
       .$type<string[]>()
       .notNull()
@@ -115,6 +117,11 @@ export const employerReqTickets = pgTable(
       "employer_req_tickets_jurisdictions_nonempty",
       sql`jsonb_typeof(${t.jurisdictions}) = 'array' AND jsonb_array_length(${t.jurisdictions}) >= 1`,
     ),
+    check("employer_req_tickets_decision_locus_check", sql`${t.decision_locus_jurisdiction} <> ''`),
+    check(
+      "employer_req_tickets_threshold_check",
+      sql`${t.threshold} >= 0 AND ${t.threshold} <= 100`,
+    ),
     check(
       "employer_req_tickets_identifier_shape_check",
       sql`${t.identifier} ~ '^ER-[0-9]{4}-[0-9]{5}$'`,
@@ -124,6 +131,7 @@ export const employerReqTickets = pgTable(
       .on(t.state)
       .where(sql`${t.state} IN ('matching','open')`),
     index("employer_req_tickets_org_idx").on(t.org_id, t.created_at.desc()),
+    index("employer_req_tickets_decision_locus_idx").on(t.decision_locus_jurisdiction),
   ],
 );
 

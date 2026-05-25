@@ -71,8 +71,10 @@ function employerForm(overrides: Record<string, string> = {}): FormData {
     comp_band_max: "180000",
     currency: "USD",
     jurisdictions: "US-CA",
+    decision_locus_jurisdiction: "US-CA",
     work_mode: "remote",
     headcount_total: "3",
+    threshold: "75",
     ...overrides,
   };
   for (const [key, value] of Object.entries(values)) formData.set(key, value);
@@ -111,9 +113,11 @@ function employerRow(state: string): EmployerReqTicketRow {
     comp_band_max: 180000,
     currency: "USD",
     jurisdictions: ["US-CA"],
+    decision_locus_jurisdiction: "US-CA",
     work_mode: "remote",
     headcount_total: 3,
     headcount_filled: 0,
+    threshold: 75,
     flags: [],
     created_at: new Date(0),
     updated_at: new Date(0),
