@@ -1,0 +1,41 @@
+schema: seeker-conversation-event
+version: 1
+type: object
+required:
+  - eventId
+  - seekerId
+  - channel
+  - channelMessageId
+  - flowFamily
+  - receivedAt
+properties:
+  eventId:
+    type: string
+  seekerId:
+    type: string
+  channel:
+    type: string
+    enum: [telegram, email, web-chat]
+  channelMessageId:
+    type: string
+  channelLinkId:
+    type: string
+  flowFamily:
+    type: string
+    enum: [onboarding, match-notification, dossier-review, controls, aggregate-insight, demographic-consent, refusal]
+  textRef:
+    type: string
+  attachmentRefs:
+    type: array
+    items:
+      type: string
+  actionId:
+    type: string
+  promptId:
+    type: string
+  idempotencyKey:
+    type: string
+  receivedAt:
+    type: string
+    format: date-time
+additionalProperties: false

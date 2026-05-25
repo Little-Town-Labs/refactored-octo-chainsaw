@@ -1,0 +1,31 @@
+schema: demographic-consent
+version: 1
+type: object
+required:
+  - seekerId
+  - consentState
+  - collectionEnabled
+  - decidedAt
+properties:
+  seekerId:
+    type: string
+  consentState:
+    type: string
+    enum: [not-asked, consented, declined, withdrawn, disabled-counsel, disabled-jurisdiction]
+  consentVersion:
+    type: string
+  jurisdictionPosture:
+    type: string
+  collectionEnabled:
+    type: boolean
+  segregatedDataRef:
+    type: string
+  reasonCode:
+    type: string
+  decidedAt:
+    type: string
+    format: date-time
+  withdrawnAt:
+    type: string
+    format: date-time
+additionalProperties: false

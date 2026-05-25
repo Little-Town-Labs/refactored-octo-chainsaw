@@ -1,0 +1,33 @@
+schema: seeker-flow-state
+version: 1
+type: object
+required:
+  - seekerId
+  - ticketState
+  - profileComplete
+  - jurisdictionAttested
+  - thresholdReady
+  - updatedAt
+properties:
+  seekerId:
+    type: string
+  ticketId:
+    type: string
+  ticketState:
+    type: string
+    enum: [onboarding, active, paused, in-conversation, hired, withdrawn, closed]
+  profileComplete:
+    type: boolean
+  jurisdictionAttested:
+    type: boolean
+  thresholdReady:
+    type: boolean
+  currentFlowFamily:
+    type: string
+    enum: [onboarding, match-notification, dossier-review, controls, aggregate-insight, demographic-consent, refusal]
+  blockedReason:
+    type: string
+  updatedAt:
+    type: string
+    format: date-time
+additionalProperties: false

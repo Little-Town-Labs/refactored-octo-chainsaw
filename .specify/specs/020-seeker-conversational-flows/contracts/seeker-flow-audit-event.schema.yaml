@@ -1,0 +1,35 @@
+schema: seeker-flow-audit-event
+version: 1
+type: object
+required:
+  - auditEventId
+  - eventType
+  - principalId
+  - decision
+  - occurredAt
+properties:
+  auditEventId:
+    type: string
+  correlationId:
+    type: string
+  eventType:
+    type: string
+    enum: [onboarding, profile, jurisdiction, threshold, match-notification, dossier-review, control, aggregate-insight, demographic-consent, refusal, duplicate, delivery-outcome]
+  principalId:
+    type: string
+  ticketId:
+    type: string
+  channel:
+    type: string
+    enum: [telegram, email, web-chat]
+  decision:
+    type: string
+    enum: [accepted, refused, blocked, duplicate, sent, failed, recorded]
+  reasonCode:
+    type: string
+  payloadRef:
+    type: string
+  occurredAt:
+    type: string
+    format: date-time
+additionalProperties: false

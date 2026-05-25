@@ -482,6 +482,33 @@ importers:
         specifier: ^4.1.1
         version: 4.1.1
 
+  packages/seeker-flows:
+    dependencies:
+      '@spyglass/audit-log':
+        specifier: workspace:*
+        version: link:../audit-log
+      '@spyglass/channels-core':
+        specifier: workspace:*
+        version: link:../channels-core
+      '@spyglass/dossiers':
+        specifier: workspace:*
+        version: link:../dossiers
+      '@spyglass/notifications':
+        specifier: workspace:*
+        version: link:../notifications
+      '@spyglass/policy-gates':
+        specifier: workspace:*
+        version: link:../policy-gates
+      '@spyglass/privacy-filter':
+        specifier: workspace:*
+        version: link:../privacy-filter
+      '@spyglass/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@spyglass/tickets':
+        specifier: workspace:*
+        version: link:../tickets
+
   packages/shared:
     dependencies:
       zod:

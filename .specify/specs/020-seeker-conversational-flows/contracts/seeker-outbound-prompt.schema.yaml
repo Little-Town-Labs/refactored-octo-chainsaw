@@ -1,0 +1,36 @@
+schema: seeker-outbound-prompt
+version: 1
+type: object
+required:
+  - promptId
+  - seekerId
+  - channel
+  - promptKind
+  - disclosureClass
+  - text
+properties:
+  promptId:
+    type: string
+  seekerId:
+    type: string
+  channel:
+    type: string
+    enum: [telegram, email, web-chat]
+  promptKind:
+    type: string
+    enum: [ask-profile, ask-jurisdiction, ask-threshold, confirm-change, match-notification, dossier-review, control-confirmation, aggregate-insight, demographic-consent, refusal]
+  disclosureClass:
+    type: string
+    enum: [seeker-approved, aggregate-approved, refusal-safe, non-collection-explanation]
+  text:
+    type: string
+  actionIds:
+    type: array
+    items:
+      type: string
+  correlationId:
+    type: string
+  expiresAt:
+    type: string
+    format: date-time
+additionalProperties: false
