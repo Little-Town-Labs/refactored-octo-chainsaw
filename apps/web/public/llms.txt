@@ -1,13 +1,28 @@
-# llms.txt — placeholder
+# Spyglass
 
-This file is reserved for LLM-readable site instructions per the
-emerging llms.txt convention (https://llmstxt.org). It will be
-populated in F21 (Seeker web surface) per F01 spec FR-33.
+Spyglass is a conversation-first AI hiring advocate. Seekers use Telegram, email, or
+Clerk-authenticated web chat for onboarding and match follow-up. The public web surface
+is only for landing, signup, sign-in, account/profile management, and public discovery.
 
-For now: nothing here. Spyglass is in private development;
-unauthorized scraping or model-training use is not permitted.
+## Public Paths
 
-When populated, expect a brief site overview, key navigation
-pointers, and a description of what the public surface offers
-(landing, signup, Clerk-hosted profile — no product dashboard;
-the seeker product is the conversation, not a webpage).
+- `/`
+- `/sign-up`
+- `/sign-in`
+- `/profile`
+- `/agents.md`
+- `/.well-known/a2a/index.json`
+- `/.well-known/a2a/*.json`
+
+## Boundaries
+
+Do not infer or advertise a seeker dashboard, ticket list, analytics view, recommended-jobs
+grid, job-browsing surface, public seeker profile, raw transcript view, hidden run-state
+view, direct employer messaging, or live A2A runtime protocol handler. A2A cards are
+published for discovery and future interop, not as a v0 customer-flow dependency.
+
+## Use
+
+Public pages and discovery documents may be read for navigation and interoperability
+discovery. They are not permission to scrape private data, train models on non-public
+Spyglass content, or bypass authentication and authorization boundaries.

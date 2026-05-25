@@ -1,0 +1,80 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/f21/a2a-card.schema.yaml"
+title: "F21 A2A Agent Card"
+type: object
+required:
+  - id
+  - name
+  - audience
+  - description
+  - capabilities
+  - auth
+  - availability
+  - runtime_status
+  - unsupported_actions
+  - docs
+additionalProperties: false
+properties:
+  id:
+    type: string
+    enum:
+      - seeker-intake
+      - employer-intake
+      - match-coordinator
+      - negotiation-participant
+      - dossier-reader
+  name:
+    type: string
+    minLength: 1
+  audience:
+    type: string
+    enum:
+      - seeker
+      - employer
+      - platform
+      - external-agent
+  description:
+    type: string
+    minLength: 1
+  capabilities:
+    type: array
+    minItems: 1
+    items:
+      type: string
+      minLength: 1
+  auth:
+    type: object
+    required: [required, methods]
+    additionalProperties: false
+    properties:
+      required:
+        type: boolean
+      methods:
+        type: array
+        items:
+          type: string
+  availability:
+    type: string
+    enum:
+      - discovery-only
+      - future-interop
+      - live
+  runtime_status:
+    type: string
+    enum:
+      - no-runtime-handler
+      - handler-deferred
+      - handler-live
+  unsupported_actions:
+    type: array
+    minItems: 1
+    items:
+      type: string
+      minLength: 1
+  contact:
+    type: string
+  docs:
+    type: array
+    minItems: 1
+    items:
+      type: string
