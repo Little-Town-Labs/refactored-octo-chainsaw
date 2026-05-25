@@ -47,7 +47,7 @@
     "eslint-plugin-import": "^2.32.0",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
-    "lefthook": "^2.1.6",
+    "lefthook": "^2.1.8",
     "prettier": "^3.8.3",
     "tsx": "^4.22.3",
     "turbo": "^2.9.14",
