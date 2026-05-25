@@ -702,7 +702,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 2. **Engage counsel of record** for Phase 0 / Phase 1 review.
    Constitutional §V.2 requires this before any phase-transition merge.
 3. **Resolve PRD Open Question #9** — Phase 1 jurisdiction set.
-4. **Preserve Stage 6 boundaries during F20:** seeker conversational UX is interactive, not Parley run-to-completion; demographic opt-in remains counsel-gated; no seeker dashboard, ticket list, analytics UI, or recommended-jobs UI.
+4. **Preserve F21 boundaries:** publish the seeker landing, Clerk profile surface, `agents.md`, `llms.txt`, and A2A cards without adding a seeker dashboard, ticket list, analytics UI, or recommended-jobs UI.
 
 ---
 
