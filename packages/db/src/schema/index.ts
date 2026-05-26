@@ -61,6 +61,44 @@ export {
   MATCH_STATES,
 } from "./match-tickets.js";
 
+// F23 — Employer REST API + signed webhooks.
+export {
+  employerApiCredentials,
+  type EmployerApiCredentialRow,
+  type EmployerApiCredentialStatus,
+  EMPLOYER_API_CREDENTIAL_STATUSES,
+  type NewEmployerApiCredentialRow,
+} from "./employer-api-credentials.js";
+export {
+  employerApiIdempotencyRecords,
+  type EmployerApiIdempotencyRecordRow,
+  type NewEmployerApiIdempotencyRecordRow,
+} from "./employer-api-idempotency.js";
+export {
+  employerWebhookDeliveryReceipts,
+  type EmployerWebhookDeliveryReceiptRow,
+  employerWebhookEndpoints,
+  type EmployerWebhookEndpointRow,
+  type WebhookEndpointStatus,
+  employerWebhookEvents,
+  type EmployerWebhookEventRow,
+  type WebhookEventType,
+  WEBHOOK_DELIVERY_STATUSES,
+  type WebhookDeliveryStatus,
+  WEBHOOK_ENDPOINT_STATUSES,
+  WEBHOOK_EVENT_TYPES,
+  type WebhookResponseClass,
+  WEBHOOK_RESPONSE_CLASSES,
+  employerWebhookSigningSecrets,
+  type EmployerWebhookSigningSecretRow,
+  type WebhookSigningSecretStatus,
+  WEBHOOK_SIGNING_SECRET_STATUSES,
+  type NewEmployerWebhookDeliveryReceiptRow,
+  type NewEmployerWebhookEndpointRow,
+  type NewEmployerWebhookEventRow,
+  type NewEmployerWebhookSigningSecretRow,
+} from "./employer-webhooks.js";
+
 // F05 — Canonical audit log, transcript store, and tombstones.
 export {
   auditLogEvents,

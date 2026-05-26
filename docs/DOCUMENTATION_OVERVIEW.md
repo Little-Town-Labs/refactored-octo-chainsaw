@@ -408,6 +408,20 @@ HIGH, 4 MEDIUM, 6 LOW, 3 INFO findings).
 
 ---
 
+### `.specify/specs/023-employer-api-webhooks/`
+
+The F23 spec-kit bundle for the employer REST API and signed webhook
+delivery surface. It includes the feature spec, implementation plan,
+data model, OpenAPI/webhook contracts, threat model, security review,
+code review, and quickstart evidence.
+
+Package-facing contract docs live in `packages/api-contracts/README.md`.
+The published contract sources are
+`packages/api-contracts/openapi/employer-api.v1.yaml` and
+`packages/api-contracts/openapi/webhook-events.v1.yaml`.
+
+---
+
 ## 6. What's deliberately not in this overview
 
 Out of scope by user instruction: package-level READMEs under
