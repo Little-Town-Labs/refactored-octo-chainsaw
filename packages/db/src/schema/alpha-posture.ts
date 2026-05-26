@@ -1,4 +1,7 @@
 // F25 — Phase 0 alpha posture infrastructure.
+//
+// schema-lint: skip-r2-timestamps
+// Reason: alpha posture consent, review, counsel evidence, and gate decisions are immutable governance records.
 
 import { sql } from "drizzle-orm";
 import { boolean, check, index, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
@@ -125,7 +128,10 @@ export const alphaPostureGateDecisions = pgTable(
   },
   (t) => [
     check("alpha_posture_gate_decisions_decision_check", sql`${t.decision} IN ('allow','block')`),
-    check("alpha_posture_gate_decisions_reason_check", sql`${t.reason_code} <> ''`),
+    check(
+      "alpha_posture_gate_decisions_reason_code_check",
+      sql`${t.reason_code} IN ('alpha_posture_allowed','missing_consent','withdrawn_consent','version_mismatch','missing_dossier_posture','missing_human_review','human_review_rejected','missing_counsel_evidence')`,
+    ),
     index("alpha_posture_gate_decisions_decision_idx").on(t.decision, t.created_at.desc()),
   ],
 );
