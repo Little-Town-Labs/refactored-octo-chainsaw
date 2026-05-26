@@ -115,6 +115,13 @@ export function loadEnv(env: NodeJS.ProcessEnv = process.env): Env {
   return result.data;
 }
 
+export function assertMonitoringEnv(env: Env): void {
+  const productionLike = env.NODE_ENV === "production" || env.VERCEL_ENV === "production";
+  if (productionLike && !env.SENTRY_DSN) {
+    throw new Error("F24 monitoring requires SENTRY_DSN in production-like environments");
+  }
+}
+
 /**
  * Singleton accessor. First call validates `process.env`; subsequent
  * calls return the cached result. Throws on the first call if env is

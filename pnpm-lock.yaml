@@ -318,6 +318,12 @@ importers:
         specifier: workspace:*
         version: link:../shared
 
+  packages/incident-response:
+    dependencies:
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+
   packages/notifications:
     dependencies:
       '@spyglass/audit-log':

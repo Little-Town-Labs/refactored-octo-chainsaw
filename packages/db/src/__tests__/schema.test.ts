@@ -11,6 +11,13 @@ import {
   employerWebhookEvents,
   employerWebhookSigningSecrets,
   employerOrganizationProfiles,
+  incidentCorrectiveActions,
+  incidentEvidenceReferences,
+  incidentNotificationObligations,
+  incidentRunbookExercises,
+  incidentTimelineEntries,
+  incidents,
+  monitoringSignals,
   organizations,
   principals,
   type EmployerApiCredentialRow,
@@ -21,6 +28,13 @@ import {
   type EmployerWebhookEndpointRow,
   type EmployerWebhookEventRow,
   type EmployerWebhookSigningSecretRow,
+  type IncidentCorrectiveActionRow,
+  type IncidentEvidenceReferenceRow,
+  type IncidentNotificationObligationRow,
+  type IncidentRow,
+  type IncidentRunbookExerciseRow,
+  type IncidentTimelineEntryRow,
+  type MonitoringSignalRow,
   type NewOrganizationRow,
   type NewPrincipalRow,
   type OrganizationRow,
@@ -213,6 +227,84 @@ describe("F23 schema — employer API credentials and webhooks", () => {
       "employer_webhook_signing_secrets",
       "employer_webhook_events",
       "employer_webhook_delivery_receipts",
+    ]);
+  });
+});
+
+describe("F24 schema — incident response and monitoring", () => {
+  it("monitoring signals expose severity, dedupe, and evidence metadata", () => {
+    const _typeOnly: Pick<
+      MonitoringSignalRow,
+      "category" | "severity" | "dedupe_key" | "evidence_ref"
+    > = {
+      category: "cross_side_leakage",
+      severity: "sev1",
+      dedupe_key: "privacy_filter:cross_side_leakage:match:m1",
+      evidence_ref: { kind: "audit_event", ref: "audit_1" },
+    };
+    expect(_typeOnly.severity).toBe("sev1");
+  });
+
+  it("incident rows carry lifecycle, breach review, and principal attribution fields", () => {
+    const incident: Pick<
+      IncidentRow,
+      "incident_key" | "severity" | "status" | "personal_data_involved"
+    > = {
+      incident_key: "INC-2026-0001",
+      severity: "sev1",
+      status: "triage",
+      personal_data_involved: "unknown",
+    };
+    const timeline: Pick<IncidentTimelineEntryRow, "entry_type" | "body"> = {
+      entry_type: "triage",
+      body: "Opened from sev-1 signal",
+    };
+    const evidence: Pick<IncidentEvidenceReferenceRow, "kind" | "ref"> = {
+      kind: "audit_event",
+      ref: "audit_1",
+    };
+    const obligation: Pick<IncidentNotificationObligationRow, "obligation_type" | "status"> = {
+      obligation_type: "gdpr_supervisory_authority",
+      status: "counsel_review",
+    };
+    const action: Pick<IncidentCorrectiveActionRow, "title" | "status"> = {
+      title: "Patch filter bypass",
+      status: "open",
+    };
+    const exercise: Pick<IncidentRunbookExerciseRow, "scenario" | "status"> = {
+      scenario: "cross_side_leakage",
+      status: "planned",
+    };
+
+    expect([
+      incident.status,
+      timeline.entry_type,
+      evidence.kind,
+      obligation.status,
+      action.status,
+      exercise.scenario,
+    ]).toEqual(["triage", "triage", "audit_event", "counsel_review", "open", "cross_side_leakage"]);
+  });
+
+  it("uses expected table names for F24 persisted surfaces", () => {
+    const tableNames = [
+      monitoringSignals,
+      incidents,
+      incidentTimelineEntries,
+      incidentEvidenceReferences,
+      incidentNotificationObligations,
+      incidentCorrectiveActions,
+      incidentRunbookExercises,
+    ].map((table) => (table as unknown as Record<symbol, unknown>)[Symbol.for("drizzle:Name")]);
+
+    expect(tableNames).toEqual([
+      "monitoring_signals",
+      "incidents",
+      "incident_timeline_entries",
+      "incident_evidence_references",
+      "incident_notification_obligations",
+      "incident_corrective_actions",
+      "incident_runbook_exercises",
     ]);
   });
 });

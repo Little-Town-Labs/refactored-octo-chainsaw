@@ -285,6 +285,11 @@ F22 Employer admin console, F23 Employer REST API + signed webhooks),
 and Hardening + Phase 0 (F24 Incident response, F25 Phase 0 alpha
 posture).
 
+F24 incident-response operating docs live in
+`docs/runbooks/incident-response.md`,
+`docs/runbooks/incident-response-tabletop.md`, and
+`docs/architecture/monitoring-signals.md`.
+
 Critical path: **F01 → F02 → F04 → F05 → F08 → F13/F14 → F20 → F25.**
 Estimated timeline: ~20 weeks to Phase 0 alpha.
 
