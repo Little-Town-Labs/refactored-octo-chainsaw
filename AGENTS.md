@@ -3,6 +3,6 @@
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
 
-`.specify/specs/022-employer-admin-console/plan.md`
+`.specify/specs/023-employer-api-webhooks/plan.md`
 
 <!-- SPECKIT END -->

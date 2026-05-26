@@ -1,8 +1,8 @@
 # Project Spyglass — Implementation Roadmap
 
-**Version:** 1.5.36
+**Version:** 1.5.38
 **Created:** 2026-05-06
-**Last Amended:** 2026-05-25
+**Last Amended:** 2026-05-26
 **Owner:** Gary
 **PRD source:** `PRD.md` (Draft v0.1, 2026-05-05)
 **Constitution:** `.specify/memory/constitution.md` (v1.1.0)
@@ -43,7 +43,7 @@ modeling per `.specify/memory/constitution.md` §V.3.
 | **F06** Jurisdiction policy gates + kill switches | ✅ **Complete** (merged to `main`, PR #41) | DB-backed jurisdiction posture, fail-safe gate evaluator, no-deploy kill switches, non-PII failure artifacts, scoped review reads, runbook, quickstart evidence, and final package gates are complete. |
 | **F07a** Agent Contract Registry | ✅ **Complete** (merged to `main`, PR #42) | Immutable agent contract versions, scoped publication/deprecation, dispatch-time resolution, fail-closed reason codes, provenance/audit evidence, scoped review reads, runbooks, quickstart evidence, and final package gates are complete. |
 | **F07b** Rubric Registry + bias-test dispatch gate | ✅ **Complete** (merged to `main`, PR #43) | Immutable rubric versions, bias-test artifact registration, dispatch refusal for missing/invalid bias evidence, deterministic weighted scoring, scoped review reads, runbook, quickstart evidence, and package gates are complete. |
-| F08–F25 | ⏳ In progress | F08 Parley Runner is complete and merged to `main` in PR #48 with quickstart evidence recorded and CI rerouted to the PowerBox self-hosted runner; F08.5 Tool Surface & Dispatcher is complete and merged to `main` in PR #44; F09 Privacy Filter is complete and merged to `main` in PR #45; F10 Dossier Builder + Signer is complete and merged to `main` in PR #46 with quickstart evidence recorded; F11 Candidate Notification Artifact System is complete and merged to `main` in PR #47 with quickstart evidence recorded. F12 AI Infrastructure is complete and merged to `main` in PR #49 with quickstart evidence recorded. F13 Seeker Advocate Agent is complete and merged to `main` in PR #50 with quickstart evidence recorded. F14 Employer Advocate Agent is complete and merged to `main` in PR #51 with quickstart evidence recorded. F15 Re-negotiation Loop is complete and merged to `main` in PR #52 with quickstart evidence recorded. F16 Channel adapter framework is complete and merged to `main` in PR #53 with quickstart evidence recorded. F17 Telegram channel adapter is complete and merged to `main` in PR #54 with quickstart evidence recorded. F18 Email channel adapter is complete and merged to `main` in PR #55 with quickstart evidence recorded. F19 Web-chat channel adapter is complete and merged to `main` in PR #56 with quickstart evidence recorded. F20 Conversational onboarding & seeker product flows is complete and merged to `main` in PR #57 with quickstart evidence recorded. F21 Seeker web surface is complete and merged to `main` in PR #58 with quickstart evidence recorded. F22 Employer admin console is complete and merged to `main` in PR #65 with quickstart evidence recorded. Next Stage 7 work is F23 Employer REST API + signed-webhook delivery. |
+| F08–F25 | ⏳ In progress | F08 Parley Runner is complete and merged to `main` in PR #48 with quickstart evidence recorded and CI rerouted to the PowerBox self-hosted runner; F08.5 Tool Surface & Dispatcher is complete and merged to `main` in PR #44; F09 Privacy Filter is complete and merged to `main` in PR #45; F10 Dossier Builder + Signer is complete and merged to `main` in PR #46 with quickstart evidence recorded; F11 Candidate Notification Artifact System is complete and merged to `main` in PR #47 with quickstart evidence recorded. F12 AI Infrastructure is complete and merged to `main` in PR #49 with quickstart evidence recorded. F13 Seeker Advocate Agent is complete and merged to `main` in PR #50 with quickstart evidence recorded. F14 Employer Advocate Agent is complete and merged to `main` in PR #51 with quickstart evidence recorded. F15 Re-negotiation Loop is complete and merged to `main` in PR #52 with quickstart evidence recorded. F16 Channel adapter framework is complete and merged to `main` in PR #53 with quickstart evidence recorded. F17 Telegram channel adapter is complete and merged to `main` in PR #54 with quickstart evidence recorded. F18 Email channel adapter is complete and merged to `main` in PR #55 with quickstart evidence recorded. F19 Web-chat channel adapter is complete and merged to `main` in PR #56 with quickstart evidence recorded. F20 Conversational onboarding & seeker product flows is complete and merged to `main` in PR #57 with quickstart evidence recorded. F21 Seeker web surface is complete and merged to `main` in PR #58 with quickstart evidence recorded. F22 Employer admin console is complete and merged to `main` in PR #65 with quickstart evidence recorded. F23 Employer REST API + signed-webhook delivery is implemented on branch `023-employer-api-webhooks`; quickstart evidence and workspace verification are recorded, with PR review as the next step. |
 
 ### F02 sub-slice progress (branch `02-identity-auth-aaa`)
 
@@ -681,7 +681,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 ### Stage 7 checklist
 - [x] **F21** Seeker web surface _(merged to `main`, PR #58; quickstart evidence recorded)_
 - [x] **F22** Employer admin console _(merged to `main`, PR #65; quickstart evidence recorded)_
-- [ ] **F23** Employer REST API + signed webhooks
+- [ ] **F23** Employer REST API + signed webhooks _(implemented on branch `023-employer-api-webhooks`; quickstart evidence and workspace verification recorded; PR review next)_
 - [ ] **Stage 7 gate:** Employer can post req, receive signed-dossier webhook; seeker landing live with `agents.md` and `llms.txt`; WCAG 2.2 AA verified
 
 ### Stage 8 checklist
@@ -698,7 +698,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 ## Next Steps
 
-1. **Start F23 Employer REST API + signed webhooks:** run the Spec Kit specify -> clarify/plan/tasks flow for `23-employer-api-webhooks`, first reading PRD employer API/webhook sections, Constitution Article II/III contract requirements, and F22 employer console boundaries.
+1. **Review F23 Employer REST API + signed webhooks:** open the PR for branch `023-employer-api-webhooks`, verify checks and mergeability, then merge when review is complete.
 2. **Engage counsel of record** for Phase 0 / Phase 1 review.
    Constitutional §V.2 requires this before any phase-transition merge.
 3. **Resolve PRD Open Question #9** — Phase 1 jurisdiction set.
@@ -710,6 +710,8 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 | Version | Date       | Change |
 |---------|------------|--------|
+| 1.5.38  | 2026-05-26 | Status update for F23 implementation: Employer REST API + signed-webhook delivery is implemented on branch `023-employer-api-webhooks`, quickstart evidence and workspace verification are recorded, and PR review is next. PATCH-style status amendment. |
+| 1.5.37  | 2026-05-25 | Status update for F23 start: Employer REST API + signed-webhook delivery is active on branch `023-employer-api-webhooks`, active Spec Kit pointers target `.specify/specs/023-employer-api-webhooks`, and specify/clarify/plan/tasks artifacts are initialized with `/speckit-analyze` as the next step. PATCH-style status amendment. |
 | 1.5.36  | 2026-05-25 | Status update for F22 merge: Employer admin console is complete and merged to `main` in PR #65, quickstart evidence is recorded, and next Stage 7 work is F23 Employer REST API + signed-webhook delivery. PATCH-style status amendment. |
 | 1.5.35  | 2026-05-25 | Status update for F22 implementation: Employer admin console is implemented on branch `022-employer-admin-console`, quickstart evidence records focused and workspace verification, review artifacts are complete, and T066 publication is complete for PR review. PATCH-style status amendment. |
 | 1.5.34  | 2026-05-25 | Status update for F22 analyze remediation: `/speckit-analyze` findings are recorded in `.specify/specs/022-employer-admin-console/analysis.md`, constitution review gaps are fixed in tasks, candidate disposition is explicitly deferred, canceled req wording maps to internal `closed`, and implementation is ready to begin at T003. PATCH-style status amendment. |

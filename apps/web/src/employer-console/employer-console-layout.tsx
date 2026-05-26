@@ -10,7 +10,8 @@ export function EmployerConsoleLayout({ children }: { readonly children: ReactNo
       <nav aria-label="Employer console">
         <Link href="/employer/console/profile">Profile</Link>{" "}
         <Link href="/employer/console/reqs">Reqs</Link>{" "}
-        <Link href="/employer/console/candidates">Candidates</Link>
+        <Link href="/employer/console/candidates">Candidates</Link>{" "}
+        <Link href="/employer/console/integrations">Integrations</Link>
       </nav>
       <main id="main">{children}</main>
     </>

@@ -1,0 +1,468 @@
+openapi: 3.1.0
+info:
+  title: Spyglass Employer API
+  version: 1.0.0
+  description: Employer REST API for requisition management and webhook endpoint lifecycle.
+servers:
+  - url: https://app.spyglass.example/api/employer/v1
+security:
+  - EmployerServiceCredential: []
+paths:
+  /reqs:
+    get:
+      operationId: listEmployerReqs
+      summary: List organization-owned requisitions
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: Requisition page
+          headers:
+            Deprecation:
+              $ref: "#/components/headers/Deprecation"
+            Sunset:
+              $ref: "#/components/headers/Sunset"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReqListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      operationId: createEmployerReq
+      summary: Create an employer requisition
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReqCreateRequest"
+      responses:
+        "201":
+          description: Created requisition
+          headers:
+            Idempotency-Key:
+              $ref: "#/components/headers/IdempotencyKey"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReqResource"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /reqs/{req_id}:
+    get:
+      operationId: getEmployerReq
+      summary: Read one organization-owned requisition
+      parameters:
+        - $ref: "#/components/parameters/ReqId"
+      responses:
+        "200":
+          description: Requisition
+          headers:
+            Deprecation:
+              $ref: "#/components/headers/Deprecation"
+            Sunset:
+              $ref: "#/components/headers/Sunset"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReqResource"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateEmployerReq
+      summary: Amend allowed requisition source fields
+      parameters:
+        - $ref: "#/components/parameters/ReqId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReqUpdateRequest"
+      responses:
+        "200":
+          description: Updated requisition
+          headers:
+            Idempotency-Key:
+              $ref: "#/components/headers/IdempotencyKey"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReqResource"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /reqs/{req_id}/close:
+    post:
+      operationId: closeEmployerReq
+      summary: Close a requisition as filled or canceled
+      parameters:
+        - $ref: "#/components/parameters/ReqId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReqCloseRequest"
+      responses:
+        "200":
+          description: Closed requisition
+          headers:
+            Idempotency-Key:
+              $ref: "#/components/headers/IdempotencyKey"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReqResource"
+  /webhooks:
+    get:
+      operationId: listWebhookEndpoints
+      summary: List webhook endpoints
+      responses:
+        "200":
+          description: Webhook endpoint list
+          headers:
+            Deprecation:
+              $ref: "#/components/headers/Deprecation"
+            Sunset:
+              $ref: "#/components/headers/Sunset"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebhookEndpointListResponse"
+    post:
+      operationId: createWebhookEndpoint
+      summary: Register webhook endpoint
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookEndpointCreateRequest"
+      responses:
+        "201":
+          description: Webhook endpoint with one-time signing secret
+          headers:
+            Idempotency-Key:
+              $ref: "#/components/headers/IdempotencyKey"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebhookEndpointCreateResponse"
+  /webhooks/{webhook_endpoint_id}:
+    patch:
+      operationId: disableWebhookEndpoint
+      summary: Disable a webhook endpoint without deleting delivery history
+      parameters:
+        - $ref: "#/components/parameters/WebhookEndpointId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookEndpointDisableRequest"
+      responses:
+        "200":
+          description: Disabled webhook endpoint
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebhookEndpoint"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteWebhookEndpoint
+      summary: Delete a webhook endpoint from future delivery
+      parameters:
+        - $ref: "#/components/parameters/WebhookEndpointId"
+      responses:
+        "204":
+          description: Webhook endpoint deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+components:
+  securitySchemes:
+    EmployerServiceCredential:
+      type: http
+      scheme: bearer
+  headers:
+    IdempotencyKey:
+      description: Idempotency key applied to the mutation result.
+      schema:
+        type: string
+    Deprecation:
+      description: RFC 9745 deprecation marker for deprecated operations.
+      schema:
+        type: string
+    Sunset:
+      description: RFC 8594 sunset date for deprecated operations.
+      schema:
+        type: string
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 8
+        maxLength: 200
+    ReqId:
+      name: req_id
+      in: path
+      required: true
+      schema:
+        type: string
+    WebhookEndpointId:
+      name: webhook_endpoint_id
+      in: path
+      required: true
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
+    Cursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+  responses:
+    Unauthorized:
+      description: Missing or invalid credential
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Forbidden:
+      description: Credential lacks scope or organization access
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Resource not found or not visible
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ValidationError:
+      description: Request validation failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Conflict:
+      description: State or idempotency conflict
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, correlation_id]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            correlation_id:
+              type: string
+    ReqCreateRequest:
+      type: object
+      required:
+        - role_title
+        - role_level
+        - compensation
+        - work_mode
+        - headcount
+        - matching_threshold
+        - hiring_jurisdiction
+        - decision_locus
+      properties:
+        external_ref:
+          type: string
+        role_title:
+          type: string
+        role_level:
+          type: string
+        compensation:
+          $ref: "#/components/schemas/Compensation"
+        work_mode:
+          type: string
+          enum: [remote, hybrid, onsite]
+        headcount:
+          type: integer
+          minimum: 1
+        matching_threshold:
+          type: number
+          minimum: 0
+          maximum: 10
+        hiring_jurisdiction:
+          type: string
+        decision_locus:
+          type: string
+    ReqUpdateRequest:
+      type: object
+      minProperties: 1
+      properties:
+        role_title:
+          type: string
+        role_level:
+          type: string
+        compensation:
+          $ref: "#/components/schemas/Compensation"
+        work_mode:
+          type: string
+          enum: [remote, hybrid, onsite]
+        headcount:
+          type: integer
+          minimum: 1
+        matching_threshold:
+          type: number
+          minimum: 0
+          maximum: 10
+        hiring_jurisdiction:
+          type: string
+        decision_locus:
+          type: string
+    ReqCloseRequest:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+          enum: [filled, canceled]
+    ReqResource:
+      type: object
+      required:
+        - id
+        - state
+        - role_title
+        - matching_threshold
+        - hiring_jurisdiction
+        - decision_locus
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        external_ref:
+          type: string
+        state:
+          type: string
+        role_title:
+          type: string
+        matching_threshold:
+          type: number
+        hiring_jurisdiction:
+          type: string
+        decision_locus:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    ReqListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReqResource"
+        next_cursor:
+          type: string
+    Compensation:
+      type: object
+      required: [min, max, currency]
+      properties:
+        min:
+          type: integer
+          minimum: 0
+        max:
+          type: integer
+          minimum: 0
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+    WebhookEndpointCreateRequest:
+      type: object
+      required: [url, subscribed_events]
+      properties:
+        url:
+          type: string
+          format: uri
+        description:
+          type: string
+        subscribed_events:
+          type: array
+          items:
+            type: string
+            enum: [match.notification.created, dossier.delivery.created]
+    WebhookEndpointCreateResponse:
+      type: object
+      required: [endpoint, signing_secret]
+      properties:
+        endpoint:
+          $ref: "#/components/schemas/WebhookEndpoint"
+        signing_secret:
+          type: string
+          description: One-time visible secret.
+    WebhookEndpointListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/WebhookEndpoint"
+    WebhookEndpoint:
+      type: object
+      required: [id, url, status, subscribed_events, created_at]
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+          format: uri
+        status:
+          type: string
+          enum: [active, disabled, deleted]
+        subscribed_events:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+    WebhookEndpointDisableRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          maxLength: 240

@@ -1,0 +1,81 @@
+openapi: 3.1.0
+info:
+  title: Spyglass Employer Webhook Events
+  version: 1.0.0
+components:
+  schemas:
+    WebhookEnvelope:
+      type: object
+      required:
+        - event_id
+        - event_type
+        - schema_version
+        - organization_id
+        - created_at
+        - data
+      properties:
+        event_id:
+          type: string
+          format: uuid
+        event_type:
+          type: string
+          enum:
+            - match.notification.created
+            - dossier.delivery.created
+        schema_version:
+          type: string
+          const: "2026-05-25"
+        organization_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        data:
+          oneOf:
+            - $ref: "#/components/schemas/MatchNotificationData"
+            - $ref: "#/components/schemas/DossierDeliveryData"
+    MatchNotificationData:
+      type: object
+      required:
+        - req_id
+        - match_id
+        - candidate_reference
+        - delivery_reason
+      properties:
+        req_id:
+          type: string
+        match_id:
+          type: string
+        candidate_reference:
+          type: string
+        delivery_reason:
+          type: string
+          enum:
+            - employer_threshold_cleared
+            - mutual_threshold_cleared
+        dossier_available:
+          type: boolean
+    DossierDeliveryData:
+      type: object
+      required:
+        - req_id
+        - match_id
+        - dossier_id
+        - dossier_signature_status
+        - employer_projection
+      properties:
+        req_id:
+          type: string
+        match_id:
+          type: string
+        dossier_id:
+          type: string
+          format: uuid
+        dossier_signature_status:
+          type: string
+          enum:
+            - valid
+        employer_projection:
+          type: object
+          additionalProperties: true
