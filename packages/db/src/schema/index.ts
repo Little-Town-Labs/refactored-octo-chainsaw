@@ -132,6 +132,28 @@ export {
   type NotificationObligationType,
 } from "./incident-response.js";
 
+// F25 — Phase 0 alpha posture infrastructure.
+export {
+  alphaConsentRecords,
+  ALPHA_CONSENT_STATES,
+  type AlphaConsentRecordRow,
+  type AlphaConsentState,
+  alphaCounselEvidenceReferences,
+  type AlphaCounselEvidenceReferenceRow,
+  alphaHumanReviewDecisions,
+  ALPHA_HUMAN_REVIEW_DECISIONS,
+  type AlphaHumanReviewDecision,
+  type AlphaHumanReviewDecisionRow,
+  ALPHA_PARTICIPANT_ROLES,
+  type AlphaParticipantRole,
+  alphaPostureGateDecisions,
+  type AlphaPostureGateDecisionRow,
+  type NewAlphaConsentRecordRow,
+  type NewAlphaCounselEvidenceReferenceRow,
+  type NewAlphaHumanReviewDecisionRow,
+  type NewAlphaPostureGateDecisionRow,
+} from "./alpha-posture.js";
+
 // F05 — Canonical audit log, transcript store, and tombstones.
 export {
   auditLogEvents,

@@ -170,6 +170,10 @@ export const incidentEvidenceReferences = pgTable(
       .default(sql`now()`),
   },
   (t) => [
+    check(
+      "incident_evidence_references_kind_check",
+      sql`${t.kind} IN ('audit_event','hash_chain_verification','credential_event','webhook_event','api_request','dossier','match_ticket','external_issue','runbook_exercise')`,
+    ),
     check("incident_evidence_references_ref_check", sql`${t.ref} <> ''`),
     index("incident_evidence_references_incident_idx").on(t.incident_id, t.created_at.desc()),
   ],

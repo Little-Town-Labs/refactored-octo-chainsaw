@@ -1,0 +1,23 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/alpha-posture/alpha-posture.v1.schema.yaml"
+title: Spyglass Alpha Posture v1
+type: object
+additionalProperties: false
+required:
+  - phase
+  - banner
+  - posture_version
+  - non_production_decision
+properties:
+  phase:
+    const: "phase_0_alpha"
+  banner:
+    const: "alpha - informational only"
+  posture_version:
+    type: string
+    minLength: 1
+  non_production_decision:
+    const: true
+  applied_at:
+    type: string
+    format: date-time
