@@ -1,6 +1,6 @@
 # Project Spyglass — Implementation Roadmap
 
-**Version:** 1.5.42
+**Version:** 1.5.43
 **Created:** 2026-05-06
 **Last Amended:** 2026-05-26
 **Owner:** Gary
@@ -43,7 +43,7 @@ modeling per `.specify/memory/constitution.md` §V.3.
 | **F06** Jurisdiction policy gates + kill switches | ✅ **Complete** (merged to `main`, PR #41) | DB-backed jurisdiction posture, fail-safe gate evaluator, no-deploy kill switches, non-PII failure artifacts, scoped review reads, runbook, quickstart evidence, and final package gates are complete. |
 | **F07a** Agent Contract Registry | ✅ **Complete** (merged to `main`, PR #42) | Immutable agent contract versions, scoped publication/deprecation, dispatch-time resolution, fail-closed reason codes, provenance/audit evidence, scoped review reads, runbooks, quickstart evidence, and final package gates are complete. |
 | **F07b** Rubric Registry + bias-test dispatch gate | ✅ **Complete** (merged to `main`, PR #43) | Immutable rubric versions, bias-test artifact registration, dispatch refusal for missing/invalid bias evidence, deterministic weighted scoring, scoped review reads, runbook, quickstart evidence, and package gates are complete. |
-| F08–F25 | ⏳ In progress | F08 Parley Runner is complete and merged to `main` in PR #48 with quickstart evidence recorded and CI rerouted to the PowerBox self-hosted runner; F08.5 Tool Surface & Dispatcher is complete and merged to `main` in PR #44; F09 Privacy Filter is complete and merged to `main` in PR #45; F10 Dossier Builder + Signer is complete and merged to `main` in PR #46 with quickstart evidence recorded; F11 Candidate Notification Artifact System is complete and merged to `main` in PR #47 with quickstart evidence recorded. F12 AI Infrastructure is complete and merged to `main` in PR #49 with quickstart evidence recorded. F13 Seeker Advocate Agent is complete and merged to `main` in PR #50 with quickstart evidence recorded. F14 Employer Advocate Agent is complete and merged to `main` in PR #51 with quickstart evidence recorded. F15 Re-negotiation Loop is complete and merged to `main` in PR #52 with quickstart evidence recorded. F16 Channel adapter framework is complete and merged to `main` in PR #53 with quickstart evidence recorded. F17 Telegram channel adapter is complete and merged to `main` in PR #54 with quickstart evidence recorded. F18 Email channel adapter is complete and merged to `main` in PR #55 with quickstart evidence recorded. F19 Web-chat channel adapter is complete and merged to `main` in PR #56 with quickstart evidence recorded. F20 Conversational onboarding & seeker product flows is complete and merged to `main` in PR #57 with quickstart evidence recorded. F21 Seeker web surface is complete and merged to `main` in PR #58 with quickstart evidence recorded. F22 Employer admin console is complete and merged to `main` in PR #65 with quickstart evidence recorded. F23 Employer REST API + signed-webhook delivery is complete and merged to `main` in PR #67 with quickstart evidence recorded. F24 Incident response capability + breach notification + monitoring is complete and merged to `main` in PR #68 with quickstart evidence recorded. F25 Phase 0 alpha posture infrastructure is active on branch `025-phase-0-alpha-posture`, active Spec Kit pointers target `.specify/specs/025-phase-0-alpha-posture`, and package-first implementation evidence is recorded. |
+| F08–F25 | ✅ **Complete** (merged to `main`) | F08 Parley Runner is complete and merged to `main` in PR #48 with quickstart evidence recorded and CI rerouted to the PowerBox self-hosted runner; F08.5 Tool Surface & Dispatcher is complete and merged to `main` in PR #44; F09 Privacy Filter is complete and merged to `main` in PR #45; F10 Dossier Builder + Signer is complete and merged to `main` in PR #46 with quickstart evidence recorded; F11 Candidate Notification Artifact System is complete and merged to `main` in PR #47 with quickstart evidence recorded. F12 AI Infrastructure is complete and merged to `main` in PR #49 with quickstart evidence recorded. F13 Seeker Advocate Agent is complete and merged to `main` in PR #50 with quickstart evidence recorded. F14 Employer Advocate Agent is complete and merged to `main` in PR #51 with quickstart evidence recorded. F15 Re-negotiation Loop is complete and merged to `main` in PR #52 with quickstart evidence recorded. F16 Channel adapter framework is complete and merged to `main` in PR #53 with quickstart evidence recorded. F17 Telegram channel adapter is complete and merged to `main` in PR #54 with quickstart evidence recorded. F18 Email channel adapter is complete and merged to `main` in PR #55 with quickstart evidence recorded. F19 Web-chat channel adapter is complete and merged to `main` in PR #56 with quickstart evidence recorded. F20 Conversational onboarding & seeker product flows is complete and merged to `main` in PR #57 with quickstart evidence recorded. F21 Seeker web surface is complete and merged to `main` in PR #58 with quickstart evidence recorded. F22 Employer admin console is complete and merged to `main` in PR #65 with quickstart evidence recorded. F23 Employer REST API + signed-webhook delivery is complete and merged to `main` in PR #67 with quickstart evidence recorded. F24 Incident response capability + breach notification + monitoring is complete and merged to `main` in PR #68 with quickstart evidence recorded. F25 Phase 0 alpha posture infrastructure is complete and merged to `main` in PR #69 with quickstart evidence recorded. |
 
 ### F02 sub-slice progress (branch `02-identity-auth-aaa`)
 
@@ -686,7 +686,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 ### Stage 8 checklist
 - [x] **F24** Incident response + monitoring _(merged to `main`, PR #68; quickstart evidence recorded)_
-- [ ] **F25** Phase 0 alpha posture _(active on branch `025-phase-0-alpha-posture`; quickstart evidence recorded)_
+- [x] **F25** Phase 0 alpha posture _(merged to `main` in PR #69; quickstart evidence recorded)_
 - [ ] **Stage 8 gate / Phase 0 launch gate:**
   - [x] IR runbooks tested via tabletop
   - [ ] Alpha consent flow live for both seeker and employer
@@ -698,10 +698,10 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 ## Next Steps
 
-1. **Review and publish F25:** final diff review, commit, push, open the PR, and verify checks/mergeability for `025-phase-0-alpha-posture`.
-2. **Engage counsel of record** for Phase 0 / Phase 1 review.
+1. **Engage counsel of record** for Phase 0 / Phase 1 review.
    Constitutional §V.2 requires this before any phase-transition merge.
-3. **Resolve PRD Open Question #9** — Phase 1 jurisdiction set.
+2. **Resolve PRD Open Question #9** — Phase 1 jurisdiction set.
+3. **Decide the next implementation feature/slice** after counsel and jurisdiction inputs are reflected in the roadmap.
 4. **Preserve F21 boundaries:** publish the seeker landing, Clerk profile surface, `agents.md`, `llms.txt`, and A2A cards without adding a seeker dashboard, ticket list, analytics UI, or recommended-jobs UI.
 
 ---
@@ -710,6 +710,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 | Version | Date       | Change |
 |---------|------------|--------|
+| 1.5.43  | 2026-05-26 | Status update for F25 merge: Phase 0 alpha posture infrastructure is complete and merged to `main` in PR #69, quickstart evidence is recorded, and Stage 8 implementation work through F25 is complete. PATCH-style status amendment. |
 | 1.5.42  | 2026-05-26 | Status update for F25 implementation: Phase 0 alpha posture infrastructure is active on branch `025-phase-0-alpha-posture`, active Spec Kit pointers target `.specify/specs/025-phase-0-alpha-posture`, package-first consent/posture/gate/counsel primitives are implemented, and quickstart evidence is recorded. PATCH-style status amendment. |
 | 1.5.41  | 2026-05-26 | Status update for F24 merge: Incident response capability + breach notification + monitoring is complete and merged to `main` in PR #68, quickstart evidence is recorded, the IR tabletop gate is checked, and next Stage 8 work is F25 Phase 0 alpha posture infrastructure. PATCH-style status amendment. |
 | 1.5.40  | 2026-05-26 | Status update for F24 start: Incident response capability + breach notification + monitoring is active on branch `024-incident-response`, active Spec Kit pointers target `.specify/specs/024-incident-response`, and the package-first implementation slice is underway with focused quickstart evidence recorded. PATCH-style status amendment. |
