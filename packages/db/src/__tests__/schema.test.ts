@@ -4,6 +4,10 @@
 // rely on stable column names and nullability across schema changes.
 
 import {
+  alphaConsentRecords,
+  alphaCounselEvidenceReferences,
+  alphaHumanReviewDecisions,
+  alphaPostureGateDecisions,
   employerApiCredentials,
   employerApiIdempotencyRecords,
   employerWebhookDeliveryReceipts,
@@ -39,6 +43,10 @@ import {
   type NewPrincipalRow,
   type OrganizationRow,
   type PrincipalRow,
+  type AlphaConsentRecordRow,
+  type AlphaCounselEvidenceReferenceRow,
+  type AlphaHumanReviewDecisionRow,
+  type AlphaPostureGateDecisionRow,
 } from "../schema/index.js";
 
 describe("F02 schema — principals (data-model §principals)", () => {
@@ -305,6 +313,50 @@ describe("F24 schema — incident response and monitoring", () => {
       "incident_notification_obligations",
       "incident_corrective_actions",
       "incident_runbook_exercises",
+    ]);
+  });
+});
+
+describe("F25 schema — Phase 0 alpha posture", () => {
+  it("alpha posture rows expose consent, review, counsel, and gate state", () => {
+    const consent: Pick<AlphaConsentRecordRow, "participant_role" | "state"> = {
+      participant_role: "seeker",
+      state: "consented",
+    };
+    const review: Pick<AlphaHumanReviewDecisionRow, "decision" | "reason"> = {
+      decision: "approved",
+      reason: "Informational alpha outreach only",
+    };
+    const counsel: Pick<AlphaCounselEvidenceReferenceRow, "transition" | "memo_path"> = {
+      transition: "phase_0_to_phase_1",
+      memo_path: ".specify/memory/counsel-reviews/memo.md",
+    };
+    const gate: Pick<AlphaPostureGateDecisionRow, "decision" | "reason_code"> = {
+      decision: "block",
+      reason_code: "missing_consent",
+    };
+
+    expect([consent.state, review.decision, counsel.transition, gate.reason_code]).toEqual([
+      "consented",
+      "approved",
+      "phase_0_to_phase_1",
+      "missing_consent",
+    ]);
+  });
+
+  it("uses expected table names for F25 persisted surfaces", () => {
+    const tableNames = [
+      alphaConsentRecords,
+      alphaHumanReviewDecisions,
+      alphaCounselEvidenceReferences,
+      alphaPostureGateDecisions,
+    ].map((table) => (table as unknown as Record<symbol, unknown>)[Symbol.for("drizzle:Name")]);
+
+    expect(tableNames).toEqual([
+      "alpha_consent_records",
+      "alpha_human_review_decisions",
+      "alpha_counsel_evidence_references",
+      "alpha_posture_gate_decisions",
     ]);
   });
 });

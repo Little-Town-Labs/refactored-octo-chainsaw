@@ -230,6 +230,12 @@ importers:
         specifier: ^4.1.1
         version: 4.1.1
 
+  packages/alpha-posture:
+    dependencies:
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+
   packages/api-contracts: {}
 
   packages/audit-log:

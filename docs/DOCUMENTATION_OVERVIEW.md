@@ -290,6 +290,11 @@ F24 incident-response operating docs live in
 `docs/runbooks/incident-response-tabletop.md`, and
 `docs/architecture/monitoring-signals.md`.
 
+F25 Phase 0 alpha posture docs live in
+`docs/runbooks/phase-0-alpha-posture.md` and
+`.specify/specs/025-phase-0-alpha-posture/`, including threat model,
+security review, code review, analyze report, and quickstart evidence.
+
 Critical path: **F01 → F02 → F04 → F05 → F08 → F13/F14 → F20 → F25.**
 Estimated timeline: ~20 weeks to Phase 0 alpha.
 
