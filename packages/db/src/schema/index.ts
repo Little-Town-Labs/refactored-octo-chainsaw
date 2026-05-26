@@ -99,6 +99,39 @@ export {
   type NewEmployerWebhookSigningSecretRow,
 } from "./employer-webhooks.js";
 
+// F24 — Incident response, breach notification, and monitoring.
+export {
+  incidentCorrectiveActions,
+  type IncidentCorrectiveActionRow,
+  incidentEvidenceReferences,
+  type IncidentEvidenceReferenceRow,
+  incidentNotificationObligations,
+  type IncidentNotificationObligationRow,
+  type IncidentRow,
+  incidents,
+  INCIDENT_SEVERITIES,
+  type IncidentSeverity,
+  INCIDENT_STATUSES,
+  type IncidentStatus,
+  incidentRunbookExercises,
+  type IncidentRunbookExerciseRow,
+  incidentTimelineEntries,
+  type IncidentTimelineEntryRow,
+  monitoringSignals,
+  MONITORING_SIGNAL_CATEGORIES,
+  type MonitoringSignalCategory,
+  type MonitoringSignalRow,
+  type NewIncidentCorrectiveActionRow,
+  type NewIncidentEvidenceReferenceRow,
+  type NewIncidentNotificationObligationRow,
+  type NewIncidentRow,
+  type NewIncidentRunbookExerciseRow,
+  type NewIncidentTimelineEntryRow,
+  type NewMonitoringSignalRow,
+  NOTIFICATION_OBLIGATION_TYPES,
+  type NotificationObligationType,
+} from "./incident-response.js";
+
 // F05 — Canonical audit log, transcript store, and tombstones.
 export {
   auditLogEvents,

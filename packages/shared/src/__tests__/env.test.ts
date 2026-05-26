@@ -1,4 +1,4 @@
-import { __resetEnvCache, envSchema, getEnv, loadEnv } from "../env.js";
+import { __resetEnvCache, assertMonitoringEnv, envSchema, getEnv, loadEnv } from "../env.js";
 
 describe("env schema", () => {
   describe("validation", () => {
@@ -66,6 +66,31 @@ describe("env schema", () => {
       const a = getEnv();
       const b = getEnv();
       expect(a).toBe(b);
+    });
+  });
+
+  describe("assertMonitoringEnv()", () => {
+    it("allows test and development without SENTRY_DSN", () => {
+      expect(() => assertMonitoringEnv(loadEnv({ NODE_ENV: "test" }))).not.toThrow();
+      expect(() => assertMonitoringEnv(loadEnv({ NODE_ENV: "development" }))).not.toThrow();
+    });
+
+    it("rejects production-like env without SENTRY_DSN", () => {
+      expect(() => assertMonitoringEnv(loadEnv({ NODE_ENV: "production" }))).toThrow(/SENTRY_DSN/);
+      expect(() =>
+        assertMonitoringEnv(loadEnv({ NODE_ENV: "test", VERCEL_ENV: "production" })),
+      ).toThrow(/SENTRY_DSN/);
+    });
+
+    it("accepts production-like env with SENTRY_DSN", () => {
+      expect(() =>
+        assertMonitoringEnv(
+          loadEnv({
+            NODE_ENV: "production",
+            SENTRY_DSN: "https://public@example.invalid/1",
+          }),
+        ),
+      ).not.toThrow();
     });
   });
 });

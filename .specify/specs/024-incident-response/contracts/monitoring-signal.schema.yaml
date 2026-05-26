@@ -1,0 +1,109 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://spyglass.local/contracts/incident-response/monitoring-signal.v1.schema.yaml"
+title: Spyglass Monitoring Signal v1
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - id
+  - source
+  - category
+  - severity
+  - dedupe_key
+  - observed_at
+  - evidence_ref
+  - escalation_hint
+properties:
+  schema_version:
+    const: "incident.monitoring_signal.v1"
+  id:
+    type: string
+    minLength: 1
+  source:
+    enum:
+      - privacy_filter
+      - audit_log
+      - auth
+      - credential_lifecycle
+      - employer_api
+      - webhook_delivery
+      - manual_report
+      - notification_deadline
+  category:
+    enum:
+      - privacy_filter_bypass_attempt
+      - cross_side_leakage
+      - audit_chain_integrity_failure
+      - auth_anomaly
+      - credential_misuse
+      - webhook_replay_or_signature_abuse
+      - employer_api_abuse
+      - notification_deadline_risk
+      - monitoring_sink_failure
+  severity:
+    enum:
+      - sev1
+      - sev2
+      - sev3
+  dedupe_key:
+    type: string
+    minLength: 8
+  observed_at:
+    type: string
+    format: date-time
+  affected_subject:
+    type: object
+    additionalProperties: false
+    required:
+      - kind
+      - id
+    properties:
+      kind:
+        enum:
+          - match
+          - dossier
+          - principal
+          - organization
+          - credential
+          - webhook_event
+          - api_request
+          - audit_chain
+          - incident
+      id:
+        type: string
+        minLength: 1
+  evidence_ref:
+    type: object
+    additionalProperties: false
+    required:
+      - kind
+      - ref
+    properties:
+      kind:
+        enum:
+          - audit_event
+          - hash_chain_verification
+          - credential_event
+          - webhook_event
+          - api_request
+          - dossier
+          - match_ticket
+          - external_issue
+          - runbook_exercise
+      ref:
+        type: string
+        minLength: 1
+      hash:
+        type: string
+      contains_personal_data:
+        type: boolean
+        default: false
+  escalation_hint:
+    enum:
+      - open_incident
+      - attach_to_existing
+      - review_only
+      - page_on_call
+  metadata:
+    type: object
+    additionalProperties: true
