@@ -1,0 +1,27 @@
+{
+  "name": "@spyglass/product-test-harness",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "type-check": "tsc --noEmit -p tsconfig.json",
+    "test": "jest --passWithNoTests",
+    "lint": "eslint .",
+    "run:sample": "node -e \"import('./dist/samples/noop-scenario.js').then(async (m) => console.log(await m.runNoopScenario()))\""
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.4"
+  }
+}
