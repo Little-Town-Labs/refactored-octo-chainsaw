@@ -2,6 +2,15 @@ export type {
   AdapterMetadata,
   ArtifactRedactionStatus,
   ArtifactType,
+  BrowserArtifactCapturePolicy,
+  BrowserArtifactPolicy,
+  BrowserJourney,
+  BrowserJourneyCategory,
+  BrowserJourneyDriver,
+  BrowserJourneyRoute,
+  BrowserJourneyVisitInput,
+  BrowserJourneyVisitResult,
+  BrowserViewport,
   AssertionSeverity,
   AssertionStatus,
   CleanupStatus,
@@ -68,6 +77,11 @@ export type {
   AlphaGateSuiteResult,
   RunAlphaGateScenarioOptions,
 } from "./scenarios/alpha-gates.js";
+export type {
+  BrowserJourneyRun,
+  BrowserJourneySuiteResult,
+  RunBrowserJourneyOptions,
+} from "./browser/runner.js";
 
 export {
   PRODUCT_RESULT_STORE_SCHEMA_VERSION,
@@ -140,6 +154,22 @@ export {
   runAlphaGateScenario,
   runAlphaGateSuite,
 } from "./scenarios/alpha-gates.js";
+export { createBrowserArtifactRecords, shouldCaptureArtifact } from "./browser/artifacts.js";
+export {
+  browserJourneyWithAppUrl,
+  DEFAULT_BROWSER_APP_URL,
+  DEFAULT_BROWSER_ARTIFACT_POLICY,
+  DEFAULT_BROWSER_JOURNEYS,
+  DEFAULT_BROWSER_JOURNEY_CATEGORIES,
+  DEFAULT_BROWSER_VIEWPORTS,
+} from "./browser/journeys.js";
+export { runBrowserJourney, runDefaultBrowserJourneySuite } from "./browser/runner.js";
+export {
+  SyntheticBrowserJourneyDriver,
+  type SyntheticBrowserJourneyDriverOptions,
+  type SyntheticBrowserJourneyEvent,
+} from "./browser/synthetic-driver.js";
+export { assertValidBrowserJourney, validateBrowserJourney } from "./browser/validation.js";
 export { renderJsonReport } from "./reports/json.js";
 export { renderMarkdownReport } from "./reports/markdown.js";
 export { noopScenario, runNoopScenario } from "./samples/noop-scenario.js";
@@ -150,3 +180,4 @@ export {
 export { resultStoreScenario, runResultStoreScenario } from "./samples/result-store-scenario.js";
 export { seedFactoryScenario, runSeedFactoryScenario } from "./samples/seed-factory-scenario.js";
 export { runAlphaGateScenarioSample } from "./samples/alpha-gate-scenarios.js";
+export { runBrowserGateScenarioSample } from "./samples/browser-gate-scenario.js";
