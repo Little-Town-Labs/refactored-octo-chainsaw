@@ -62,6 +62,7 @@ export interface ScenarioRunContext {
   readonly run_id: string;
   readonly scenario: ScenarioIdentity;
   readonly environment: ScenarioEnvironment;
+  readonly database?: ProductDatabaseBranchContext;
 }
 
 export interface ScenarioStepOutput {
@@ -127,6 +128,7 @@ export interface RunScenarioOptions {
   readonly environment: ScenarioEnvironment;
   readonly git?: ScenarioGitMetadata;
   readonly metadata?: SafeMetadata;
+  readonly database?: ProductDatabaseBranchContext;
   readonly now?: () => Date;
 }
 
@@ -134,4 +136,83 @@ export interface AdapterMetadata {
   readonly adapter: "neon" | "browser" | "webhook" | "observability" | "pi" | "other";
   readonly version?: string;
   readonly values: SafeMetadata;
+}
+
+export type ProductDatabaseCleanupPolicy =
+  | "always_delete"
+  | "delete_on_success"
+  | "retain_on_failure"
+  | "retain_always";
+
+export type LifecyclePhaseStatus = "not_started" | "passed" | "failed";
+export type SeedLifecycleStatus = "not_configured" | LifecyclePhaseStatus;
+export type CleanupStatus = "deleted" | "retained" | "failed" | "not_created";
+
+export interface ProductDatabaseLifecycleConfig {
+  readonly project_id?: string;
+  readonly parent_branch_id: string;
+  readonly branch_name_prefix: string;
+  readonly migrations_folder: string;
+  readonly cleanup_policy?: ProductDatabaseCleanupPolicy;
+  readonly retain_reason?: string;
+  readonly seed_version?: string;
+}
+
+export interface ProductDatabaseBranchContext {
+  readonly branch_id: string;
+  readonly branch_name: string;
+  readonly parent_branch_id: string;
+  readonly database_url: string;
+  readonly safe_database_ref: string;
+}
+
+export interface ProductMigrationExecution {
+  readonly status: LifecyclePhaseStatus;
+  readonly migrations_folder: string;
+  readonly started_at?: string;
+  readonly ended_at?: string;
+  readonly duration_ms?: number;
+  readonly error?: string;
+}
+
+export interface ProductSeedExecution {
+  readonly status: SeedLifecycleStatus;
+  readonly seed_version?: string;
+  readonly seed_refs?: readonly string[];
+  readonly started_at?: string;
+  readonly ended_at?: string;
+  readonly duration_ms?: number;
+  readonly error?: string;
+}
+
+export interface ProductCleanupResult {
+  readonly status: CleanupStatus;
+  readonly policy: ProductDatabaseCleanupPolicy;
+  readonly reason?: string;
+  readonly started_at?: string;
+  readonly ended_at?: string;
+  readonly duration_ms?: number;
+}
+
+export interface ProductDatabaseLifecycleMetadata {
+  readonly adapter: "neon";
+  readonly branch?: {
+    readonly branch_id: string;
+    readonly branch_name: string;
+    readonly parent_branch_id: string;
+    readonly safe_database_ref: string;
+  };
+  readonly migration: ProductMigrationExecution;
+  readonly seed: ProductSeedExecution;
+  readonly cleanup: ProductCleanupResult;
+  readonly redaction: {
+    readonly database_url_redacted: true;
+    readonly redaction_strategy: string;
+  };
+}
+
+export interface ProductSeedOutput {
+  readonly seed_version?: string;
+  readonly seed_refs?: readonly string[];
+  readonly metadata?: SafeMetadata;
 }

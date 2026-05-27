@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spyglass.local/schemas/product-db-lifecycle.schema.json",
+  "title": "Product Database Lifecycle Metadata",
+  "type": "object",
+  "required": ["adapter", "branch", "migration", "seed", "cleanup", "redaction"],
+  "additionalProperties": false,
+  "properties": {
+    "adapter": {
+      "const": "neon"
+    },
+    "branch": {
+      "type": "object",
+      "required": ["branch_id", "branch_name", "parent_branch_id", "safe_database_ref"],
+      "additionalProperties": false,
+      "properties": {
+        "branch_id": { "type": "string", "minLength": 1 },
+        "branch_name": { "type": "string", "minLength": 1 },
+        "parent_branch_id": { "type": "string", "minLength": 1 },
+        "safe_database_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "migration": {
+      "type": "object",
+      "required": ["status", "migrations_folder"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "enum": ["not_started", "passed", "failed"] },
+        "migrations_folder": { "type": "string" },
+        "started_at": { "type": "string", "format": "date-time" },
+        "ended_at": { "type": "string", "format": "date-time" },
+        "duration_ms": { "type": "integer", "minimum": 0 },
+        "error": { "type": "string" }
+      }
+    },
+    "seed": {
+      "type": "object",
+      "required": ["status"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "enum": ["not_configured", "not_started", "passed", "failed"] },
+        "seed_version": { "type": "string" },
+        "seed_refs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "started_at": { "type": "string", "format": "date-time" },
+        "ended_at": { "type": "string", "format": "date-time" },
+        "duration_ms": { "type": "integer", "minimum": 0 },
+        "error": { "type": "string" }
+      }
+    },
+    "cleanup": {
+      "type": "object",
+      "required": ["status", "policy"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "enum": ["deleted", "retained", "failed", "not_created"] },
+        "policy": {
+          "enum": ["always_delete", "delete_on_success", "retain_on_failure", "retain_always"]
+        },
+        "reason": { "type": "string" },
+        "started_at": { "type": "string", "format": "date-time" },
+        "ended_at": { "type": "string", "format": "date-time" },
+        "duration_ms": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "redaction": {
+      "type": "object",
+      "required": ["database_url_redacted"],
+      "additionalProperties": false,
+      "properties": {
+        "database_url_redacted": { "const": true },
+        "redaction_strategy": { "type": "string" }
+      }
+    }
+  }
+}
