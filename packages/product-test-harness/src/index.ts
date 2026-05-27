@@ -57,6 +57,17 @@ export type {
   ScenarioStepRecord,
   StepStatus,
 } from "./contracts.js";
+export type {
+  AlphaGateBlockReason,
+  AlphaGateDecision,
+  AlphaGateDossierStatus,
+  AlphaGateOutcome,
+  AlphaGateScenarioConfig,
+  AlphaGateScenarioId,
+  AlphaGateScenarioRun,
+  AlphaGateSuiteResult,
+  RunAlphaGateScenarioOptions,
+} from "./scenarios/alpha-gates.js";
 
 export {
   PRODUCT_RESULT_STORE_SCHEMA_VERSION,
@@ -121,6 +132,14 @@ export {
   applyProductSeedBundleOffline,
   createProductSeedLifecycleCallback,
 } from "./seeds/apply.js";
+export {
+  ALPHA_GATE_SCENARIO_CONFIGS,
+  ALPHA_GATE_SCENARIOS,
+  evaluateAlphaGateOutcome,
+  getAlphaGateScenarioConfig,
+  runAlphaGateScenario,
+  runAlphaGateSuite,
+} from "./scenarios/alpha-gates.js";
 export { renderJsonReport } from "./reports/json.js";
 export { renderMarkdownReport } from "./reports/markdown.js";
 export { noopScenario, runNoopScenario } from "./samples/noop-scenario.js";
@@ -130,3 +149,4 @@ export {
 } from "./samples/neon-lifecycle-scenario.js";
 export { resultStoreScenario, runResultStoreScenario } from "./samples/result-store-scenario.js";
 export { seedFactoryScenario, runSeedFactoryScenario } from "./samples/seed-factory-scenario.js";
+export { runAlphaGateScenarioSample } from "./samples/alpha-gate-scenarios.js";

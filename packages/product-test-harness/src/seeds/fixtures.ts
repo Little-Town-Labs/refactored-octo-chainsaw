@@ -66,6 +66,30 @@ export const PRODUCT_SEED_FIXTURES: Record<ProductSeedFixtureName, ProductSeedFi
         review_posture: "human_review_required",
       }),
   },
+  "consent-withdrawn": {
+    fixture_name: "consent-withdrawn",
+    description: "Explicit denial path for withdrawn seeker consent.",
+    required_categories: REQUIRED_PRODUCT_SEED_ENTITY_TYPES,
+    build: (input) =>
+      buildBundle(input, {
+        fixture_posture: "consent_withdrawn",
+        consent_posture: "consent_withdrawn",
+        jurisdiction_posture: "jurisdiction_allowed",
+        review_posture: "human_review_not_required",
+      }),
+  },
+  "human-review-required": {
+    fixture_name: "human-review-required",
+    description: "Explicit denial path requiring attributed human review evidence.",
+    required_categories: REQUIRED_PRODUCT_SEED_ENTITY_TYPES,
+    build: (input) =>
+      buildBundle(input, {
+        fixture_posture: "human_review_required",
+        consent_posture: "active_consent",
+        jurisdiction_posture: "jurisdiction_allowed",
+        review_posture: "human_review_required",
+      }),
+  },
   "jurisdiction-kill-switch": {
     fixture_name: "jurisdiction-kill-switch",
     description: "Explicit denial path for jurisdiction kill switch.",
@@ -148,6 +172,10 @@ function buildBundle(
     }),
     entity("human_review_decision", "review-decision", {
       required: posture.review_posture === "human_review_required",
+      decision:
+        posture.review_posture === "human_review_required" ? "requires_review" : "not_required",
+      reviewer_principal_ref: "seed://synthetic-human-reviewer",
+      evidence_ref: `evidence://alpha/${input.fixture_name}/human-review`,
     }),
     entity("agent_contract", "alpha-contract", { version: "contract-alpha-v1" }),
     entity("rubric", "software-rubric", { version: "rubric-alpha-v1" }),
