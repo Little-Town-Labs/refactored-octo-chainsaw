@@ -36,7 +36,8 @@ This roadmap converts the Product Readiness Harness PRD into feature-sized Spec 
 | PTH04 Deterministic seed factories | Complete | Merged to `main` in PR #73; product harness now supports deterministic seed bundle contracts, Alpha happy-path/missing-consent/jurisdiction-kill-switch fixtures, seed validation, offline application, lifecycle callback integration, result-store-compatible seed records, and sample evidence. |
 | PTH05 Deterministic Alpha gate scenarios A1-A5 | Complete | Merged to `main` in PR #74; product harness now defines deterministic A1-A5 gate scenarios, consent-withdrawn and human-review seed fixtures, result-store snapshot persistence, public exports, sample command, and local evidence. |
 | PTH06 Playwright product browser runner | Complete | Merged to `main` in PR #75; product harness now defines default PTH06 browser journeys, Playwright-compatible driver contracts, deterministic synthetic driver, browser artifact capture, result-store snapshot persistence, public exports, and sample evidence. |
-| PTH07-PTH10 | Not started | Next queued slice is PTH07 Employer API + webhook receiver scenarios. |
+| PTH07 Employer API + webhook receiver scenarios | Implemented on `032-product-api-webhook-gates` | PR pending; product harness now defines deterministic employer API/webhook gate scenarios, scoped synthetic credential validation, signed webhook delivery, receiver capture, idempotency, failure evidence, payload-boundary assertions, result-store snapshot persistence, public exports, and sample evidence. |
+| PTH08-PTH10 | Not started | Next queued slice is PTH08 Observability and incident assertions. |
 
 ---
 
@@ -109,7 +110,7 @@ Complexity:
 |---------|---------------|
 | PTH05 | Core Alpha scenarios A1-A5 run without live models and assert business outcome, privacy, jurisdiction, alpha posture, dossier/evidence, and audit behavior. Complete and merged to `main` in PR #74. |
 | PTH06 | Playwright drives key web journeys against a local or Vercel preview URL and captures screenshots/video/traces on failure. Complete and merged to `main` in PR #75. |
-| PTH07 | Employer API and webhook scenarios verify auth, signing, idempotency, failure evidence, and payload boundaries. |
+| PTH07 | Employer API and webhook scenarios verify auth, signing, idempotency, failure evidence, and payload boundaries. Implemented on `032-product-api-webhook-gates`; PR pending. |
 | PTH08 | Observability assertions verify audit events, monitoring signals, incident-ready evidence, Sentry production-like config, latency/cost capture, and no credential leakage. |
 
 ### Phase 4 - Persona Evals

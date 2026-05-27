@@ -11,6 +11,13 @@ export type {
   BrowserJourneyVisitInput,
   BrowserJourneyVisitResult,
   BrowserViewport,
+  EmployerApiCredential,
+  EmployerApiDenialReason,
+  EmployerApiOperationResult,
+  EmployerApiOperationStatus,
+  EmployerApiRequest,
+  EmployerApiScope,
+  EmployerReqAction,
   AssertionSeverity,
   AssertionStatus,
   CleanupStatus,
@@ -65,7 +72,18 @@ export type {
   ScenarioStepOutput,
   ScenarioStepRecord,
   StepStatus,
+  WebhookDelivery,
+  WebhookDeliveryStatus,
+  WebhookIdempotencyStatus,
+  WebhookPayloadBoundaryResult,
+  WebhookSignatureVerification,
 } from "./contracts.js";
+export type { ApiWebhookGateConfig, ApiWebhookGateId } from "./api-webhooks/gates.js";
+export type {
+  ApiWebhookGateRun,
+  ApiWebhookGateSuiteResult,
+  RunApiWebhookGateOptions,
+} from "./api-webhooks/runner.js";
 export type {
   AlphaGateBlockReason,
   AlphaGateDecision,
@@ -154,6 +172,32 @@ export {
   runAlphaGateScenario,
   runAlphaGateSuite,
 } from "./scenarios/alpha-gates.js";
+export {
+  PTH07_BASE_TIME,
+  authorizeEmployerApiRequest,
+  createEmployerApiCredential,
+  missingScopeCredential,
+} from "./api-webhooks/credentials.js";
+export {
+  API_WEBHOOK_GATE_IDS,
+  DEFAULT_API_WEBHOOK_GATES,
+  PTH07_SCENARIO_VERSION,
+  evaluateEmployerApiOperation,
+  toApiWebhookProductScenario,
+} from "./api-webhooks/gates.js";
+export { assertWebhookPayloadBoundary } from "./api-webhooks/payload-boundaries.js";
+export { SyntheticWebhookReceiver } from "./api-webhooks/receiver.js";
+export { runApiWebhookGate, runDefaultApiWebhookGateSuite } from "./api-webhooks/runner.js";
+export {
+  WEBHOOK_DELIVERY_HEADER,
+  WEBHOOK_EVENT_HEADER,
+  WEBHOOK_SIGNATURE_HEADER,
+  WEBHOOK_TIMESTAMP_HEADER,
+  canonicalWebhookPayload,
+  signWebhookPayload,
+  verifyWebhookSignature,
+  withSignedWebhookHeaders,
+} from "./api-webhooks/signing.js";
 export { createBrowserArtifactRecords, shouldCaptureArtifact } from "./browser/artifacts.js";
 export {
   browserJourneyWithAppUrl,
@@ -181,3 +225,4 @@ export { resultStoreScenario, runResultStoreScenario } from "./samples/result-st
 export { seedFactoryScenario, runSeedFactoryScenario } from "./samples/seed-factory-scenario.js";
 export { runAlphaGateScenarioSample } from "./samples/alpha-gate-scenarios.js";
 export { runBrowserGateScenarioSample } from "./samples/browser-gate-scenario.js";
+export { runApiWebhookGateScenarioSample } from "./samples/api-webhook-gates.js";
