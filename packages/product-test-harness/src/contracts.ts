@@ -453,3 +453,69 @@ export interface ProductSeedApplicationResult extends ProductSeedOutput {
   readonly applied_entities: readonly ProductSeedAppliedEntity[];
   readonly error?: string;
 }
+
+export type BrowserJourneyCategory =
+  | "seeker_landing"
+  | "seeker_auth_profile"
+  | "employer_console"
+  | "employer_req_creation"
+  | "employer_candidate_review"
+  | "operator_credential_audit"
+  | "alpha_consent"
+  | "informational_only";
+
+export type BrowserArtifactCapturePolicy = "always" | "on_failure" | "never";
+
+export interface BrowserArtifactPolicy {
+  readonly screenshot: BrowserArtifactCapturePolicy;
+  readonly video: BrowserArtifactCapturePolicy;
+  readonly trace: BrowserArtifactCapturePolicy;
+  readonly console_log: BrowserArtifactCapturePolicy;
+  readonly network_log: BrowserArtifactCapturePolicy;
+}
+
+export interface BrowserViewport {
+  readonly name: string;
+  readonly width: number;
+  readonly height: number;
+}
+
+export interface BrowserJourneyRoute {
+  readonly route_id: string;
+  readonly path: string;
+  readonly expected_status?: number;
+  readonly expected_text?: string;
+}
+
+export interface BrowserJourney {
+  readonly journey_id: string;
+  readonly title: string;
+  readonly category: BrowserJourneyCategory;
+  readonly mode: ScenarioMode;
+  readonly app_url: string;
+  readonly routes: readonly BrowserJourneyRoute[];
+  readonly viewports: readonly BrowserViewport[];
+  readonly artifact_policy: BrowserArtifactPolicy;
+  readonly tags?: readonly string[];
+}
+
+export interface BrowserJourneyVisitInput {
+  readonly run_id: string;
+  readonly journey: BrowserJourney;
+  readonly route: BrowserJourneyRoute;
+  readonly viewport: BrowserViewport;
+  readonly url: string;
+}
+
+export interface BrowserJourneyVisitResult {
+  readonly status: ProductEvidenceStatus;
+  readonly evidence_refs: readonly string[];
+  readonly console_messages?: readonly string[];
+  readonly network_entries?: readonly string[];
+  readonly error?: string;
+}
+
+export interface BrowserJourneyDriver {
+  readonly driver_name: string;
+  visit(input: BrowserJourneyVisitInput): Promise<BrowserJourneyVisitResult>;
+}
