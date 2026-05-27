@@ -30,7 +30,8 @@ This roadmap converts the Product Readiness Harness PRD into feature-sized Spec 
 | Feature | Status | Notes |
 |---------|--------|-------|
 | PTH00 Product Readiness Harness PRD | Complete | `docs/testing/product-harness/PRD.md` created from Alpha-readiness, Neon, Playwright, Browserbase, Pi persona, and observability requirements. |
-| PTH01-PTH10 | Not started | This roadmap defines the implementation sequence. |
+| PTH01 Harness skeleton + scenario/result contracts | In progress | Active on branch `026-product-harness-skeleton`; Spec Kit artifacts target `.specify/specs/026-product-harness-skeleton`. |
+| PTH02-PTH10 | Not started | Later roadmap slices remain queued. |
 
 ---
 
@@ -266,4 +267,3 @@ The harness is ready to support Alpha launch when:
 - No real production data is used.
 - No secrets appear in logs, reports, screenshots, videos, or webhook artifacts.
 - Product, engineering, and compliance reviewers can read the summary without parsing raw logs.
-

@@ -1,0 +1,137 @@
+export type ScenarioMode = "gate" | "eval";
+export type RunStatus = "passed" | "failed" | "invalid";
+export type StepStatus = "passed" | "failed" | "skipped";
+export type AssertionStatus = "passed" | "failed" | "skipped";
+export type AssertionSeverity = "blocker" | "major" | "minor" | "info";
+export type ArtifactType =
+  | "json"
+  | "markdown"
+  | "screenshot"
+  | "video"
+  | "trace"
+  | "webhook_capture"
+  | "agent_transcript"
+  | "log_excerpt"
+  | "other";
+export type ArtifactRedactionStatus =
+  | "not_required"
+  | "redacted"
+  | "contains_sensitive_synthetic_data";
+
+export type SafeMetadata = Readonly<Record<string, unknown>>;
+
+export interface ProductScenario {
+  readonly scenario_id: string;
+  readonly version: string;
+  readonly title: string;
+  readonly description?: string;
+  readonly mode: ScenarioMode;
+  readonly owner?: string;
+  readonly tags?: readonly string[];
+  readonly steps: readonly ScenarioStepDefinition[];
+}
+
+export interface ScenarioIdentity {
+  readonly scenario_id: string;
+  readonly version: string;
+  readonly title: string;
+  readonly description?: string;
+  readonly mode: ScenarioMode;
+  readonly owner?: string;
+  readonly tags?: readonly string[];
+}
+
+export interface ScenarioEnvironment {
+  readonly label: string;
+  readonly app_url?: string;
+  readonly [key: string]: unknown;
+}
+
+export interface ScenarioGitMetadata {
+  readonly sha?: string;
+  readonly ref?: string;
+}
+
+export interface ScenarioStepDefinition {
+  readonly step_id: string;
+  readonly name: string;
+  readonly run: (context: ScenarioRunContext) => Promise<ScenarioStepOutput> | ScenarioStepOutput;
+}
+
+export interface ScenarioRunContext {
+  readonly run_id: string;
+  readonly scenario: ScenarioIdentity;
+  readonly environment: ScenarioEnvironment;
+}
+
+export interface ScenarioStepOutput {
+  readonly status?: StepStatus;
+  readonly evidence_refs?: readonly string[];
+  readonly assertions?: readonly ScenarioAssertion[];
+  readonly artifacts?: readonly RunArtifact[];
+  readonly metadata?: SafeMetadata;
+}
+
+export interface ScenarioStepRecord {
+  readonly step_id: string;
+  readonly order: number;
+  readonly name: string;
+  readonly status: StepStatus;
+  readonly started_at: string;
+  readonly ended_at: string;
+  readonly duration_ms: number;
+  readonly evidence_refs?: readonly string[];
+  readonly metadata?: SafeMetadata;
+  readonly error?: string;
+}
+
+export interface ScenarioAssertion {
+  readonly assertion_id: string;
+  readonly name: string;
+  readonly severity: AssertionSeverity;
+  readonly status: AssertionStatus;
+  readonly expected: string;
+  readonly actual: string;
+  readonly evidence_refs?: readonly string[];
+  readonly metadata?: SafeMetadata;
+}
+
+export interface RunArtifact {
+  readonly artifact_id: string;
+  readonly label: string;
+  readonly type: ArtifactType;
+  readonly uri: string;
+  readonly redaction_status: ArtifactRedactionStatus;
+  readonly checksum?: string;
+  readonly metadata?: SafeMetadata;
+}
+
+export interface ScenarioRunResult {
+  readonly run_id: string;
+  readonly scenario: ScenarioIdentity;
+  readonly environment: ScenarioEnvironment;
+  readonly git?: ScenarioGitMetadata;
+  readonly started_at: string;
+  readonly ended_at: string;
+  readonly duration_ms: number;
+  readonly status: RunStatus;
+  readonly steps: readonly ScenarioStepRecord[];
+  readonly assertions: readonly ScenarioAssertion[];
+  readonly artifacts: readonly RunArtifact[];
+  readonly summary: string;
+  readonly metadata?: SafeMetadata;
+}
+
+export interface RunScenarioOptions {
+  readonly run_id?: string;
+  readonly environment: ScenarioEnvironment;
+  readonly git?: ScenarioGitMetadata;
+  readonly metadata?: SafeMetadata;
+  readonly now?: () => Date;
+}
+
+export interface AdapterMetadata {
+  readonly adapter: "neon" | "browser" | "webhook" | "observability" | "pi" | "other";
+  readonly version?: string;
+  readonly values: SafeMetadata;
+}
