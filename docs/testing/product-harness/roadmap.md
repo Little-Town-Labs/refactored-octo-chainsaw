@@ -33,8 +33,8 @@ This roadmap converts the Product Readiness Harness PRD into feature-sized Spec 
 | PTH01 Harness skeleton + scenario/result contracts | Complete | Merged to `main` in PR #70; `@spyglass/product-test-harness` now provides scenario/result contracts, runner, reports, sample scenario, and tests. |
 | PTH02 Neon branch + migration + seed lifecycle | Complete | Merged to `main` in PR #71; product harness now supports disposable database branch lifecycle, migration, seeding, cleanup policy metadata, redaction, and lifecycle tests. |
 | PTH03 Persistent result store + artifacts contract | Complete | Merged to `main` in PR #72; product harness now supports result-store snapshots, evidence categories, local file persistence, filtering, validation, and duplicate safety. |
-| PTH04 Deterministic seed factories | In progress | Active on branch `029-product-harness-seed-factories`; Spec Kit artifacts target `.specify/specs/029-product-harness-seed-factories`. Local package gates are green. |
-| PTH05-PTH10 | Not started | Next queued slice after PTH04 is PTH05 Deterministic Alpha gate scenarios A1-A5. |
+| PTH04 Deterministic seed factories | Complete | Merged to `main` in PR #73; product harness now supports deterministic seed bundle contracts, Alpha happy-path/missing-consent/jurisdiction-kill-switch fixtures, seed validation, offline application, lifecycle callback integration, result-store-compatible seed records, and sample evidence. |
+| PTH05-PTH10 | Not started | Next queued slice is PTH05 Deterministic Alpha gate scenarios A1-A5. |
 
 ---
 
