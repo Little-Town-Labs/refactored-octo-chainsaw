@@ -24,9 +24,22 @@ export type {
   ProductResultStoreSnapshot,
   ProductResultStoreSnapshotInput,
   ProductScenario,
+  ProductSeedApplicationResult,
+  ProductSeedApplicationStatus,
+  ProductSeedAppliedEntity,
+  ProductSeedBundle,
+  ProductSeedBundleSchemaVersion,
+  ProductSeedEntityRecord,
+  ProductSeedEntityType,
+  ProductSeedFactoryInput,
+  ProductSeedFixtureDefinition,
+  ProductSeedFixtureName,
   ProductSeedExecution,
   ProductSeedOutput,
+  ProductSeedPosture,
   ProductSeedRecord,
+  ProductSeedRelationship,
+  ProductSeedRelationshipType,
   ProductWebhookCaptureRecord,
   RunArtifact,
   RunScenarioOptions,
@@ -45,7 +58,10 @@ export type {
   StepStatus,
 } from "./contracts.js";
 
-export { PRODUCT_RESULT_STORE_SCHEMA_VERSION } from "./contracts.js";
+export {
+  PRODUCT_RESULT_STORE_SCHEMA_VERSION,
+  PRODUCT_SEED_BUNDLE_SCHEMA_VERSION,
+} from "./contracts.js";
 
 export {
   HarnessValidationError,
@@ -80,6 +96,31 @@ export {
   validateProductResultStoreSnapshot,
   validateStoredArtifact,
 } from "./results/validation.js";
+export {
+  DEFAULT_PRODUCT_SEED_BASE_TIME,
+  deterministicEntityId,
+  deterministicEntityRef,
+  deterministicSeedId,
+  deterministicTimestamp,
+} from "./seeds/deterministic.js";
+export {
+  buildProductSeedBundle,
+  buildSeedEntity,
+  buildSeedRelationship,
+  ProductSeedFactoryError,
+  toProductSeedRecord,
+} from "./seeds/factories.js";
+export {
+  createProductSeedBundle,
+  getProductSeedFixture,
+  PRODUCT_SEED_FIXTURES,
+  REQUIRED_PRODUCT_SEED_ENTITY_TYPES,
+} from "./seeds/fixtures.js";
+export { assertValidProductSeedBundle, validateProductSeedBundle } from "./seeds/validation.js";
+export {
+  applyProductSeedBundleOffline,
+  createProductSeedLifecycleCallback,
+} from "./seeds/apply.js";
 export { renderJsonReport } from "./reports/json.js";
 export { renderMarkdownReport } from "./reports/markdown.js";
 export { noopScenario, runNoopScenario } from "./samples/noop-scenario.js";
@@ -88,3 +129,4 @@ export {
   runNeonLifecycleScenario,
 } from "./samples/neon-lifecycle-scenario.js";
 export { resultStoreScenario, runResultStoreScenario } from "./samples/result-store-scenario.js";
+export { seedFactoryScenario, runSeedFactoryScenario } from "./samples/seed-factory-scenario.js";

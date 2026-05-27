@@ -3,6 +3,6 @@
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
 
-`.specify/specs/028-product-harness-results-store/plan.md`
+`.specify/specs/029-product-harness-seed-factories/plan.md`
 
 <!-- SPECKIT END -->

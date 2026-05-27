@@ -338,3 +338,115 @@ export interface ProductResultStore {
   getRun(runId: string): Promise<ProductResultStoreSnapshot | undefined>;
   listRuns(filters?: ProductResultStoreFilters): Promise<readonly ProductResultRunSummary[]>;
 }
+
+export const PRODUCT_SEED_BUNDLE_SCHEMA_VERSION = "pth-seed-bundle/v1";
+
+export type ProductSeedBundleSchemaVersion = typeof PRODUCT_SEED_BUNDLE_SCHEMA_VERSION;
+export type ProductSeedFixtureName =
+  | "alpha-happy-path"
+  | "missing-consent"
+  | "jurisdiction-kill-switch";
+
+export type ProductSeedEntityType =
+  | "human_principal"
+  | "service_principal"
+  | "agent_principal"
+  | "seeker"
+  | "employer"
+  | "organization"
+  | "job_requirement"
+  | "seeker_ticket"
+  | "employer_requirement_ticket"
+  | "match_ticket"
+  | "jurisdiction_policy"
+  | "consent_record"
+  | "human_review_decision"
+  | "agent_contract"
+  | "rubric"
+  | "bias_test_evidence"
+  | "privacy_ruleset"
+  | "notification_template"
+  | "webhook_endpoint"
+  | "signing_key";
+
+export type ProductSeedRelationshipType =
+  | "owns"
+  | "belongs_to"
+  | "represents"
+  | "consent_for"
+  | "ticket_for"
+  | "ticket_requires_policy"
+  | "match_links"
+  | "contract_uses_rubric"
+  | "rubric_has_bias_evidence"
+  | "uses_privacy_ruleset"
+  | "webhook_for"
+  | "key_for";
+
+export type ProductSeedPosture =
+  | "alpha_happy_path"
+  | "active_consent"
+  | "missing_consent"
+  | "jurisdiction_allowed"
+  | "jurisdiction_killed"
+  | "human_review_not_required"
+  | "human_review_required";
+
+export interface ProductSeedFactoryInput {
+  readonly scenario_id: string;
+  readonly scenario_version: string;
+  readonly seed_version: string;
+  readonly fixture_name: ProductSeedFixtureName;
+  readonly mode: ScenarioMode;
+  readonly namespace?: string;
+  readonly base_time?: string;
+}
+
+export interface ProductSeedEntityRecord {
+  readonly entity_type: ProductSeedEntityType;
+  readonly entity_id: string;
+  readonly entity_ref: string;
+  readonly attributes: SafeMetadata;
+  readonly posture?: ProductSeedPosture;
+}
+
+export interface ProductSeedRelationship {
+  readonly relationship_id: string;
+  readonly from_entity_ref: string;
+  readonly to_entity_ref: string;
+  readonly relationship_type: ProductSeedRelationshipType;
+}
+
+export interface ProductSeedBundle {
+  readonly schema_version: ProductSeedBundleSchemaVersion;
+  readonly bundle_id: string;
+  readonly input: ProductSeedFactoryInput;
+  readonly entities: readonly ProductSeedEntityRecord[];
+  readonly relationships: readonly ProductSeedRelationship[];
+  readonly seed_records: readonly ProductSeedRecord[];
+  readonly metadata?: SafeMetadata;
+}
+
+export interface ProductSeedFixtureDefinition {
+  readonly fixture_name: ProductSeedFixtureName;
+  readonly description: string;
+  readonly required_categories: readonly ProductSeedEntityType[];
+  readonly build: (input: ProductSeedFactoryInput) => ProductSeedBundle;
+}
+
+export type ProductSeedApplicationStatus = "dry_run" | "applied" | "failed";
+
+export interface ProductSeedAppliedEntity {
+  readonly entity_ref: string;
+  readonly entity_type: ProductSeedEntityType;
+  readonly status: ProductSeedApplicationStatus;
+}
+
+export interface ProductSeedApplicationResult extends ProductSeedOutput {
+  readonly status: ProductSeedApplicationStatus;
+  readonly seed_version: string;
+  readonly seed_refs: readonly string[];
+  readonly seed_records: readonly ProductSeedRecord[];
+  readonly applied_entities: readonly ProductSeedAppliedEntity[];
+  readonly error?: string;
+}

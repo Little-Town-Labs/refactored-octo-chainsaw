@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spyglass.local/contracts/product-harness/seed-factory.schema.json",
+  "title": "Product Harness Seed Factory Contract",
+  "type": "object",
+  "required": ["schema_version", "bundle_id", "input", "entities", "relationships", "seed_records"],
+  "properties": {
+    "schema_version": { "const": "pth-seed-bundle/v1" },
+    "bundle_id": { "type": "string", "minLength": 1 },
+    "input": {
+      "type": "object",
+      "required": ["scenario_id", "scenario_version", "seed_version", "fixture_name", "mode"],
+      "properties": {
+        "scenario_id": { "type": "string", "minLength": 1 },
+        "scenario_version": { "type": "string", "minLength": 1 },
+        "seed_version": { "type": "string", "minLength": 1 },
+        "fixture_name": { "type": "string", "minLength": 1 },
+        "mode": { "enum": ["gate", "eval"] },
+        "namespace": { "type": "string" },
+        "base_time": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["entity_type", "entity_id", "entity_ref", "attributes"],
+        "properties": {
+          "entity_type": { "type": "string", "minLength": 1 },
+          "entity_id": { "type": "string", "minLength": 1 },
+          "entity_ref": { "type": "string", "minLength": 1 },
+          "attributes": { "type": "object" },
+          "posture": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["relationship_id", "from_entity_ref", "to_entity_ref", "relationship_type"],
+        "properties": {
+          "relationship_id": { "type": "string", "minLength": 1 },
+          "from_entity_ref": { "type": "string", "minLength": 1 },
+          "to_entity_ref": { "type": "string", "minLength": 1 },
+          "relationship_type": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "seed_records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["seed_id", "seed_version", "entity_type", "entity_ref", "scenario_id"],
+        "properties": {
+          "seed_id": { "type": "string", "minLength": 1 },
+          "seed_version": { "type": "string", "minLength": 1 },
+          "entity_type": { "type": "string", "minLength": 1 },
+          "entity_ref": { "type": "string", "minLength": 1 },
+          "scenario_id": { "type": "string", "minLength": 1 },
+          "metadata": { "type": "object" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false
+}
