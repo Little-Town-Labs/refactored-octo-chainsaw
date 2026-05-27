@@ -3,6 +3,6 @@
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
 
-`.specify/specs/029-product-harness-seed-factories/plan.md`
+`.specify/specs/030-alpha-gate-core-scenarios/plan.md`
 
 <!-- SPECKIT END -->

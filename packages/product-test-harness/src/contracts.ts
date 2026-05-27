@@ -345,6 +345,8 @@ export type ProductSeedBundleSchemaVersion = typeof PRODUCT_SEED_BUNDLE_SCHEMA_V
 export type ProductSeedFixtureName =
   | "alpha-happy-path"
   | "missing-consent"
+  | "consent-withdrawn"
+  | "human-review-required"
   | "jurisdiction-kill-switch";
 
 export type ProductSeedEntityType =
@@ -387,6 +389,7 @@ export type ProductSeedPosture =
   | "alpha_happy_path"
   | "active_consent"
   | "missing_consent"
+  | "consent_withdrawn"
   | "jurisdiction_allowed"
   | "jurisdiction_killed"
   | "human_review_not_required"
