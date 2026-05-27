@@ -3,6 +3,6 @@
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
 
-`.specify/specs/027-product-harness-neon-seeds/plan.md`
+`.specify/specs/028-product-harness-results-store/plan.md`
 
 <!-- SPECKIT END -->

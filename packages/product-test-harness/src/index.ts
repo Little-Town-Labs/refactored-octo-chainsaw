@@ -6,15 +6,28 @@ export type {
   AssertionStatus,
   CleanupStatus,
   LifecyclePhaseStatus,
-  ProductScenario,
   ProductCleanupResult,
+  ProductAgentInvocationRecord,
+  ProductBrowserArtifactRecord,
   ProductDatabaseBranchContext,
   ProductDatabaseCleanupPolicy,
   ProductDatabaseLifecycleConfig,
   ProductDatabaseLifecycleMetadata,
+  ProductEvidenceStatus,
   ProductMigrationExecution,
+  ProductObservabilityAssertionRecord,
+  ProductResultRunSummary,
+  ProductResultStore,
+  ProductResultStoreFilters,
+  ProductResultStoreSaveResult,
+  ProductResultStoreSchemaVersion,
+  ProductResultStoreSnapshot,
+  ProductResultStoreSnapshotInput,
+  ProductScenario,
   ProductSeedExecution,
   ProductSeedOutput,
+  ProductSeedRecord,
+  ProductWebhookCaptureRecord,
   RunArtifact,
   RunScenarioOptions,
   RunStatus,
@@ -31,6 +44,8 @@ export type {
   ScenarioStepRecord,
   StepStatus,
 } from "./contracts.js";
+
+export { PRODUCT_RESULT_STORE_SCHEMA_VERSION } from "./contracts.js";
 
 export {
   HarnessValidationError,
@@ -53,6 +68,18 @@ export {
   runScenarioWithDatabaseLifecycle,
 } from "./db/lifecycle.js";
 export { containsDatabaseUrl, redactDatabaseUrl, redactDatabaseUrls } from "./db/redaction.js";
+export { LocalFileProductResultStore } from "./results/local-file-store.js";
+export {
+  assertValidProductResultStoreSnapshot,
+  createProductResultStoreSnapshot,
+  ProductResultStoreError,
+  stableSnapshotString,
+  summarizeProductResultRun,
+} from "./results/store.js";
+export {
+  validateProductResultStoreSnapshot,
+  validateStoredArtifact,
+} from "./results/validation.js";
 export { renderJsonReport } from "./reports/json.js";
 export { renderMarkdownReport } from "./reports/markdown.js";
 export { noopScenario, runNoopScenario } from "./samples/noop-scenario.js";
@@ -60,3 +87,4 @@ export {
   neonLifecycleScenario,
   runNeonLifecycleScenario,
 } from "./samples/neon-lifecycle-scenario.js";
+export { resultStoreScenario, runResultStoreScenario } from "./samples/result-store-scenario.js";

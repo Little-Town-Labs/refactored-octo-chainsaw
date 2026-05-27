@@ -20,7 +20,8 @@
     "test": "jest --passWithNoTests",
     "lint": "eslint .",
     "run:sample": "node -e \"import('./dist/samples/noop-scenario.js').then(async (m) => console.log(await m.runNoopScenario()))\"",
-    "run:lifecycle-sample": "node -e \"import('./dist/samples/neon-lifecycle-scenario.js').then(async (m) => console.log(await m.runNeonLifecycleScenario()))\""
+    "run:lifecycle-sample": "node -e \"import('./dist/samples/neon-lifecycle-scenario.js').then(async (m) => console.log(await m.runNeonLifecycleScenario()))\"",
+    "run:result-store-sample": "node -e \"import('./dist/samples/result-store-scenario.js').then(async (m) => console.log(await m.runResultStoreScenario()))\""
   },
   "dependencies": {
     "@spyglass/test-harness": "workspace:*"
