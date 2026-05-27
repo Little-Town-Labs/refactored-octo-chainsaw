@@ -23,6 +23,7 @@ export async function runScenario(
     run_id: runId,
     scenario: scenarioIdentity,
     environment: options.environment,
+    ...(options.database ? { database: options.database } : {}),
   };
 
   const steps: ScenarioStepRecord[] = [];

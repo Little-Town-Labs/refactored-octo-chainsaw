@@ -19,7 +19,11 @@
     "type-check": "tsc --noEmit -p tsconfig.json",
     "test": "jest --passWithNoTests",
     "lint": "eslint .",
-    "run:sample": "node -e \"import('./dist/samples/noop-scenario.js').then(async (m) => console.log(await m.runNoopScenario()))\""
+    "run:sample": "node -e \"import('./dist/samples/noop-scenario.js').then(async (m) => console.log(await m.runNoopScenario()))\"",
+    "run:lifecycle-sample": "node -e \"import('./dist/samples/neon-lifecycle-scenario.js').then(async (m) => console.log(await m.runNeonLifecycleScenario()))\""
+  },
+  "dependencies": {
+    "@spyglass/test-harness": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^24.12.4"

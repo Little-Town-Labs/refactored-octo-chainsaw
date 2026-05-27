@@ -464,6 +464,10 @@ importers:
         version: 4.1.1
 
   packages/product-test-harness:
+    dependencies:
+      '@spyglass/test-harness':
+        specifier: workspace:*
+        version: link:../test-harness
     devDependencies:
       '@types/node':
         specifier: ^24.12.4

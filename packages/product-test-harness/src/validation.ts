@@ -1,4 +1,5 @@
 import type {
+  ProductDatabaseLifecycleMetadata,
   RunArtifact,
   ScenarioAssertion,
   ScenarioRunResult,
@@ -129,6 +130,59 @@ export function assertValidRunResult(result: ScenarioRunResult): void {
   if (issues.length > 0) throw new HarnessValidationError(issues);
 }
 
+export function validateProductDatabaseLifecycleMetadata(
+  metadata: ProductDatabaseLifecycleMetadata,
+): string[] {
+  const issues: string[] = [];
+  if (metadata.adapter !== "neon") issues.push("lifecycle.adapter must be neon");
+  if (metadata.branch) {
+    requireNonEmpty("lifecycle.branch.branch_id", metadata.branch.branch_id, issues);
+    requireNonEmpty("lifecycle.branch.branch_name", metadata.branch.branch_name, issues);
+    requireNonEmpty("lifecycle.branch.parent_branch_id", metadata.branch.parent_branch_id, issues);
+    requireNonEmpty(
+      "lifecycle.branch.safe_database_ref",
+      metadata.branch.safe_database_ref,
+      issues,
+    );
+    rejectDatabaseUrl(
+      "lifecycle.branch.safe_database_ref",
+      metadata.branch.safe_database_ref,
+      issues,
+    );
+  }
+  if (!["not_started", "passed", "failed"].includes(metadata.migration.status)) {
+    issues.push("lifecycle.migration.status is invalid");
+  }
+  if (!["not_configured", "not_started", "passed", "failed"].includes(metadata.seed.status)) {
+    issues.push("lifecycle.seed.status is invalid");
+  }
+  if (!["deleted", "retained", "failed", "not_created"].includes(metadata.cleanup.status)) {
+    issues.push("lifecycle.cleanup.status is invalid");
+  }
+  if (
+    !["always_delete", "delete_on_success", "retain_on_failure", "retain_always"].includes(
+      metadata.cleanup.policy,
+    )
+  ) {
+    issues.push("lifecycle.cleanup.policy is invalid");
+  }
+  if (metadata.redaction.database_url_redacted !== true) {
+    issues.push("lifecycle.redaction.database_url_redacted must be true");
+  }
+  return issues;
+}
+
+export function assertValidProductDatabaseLifecycleMetadata(
+  metadata: ProductDatabaseLifecycleMetadata,
+): void {
+  const issues = validateProductDatabaseLifecycleMetadata(metadata);
+  if (issues.length > 0) throw new HarnessValidationError(issues);
+}
+
 function requireNonEmpty(path: string, value: string, issues: string[]): void {
   if (value.trim() === "") issues.push(`${path} must be non-empty`);
+}
+
+function rejectDatabaseUrl(path: string, value: string, issues: string[]): void {
+  if (/postgres(?:ql)?:\/\//i.test(value)) issues.push(`${path} must not contain a database URL`);
 }
