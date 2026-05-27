@@ -21,7 +21,8 @@
     "lint": "eslint .",
     "run:sample": "node -e \"import('./dist/samples/noop-scenario.js').then(async (m) => console.log(await m.runNoopScenario()))\"",
     "run:lifecycle-sample": "node -e \"import('./dist/samples/neon-lifecycle-scenario.js').then(async (m) => console.log(await m.runNeonLifecycleScenario()))\"",
-    "run:result-store-sample": "node -e \"import('./dist/samples/result-store-scenario.js').then(async (m) => console.log(await m.runResultStoreScenario()))\""
+    "run:result-store-sample": "node -e \"import('./dist/samples/result-store-scenario.js').then(async (m) => console.log(await m.runResultStoreScenario()))\"",
+    "run:seed-factory-sample": "node -e \"import('./dist/samples/seed-factory-scenario.js').then(async (m) => console.log(await m.runSeedFactoryScenario()))\""
   },
   "dependencies": {
     "@spyglass/test-harness": "workspace:*"
