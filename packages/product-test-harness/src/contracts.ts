@@ -216,3 +216,125 @@ export interface ProductSeedOutput {
   readonly seed_refs?: readonly string[];
   readonly metadata?: SafeMetadata;
 }
+
+export const PRODUCT_RESULT_STORE_SCHEMA_VERSION = "pth-result-store/v1";
+
+export type ProductResultStoreSchemaVersion = typeof PRODUCT_RESULT_STORE_SCHEMA_VERSION;
+
+export interface ProductSeedRecord {
+  readonly seed_id: string;
+  readonly seed_version: string;
+  readonly entity_type: string;
+  readonly entity_ref: string;
+  readonly scenario_id: string;
+  readonly metadata?: SafeMetadata;
+}
+
+export type ProductEvidenceStatus = "passed" | "failed" | "skipped";
+
+export interface ProductAgentInvocationRecord {
+  readonly invocation_id: string;
+  readonly driver: string;
+  readonly persona_id?: string;
+  readonly scenario_id: string;
+  readonly started_at?: string;
+  readonly ended_at?: string;
+  readonly status: ProductEvidenceStatus;
+  readonly artifact_refs?: readonly string[];
+  readonly metadata?: SafeMetadata;
+}
+
+export interface ProductBrowserArtifactRecord {
+  readonly artifact_id: string;
+  readonly run_id: string;
+  readonly scenario_id: string;
+  readonly kind: "screenshot" | "video" | "trace" | "console_log" | "network_log" | "other";
+  readonly uri: string;
+  readonly redaction_status: ArtifactRedactionStatus;
+  readonly redaction_note?: string;
+  readonly checksum?: string;
+  readonly metadata?: SafeMetadata;
+}
+
+export interface ProductWebhookCaptureRecord {
+  readonly capture_id: string;
+  readonly run_id: string;
+  readonly scenario_id: string;
+  readonly received_at: string;
+  readonly signature_valid: boolean;
+  readonly idempotency_key?: string;
+  readonly artifact_refs?: readonly string[];
+  readonly metadata?: SafeMetadata;
+}
+
+export interface ProductObservabilityAssertionRecord {
+  readonly assertion_id: string;
+  readonly run_id: string;
+  readonly scenario_id: string;
+  readonly signal_type: "audit" | "monitoring" | "sentry" | "log" | "incident" | "other";
+  readonly status: AssertionStatus;
+  readonly evidence_refs?: readonly string[];
+  readonly metadata?: SafeMetadata;
+}
+
+export interface ProductResultStoreSnapshot {
+  readonly schema_version: ProductResultStoreSchemaVersion;
+  readonly run: ScenarioRunResult;
+  readonly seed_records: readonly ProductSeedRecord[];
+  readonly agent_invocations: readonly ProductAgentInvocationRecord[];
+  readonly browser_artifacts: readonly ProductBrowserArtifactRecord[];
+  readonly webhook_captures: readonly ProductWebhookCaptureRecord[];
+  readonly observability_assertions: readonly ProductObservabilityAssertionRecord[];
+  readonly created_at: string;
+}
+
+export interface ProductResultStoreSnapshotInput {
+  readonly run: ScenarioRunResult;
+  readonly seed_records?: readonly ProductSeedRecord[];
+  readonly agent_invocations?: readonly ProductAgentInvocationRecord[];
+  readonly browser_artifacts?: readonly ProductBrowserArtifactRecord[];
+  readonly webhook_captures?: readonly ProductWebhookCaptureRecord[];
+  readonly observability_assertions?: readonly ProductObservabilityAssertionRecord[];
+  readonly created_at?: string;
+}
+
+export interface ProductResultRunSummary {
+  readonly run_id: string;
+  readonly scenario_id: string;
+  readonly scenario_version: string;
+  readonly mode: ScenarioMode;
+  readonly status: RunStatus;
+  readonly environment_label: string;
+  readonly git_ref?: string;
+  readonly git_sha?: string;
+  readonly started_at: string;
+  readonly ended_at: string;
+  readonly created_at: string;
+  readonly summary: string;
+  readonly artifact_count: number;
+  readonly assertion_count: number;
+  readonly step_count: number;
+}
+
+export interface ProductResultStoreFilters {
+  readonly mode?: ScenarioMode;
+  readonly status?: RunStatus;
+  readonly scenario_id?: string;
+  readonly environment_label?: string;
+  readonly git_ref?: string;
+  readonly started_after?: string;
+  readonly started_before?: string;
+  readonly limit?: number;
+}
+
+export interface ProductResultStoreSaveResult {
+  readonly run_id: string;
+  readonly created: boolean;
+  readonly idempotent: boolean;
+}
+
+export interface ProductResultStore {
+  saveRun(snapshot: ProductResultStoreSnapshot): Promise<ProductResultStoreSaveResult>;
+  getRun(runId: string): Promise<ProductResultStoreSnapshot | undefined>;
+  listRuns(filters?: ProductResultStoreFilters): Promise<readonly ProductResultRunSummary[]>;
+}
