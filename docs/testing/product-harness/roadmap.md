@@ -35,7 +35,7 @@ This roadmap converts the Product Readiness Harness PRD into feature-sized Spec 
 | PTH03 Persistent result store + artifacts contract | Complete | Merged to `main` in PR #72; product harness now supports result-store snapshots, evidence categories, local file persistence, filtering, validation, and duplicate safety. |
 | PTH04 Deterministic seed factories | Complete | Merged to `main` in PR #73; product harness now supports deterministic seed bundle contracts, Alpha happy-path/missing-consent/jurisdiction-kill-switch fixtures, seed validation, offline application, lifecycle callback integration, result-store-compatible seed records, and sample evidence. |
 | PTH05 Deterministic Alpha gate scenarios A1-A5 | Complete | Merged to `main` in PR #74; product harness now defines deterministic A1-A5 gate scenarios, consent-withdrawn and human-review seed fixtures, result-store snapshot persistence, public exports, sample command, and local evidence. |
-| PTH06 Playwright product browser runner | Implemented on `031-product-browser-gate-runner` | PR pending; product harness now defines default PTH06 browser journeys, Playwright-compatible driver contracts, deterministic synthetic driver, browser artifact capture, result-store snapshot persistence, public exports, and sample evidence. |
+| PTH06 Playwright product browser runner | Complete | Merged to `main` in PR #75; product harness now defines default PTH06 browser journeys, Playwright-compatible driver contracts, deterministic synthetic driver, browser artifact capture, result-store snapshot persistence, public exports, and sample evidence. |
 | PTH07-PTH10 | Not started | Next queued slice is PTH07 Employer API + webhook receiver scenarios. |
 
 ---
@@ -108,7 +108,7 @@ Complexity:
 | Feature | Exit Criteria |
 |---------|---------------|
 | PTH05 | Core Alpha scenarios A1-A5 run without live models and assert business outcome, privacy, jurisdiction, alpha posture, dossier/evidence, and audit behavior. Complete and merged to `main` in PR #74. |
-| PTH06 | Playwright drives key web journeys against a local or Vercel preview URL and captures screenshots/video/traces on failure. Implemented on `031-product-browser-gate-runner`; PR pending. |
+| PTH06 | Playwright drives key web journeys against a local or Vercel preview URL and captures screenshots/video/traces on failure. Complete and merged to `main` in PR #75. |
 | PTH07 | Employer API and webhook scenarios verify auth, signing, idempotency, failure evidence, and payload boundaries. |
 | PTH08 | Observability assertions verify audit events, monitoring signals, incident-ready evidence, Sentry production-like config, latency/cost capture, and no credential leakage. |
 
