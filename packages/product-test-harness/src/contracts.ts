@@ -260,8 +260,16 @@ export interface ProductWebhookCaptureRecord {
   readonly capture_id: string;
   readonly run_id: string;
   readonly scenario_id: string;
+  readonly event_id?: string;
+  readonly delivery_id?: string;
+  readonly event_type?: string;
   readonly received_at: string;
   readonly signature_valid: boolean;
+  readonly payload_boundary_valid?: boolean;
+  readonly idempotency_status?: "accepted" | "duplicate" | "rejected";
+  readonly delivery_status?: "delivered" | "failed";
+  readonly failure_reason?: string;
+  readonly duration_ms?: number;
   readonly idempotency_key?: string;
   readonly artifact_refs?: readonly string[];
   readonly metadata?: SafeMetadata;
@@ -518,4 +526,68 @@ export interface BrowserJourneyVisitResult {
 export interface BrowserJourneyDriver {
   readonly driver_name: string;
   visit(input: BrowserJourneyVisitInput): Promise<BrowserJourneyVisitResult>;
+}
+
+export type EmployerApiScope = "req:write" | "req:read" | "webhook:manage";
+export type EmployerReqAction = "create" | "update" | "close";
+export type EmployerApiOperationStatus = "authorized" | "denied";
+export type EmployerApiDenialReason =
+  | "missing_authorization"
+  | "credential_expired"
+  | "missing_scope";
+export type WebhookDeliveryStatus = "delivered" | "failed";
+export type WebhookIdempotencyStatus = "accepted" | "duplicate" | "rejected";
+
+export interface EmployerApiCredential {
+  readonly credential_id: string;
+  readonly employer_ref: string;
+  readonly scopes: readonly EmployerApiScope[];
+  readonly issued_at: string;
+  readonly expires_at: string;
+  readonly redacted_secret_ref: string;
+}
+
+export interface EmployerApiRequest {
+  readonly request_id: string;
+  readonly action: EmployerReqAction;
+  readonly req_ref: string;
+  readonly credential?: EmployerApiCredential;
+  readonly required_scopes: readonly EmployerApiScope[];
+  readonly submitted_at: string;
+  readonly payload: SafeMetadata;
+}
+
+export interface EmployerApiOperationResult {
+  readonly operation_id: string;
+  readonly request: EmployerApiRequest;
+  readonly status: EmployerApiOperationStatus;
+  readonly reason_code?: EmployerApiDenialReason;
+  readonly emitted_event_refs: readonly string[];
+  readonly metadata?: SafeMetadata;
+}
+
+export interface WebhookDelivery {
+  readonly event_id: string;
+  readonly delivery_id: string;
+  readonly event_type: string;
+  readonly target_url_ref: string;
+  readonly sent_at: string;
+  readonly payload: SafeMetadata;
+  readonly headers: Readonly<Record<string, string>>;
+  readonly signing_secret_ref: string;
+  readonly signing_secret: string;
+  readonly expected_status: WebhookDeliveryStatus;
+  readonly failure_reason?: string;
+}
+
+export interface WebhookSignatureVerification {
+  readonly valid: boolean;
+  readonly signature_header: string;
+  readonly timestamp_header: string;
+  readonly signed_payload_ref: string;
+}
+
+export interface WebhookPayloadBoundaryResult {
+  readonly valid: boolean;
+  readonly forbidden_paths: readonly string[];
 }
