@@ -1,0 +1,45 @@
+name: persona-eval
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 8 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: persona-eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  persona-eval:
+    name: persona eval report
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
+    environment: ci
+    timeout-minutes: 20
+    env:
+      PI_API_KEY: ${{ secrets.PI_API_KEY }}
+      PRODUCT_HARNESS_COMMAND: product:eval
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+
+      - name: build workspace
+        run: pnpm -r run build
+
+      - name: generate persona eval reports
+        run: |
+          pnpm --silent product:eval > product-harness-sample.json
+          node -e "import('node:fs/promises').then(async fs => { const sample = JSON.parse(await fs.readFile('product-harness-sample.json', 'utf8')); await fs.writeFile('product-harness-report.json', JSON.stringify(sample.report_json, null, 2) + '\n'); await fs.writeFile('product-harness-report.md', sample.report_markdown); })"
+
+      - name: upload persona eval report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: product-harness-eval-report-${{ github.sha }}
+          path: |
+            product-harness-report.json
+            product-harness-report.md
+            product-harness-sample.json
+          retention-days: 90

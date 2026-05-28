@@ -539,6 +539,83 @@ export interface ProductResultStore {
   listRuns(filters?: ProductResultStoreFilters): Promise<readonly ProductResultRunSummary[]>;
 }
 
+export const PRODUCT_HARNESS_REPORT_SCHEMA_VERSION = "pth-suite-report/v1";
+
+export type ProductHarnessReportSchemaVersion = typeof PRODUCT_HARNESS_REPORT_SCHEMA_VERSION;
+export type ProductHarnessCommandName = "product:gate" | "product:eval" | "product:canary";
+export type ProductHarnessCommandMode = "dry_run" | "local" | "ci" | "canary";
+export type ProductHarnessWorkflowTrigger =
+  | "workflow_dispatch"
+  | "pull_request_label"
+  | "push"
+  | "schedule"
+  | "deployment_status";
+
+export interface ProductHarnessCommandPlan {
+  readonly command: ProductHarnessCommandName;
+  readonly mode: ProductHarnessCommandMode;
+  readonly description: string;
+  readonly scenario_refs: readonly string[];
+  readonly required_env: readonly string[];
+  readonly output_artifacts: readonly string[];
+}
+
+export interface ProductHarnessWorkflowPlan {
+  readonly workflow_id: string;
+  readonly workflow_file: string;
+  readonly command: ProductHarnessCommandName;
+  readonly triggers: readonly ProductHarnessWorkflowTrigger[];
+  readonly environment?: string;
+  readonly artifact_name: string;
+}
+
+export interface ProductHarnessReportSummary {
+  readonly run_count: number;
+  readonly passed_run_count: number;
+  readonly failed_run_count: number;
+  readonly invalid_run_count: number;
+  readonly assertion_count: number;
+  readonly failed_assertion_count: number;
+  readonly artifact_count: number;
+  readonly seed_record_count: number;
+  readonly agent_invocation_count: number;
+  readonly browser_artifact_count: number;
+  readonly webhook_capture_count: number;
+  readonly observability_assertion_count: number;
+  readonly total_duration_ms: number;
+}
+
+export interface ProductHarnessScenarioCoverage {
+  readonly scenario_id: string;
+  readonly scenario_version: string;
+  readonly mode: ScenarioMode;
+  readonly run_count: number;
+  readonly statuses: readonly RunStatus[];
+  readonly latest_run_id: string;
+}
+
+export interface ProductHarnessTrendPoint {
+  readonly label: string;
+  readonly created_at: string;
+  readonly run_count: number;
+  readonly passed_run_count: number;
+  readonly failed_run_count: number;
+  readonly assertion_count: number;
+  readonly artifact_count: number;
+}
+
+export interface ProductHarnessSuiteReport {
+  readonly schema_version: ProductHarnessReportSchemaVersion;
+  readonly report_id: string;
+  readonly generated_at: string;
+  readonly command: ProductHarnessCommandPlan;
+  readonly status: RunStatus;
+  readonly summary: ProductHarnessReportSummary;
+  readonly runs: readonly ProductResultRunSummary[];
+  readonly scenario_coverage: readonly ProductHarnessScenarioCoverage[];
+  readonly trend: readonly ProductHarnessTrendPoint[];
+}
+
 export const PRODUCT_SEED_BUNDLE_SCHEMA_VERSION = "pth-seed-bundle/v1";
 
 export type ProductSeedBundleSchemaVersion = typeof PRODUCT_SEED_BUNDLE_SCHEMA_VERSION;
