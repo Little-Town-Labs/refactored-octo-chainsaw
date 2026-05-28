@@ -179,6 +179,22 @@ export {
 
 export { deriveRunStatus, runScenario } from "./runner.js";
 export {
+  assertValidProductArtifactStorageInput,
+  assertValidStoredProductArtifact,
+  LocalFileProductArtifactStore,
+  ProductArtifactStoreError,
+  productArtifactChecksum,
+  toRunArtifact,
+  validateProductArtifactStorageInput,
+  type LocalFileProductArtifactStoreOptions,
+  type ProductArtifactRetentionClass,
+  type ProductArtifactStorageInput,
+  type ProductArtifactStorageProvider,
+  type ProductArtifactStore,
+  type ProductArtifactStoreSaveResult,
+  type ProductStoredArtifact,
+} from "./artifacts/storage.js";
+export {
   createNeonLifecycleDependencies,
   ProductDatabaseLifecycleError,
   runScenarioWithDatabaseLifecycle,
