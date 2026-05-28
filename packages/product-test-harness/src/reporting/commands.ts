@@ -17,8 +17,9 @@ export const DEFAULT_PRODUCT_HARNESS_COMMANDS: readonly ProductHarnessCommandPla
   {
     command: "product:eval",
     mode: "ci",
-    description: "Run persona encounter evals and emit informational drift reports.",
-    scenario_refs: ["PTH09 persona eval encounter matrix"],
+    description:
+      "Run persona encounter evals and emit informational cost, latency, outcome, and drift reports.",
+    scenario_refs: ["PTH09 persona eval encounter matrix", "PTH15 eval trend monitoring"],
     required_env: ["PI_API_KEY"],
     output_artifacts: ["product-harness-eval-report.json", "product-harness-eval-report.md"],
   },

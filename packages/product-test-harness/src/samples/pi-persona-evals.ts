@@ -4,6 +4,10 @@ import path from "node:path";
 
 import { DEFAULT_PI_PERSONA_ENCOUNTERS } from "../persona-evals/matrix.js";
 import { runDefaultPiPersonaEvalSuite } from "../persona-evals/runner.js";
+import {
+  extractProductEvalTrendPoints,
+  summarizeProductEvalTrends,
+} from "../reporting/eval-trends.js";
 import { LocalFileProductResultStore } from "../results/local-file-store.js";
 
 export async function runPiPersonaEvalScenarioSample(): Promise<string> {
@@ -11,6 +15,8 @@ export async function runPiPersonaEvalScenarioSample(): Promise<string> {
   const store = new LocalFileProductResultStore({ directory });
   const suite = await runDefaultPiPersonaEvalSuite({ store });
   const summaries = await store.listRuns({ mode: "eval" });
+  const trendPoints = extractProductEvalTrendPoints(suite.results.map((result) => result.snapshot));
+  const trendSummary = summarizeProductEvalTrends(trendPoints);
 
   return JSON.stringify(
     {
@@ -18,6 +24,7 @@ export async function runPiPersonaEvalScenarioSample(): Promise<string> {
       result_store_directory: directory,
       encounter_count: DEFAULT_PI_PERSONA_ENCOUNTERS.length,
       persisted_eval_runs: summaries.length,
+      trend_summary: trendSummary,
       outcomes: suite.results.reduce<Record<string, number>>((outcomes, result) => {
         const outcome = result.driver_result.evaluator_summary.outcome;
         outcomes[outcome] = (outcomes[outcome] ?? 0) + 1;

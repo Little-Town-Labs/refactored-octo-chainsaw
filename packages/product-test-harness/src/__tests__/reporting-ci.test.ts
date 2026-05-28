@@ -7,15 +7,19 @@ import {
   PRODUCT_HARNESS_REPORT_SCHEMA_VERSION,
   ProductCanaryEnvironmentError,
   createProductHarnessSuiteReport,
+  extractProductEvalTrendPoints,
   getProductHarnessCommandPlan,
   renderProductHarnessSuiteJson,
   renderProductHarnessSuiteMarkdown,
   runDefaultObservabilityGateSuite,
   runDefaultPiPersonaEvalSuite,
+  summarizeProductEvalTrends,
   summarizeProductHarnessSnapshots,
   validateProductCanaryEnvironment,
 } from "../index.js";
 import { runReportingCiScenarioSample } from "../samples/reporting-ci.js";
+
+const DEFAULT_EVAL_COUNT = 3;
 
 describe("PTH10 reporting, dashboard, and CI workflows", () => {
   it("summarizes result-store snapshots into a stable suite report", async () => {
@@ -53,6 +57,11 @@ describe("PTH10 reporting, dashboard, and CI workflows", () => {
       ]),
     );
     expect(report.trend).toHaveLength(3);
+    expect(report.eval_trends?.summary).toMatchObject({
+      eval_run_count: 1,
+      total_tokens: expect.any(Number),
+      tool_refusal_count: expect.any(Number),
+    });
   });
 
   it("renders aggregate reports as JSON and Markdown", async () => {
@@ -74,6 +83,61 @@ describe("PTH10 reporting, dashboard, and CI workflows", () => {
     expect(markdown).not.toMatch(/token=|password=|sk_live/i);
   });
 
+  it("renders persona eval trend points and keeps them informational", async () => {
+    const evals = await runDefaultPiPersonaEvalSuite();
+    const snapshots = evals.results.map((result) => result.snapshot);
+    const report = createProductHarnessSuiteReport({
+      report_id: "pth15-eval-trends",
+      generated_at: "2026-05-28T19:00:00.000Z",
+      command: getProductHarnessCommandPlan("product:eval"),
+      snapshots,
+    });
+    const parsed = JSON.parse(renderProductHarnessSuiteJson(report)) as typeof report;
+    const markdown = renderProductHarnessSuiteMarkdown(report);
+
+    expect(report.status).toBe("passed");
+    expect(parsed.eval_trends?.summary).toMatchObject({
+      eval_run_count: DEFAULT_EVAL_COUNT,
+      passed_eval_run_count: DEFAULT_EVAL_COUNT,
+      total_tokens: expect.any(Number),
+      tool_refusal_count: 2,
+      outcomes: {
+        strong_match: 1,
+        unsafe_tool_refusal: 1,
+        privacy_refusal: 1,
+      },
+    });
+    expect(parsed.eval_trends?.points).toHaveLength(DEFAULT_EVAL_COUNT);
+    expect(markdown).toContain("## Eval Trends");
+    expect(markdown).toContain("- Tool Refusals: 2");
+    expect(markdown).not.toContain("safe_excerpt");
+    expect(markdown).not.toContain("prompt_refs");
+  });
+
+  it("extracts aggregate eval trend metrics from persisted invocation snapshots", async () => {
+    const evals = await runDefaultPiPersonaEvalSuite();
+    const points = extractProductEvalTrendPoints(evals.results.map((result) => result.snapshot));
+    const summary = summarizeProductEvalTrends(points);
+
+    expect(points).toHaveLength(DEFAULT_EVAL_COUNT);
+    expect(points[0]).toMatchObject({
+      provider: "synthetic-pi",
+      model: "pi-synthetic-eval-v1",
+      latency_ms: 1250,
+      cost_usd: expect.any(Number),
+      total_tokens: expect.any(Number),
+    });
+    expect(JSON.stringify(points)).not.toContain("Synthetic transcript");
+    expect(JSON.stringify(points)).not.toContain("prompt-seed://");
+    expect(summary).toMatchObject({
+      eval_run_count: DEFAULT_EVAL_COUNT,
+      average_latency_ms: 1250,
+      providers: { "synthetic-pi": DEFAULT_EVAL_COUNT },
+      models: { "pi-synthetic-eval-v1": DEFAULT_EVAL_COUNT },
+    });
+    expect(summary.total_cost_usd).toBeGreaterThan(0);
+  });
+
   it("defines command and workflow metadata for gate, eval, and canary", () => {
     expect(DEFAULT_PRODUCT_HARNESS_COMMANDS.map((command) => command.command)).toEqual([
       "product:gate",
@@ -82,7 +146,10 @@ describe("PTH10 reporting, dashboard, and CI workflows", () => {
     ]);
     expect(getProductHarnessCommandPlan("product:eval")).toMatchObject({
       mode: "ci",
-      scenario_refs: expect.arrayContaining(["PTH09 persona eval encounter matrix"]),
+      scenario_refs: expect.arrayContaining([
+        "PTH09 persona eval encounter matrix",
+        "PTH15 eval trend monitoring",
+      ]),
     });
     expect(getProductHarnessCommandPlan("product:canary")).toMatchObject({
       mode: "canary",

@@ -161,6 +161,14 @@ describe("Pi persona eval adapter", () => {
       encounter_count: number;
       persisted_eval_runs: number;
       outcomes: Record<string, number>;
+      trend_summary: {
+        eval_run_count: number;
+        total_cost_usd: number;
+        average_latency_ms: number;
+        total_tokens: number;
+        tool_refusal_count: number;
+        outcomes: Record<string, number>;
+      };
     };
 
     expect(sample.encounter_count).toBe(DEFAULT_PI_PERSONA_ENCOUNTERS.length);
@@ -168,6 +176,14 @@ describe("Pi persona eval adapter", () => {
     expect(sample.outcomes.strong_match).toBe(1);
     expect(sample.outcomes.unsafe_tool_refusal).toBe(1);
     expect(sample.outcomes.privacy_refusal).toBe(1);
+    expect(sample.trend_summary).toMatchObject({
+      eval_run_count: DEFAULT_PI_PERSONA_ENCOUNTERS.length,
+      average_latency_ms: 1250,
+      tool_refusal_count: 2,
+      outcomes: sample.outcomes,
+    });
+    expect(sample.trend_summary.total_cost_usd).toBeGreaterThan(0);
+    expect(sample.trend_summary.total_tokens).toBeGreaterThan(0);
   });
 
   async function tempDirectory(): Promise<string> {
