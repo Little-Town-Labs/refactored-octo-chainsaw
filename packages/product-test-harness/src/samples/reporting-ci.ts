@@ -1,4 +1,8 @@
 import { DEFAULT_PRODUCT_HARNESS_WORKFLOWS } from "../reporting/workflows.js";
+import {
+  assertValidProductCanaryEnvironment,
+  productCanaryTargetLabel,
+} from "../reporting/canary-env.js";
 import { getProductHarnessCommandPlan } from "../reporting/commands.js";
 import {
   createProductHarnessSuiteReport,
@@ -12,15 +16,24 @@ import type { ProductHarnessCommandName, ScenarioEnvironment } from "../contract
 export interface RunReportingCiScenarioSampleOptions {
   readonly command?: ProductHarnessCommandName;
   readonly target_url?: string;
+  readonly validate_canary_env?: boolean;
+  readonly canary_env?: Readonly<Record<string, string | undefined>>;
 }
 
 export async function runReportingCiScenarioSample(
   options: RunReportingCiScenarioSampleOptions = {},
 ): Promise<string> {
   const command = options.command ?? envCommand() ?? "product:gate";
+  const shouldValidateCanaryEnv =
+    command === "product:canary" &&
+    (options.validate_canary_env ?? process.env.PRODUCT_CANARY_VALIDATE_ENV === "true");
+  const canaryValidation = shouldValidateCanaryEnv
+    ? assertValidProductCanaryEnvironment(canaryEnv(options))
+    : undefined;
   const environment = commandEnvironment(
     command,
     options.target_url ?? process.env.PRODUCT_CANARY_URL,
+    canaryValidation?.target_url_label,
   );
   const observability = await runDefaultObservabilityGateSuite({ environment });
   const evals = await runDefaultPiPersonaEvalSuite({ environment });
@@ -42,6 +55,17 @@ export async function runReportingCiScenarioSample(
     {
       command,
       target_url_label: environment.label,
+      ...(canaryValidation
+        ? {
+            canary_environment: {
+              mode: canaryValidation.mode,
+              target_url_label: canaryValidation.target_url_label,
+              required_env: canaryValidation.required_env,
+              missing_env: canaryValidation.missing_env,
+              issues: canaryValidation.issues,
+            },
+          }
+        : {}),
       snapshot_count: snapshots.length,
       workflow_count: DEFAULT_PRODUCT_HARNESS_WORKFLOWS.length,
       report_json: JSON.parse(renderProductHarnessSuiteJson(report)) as unknown,
@@ -52,21 +76,24 @@ export async function runReportingCiScenarioSample(
   );
 }
 
+function canaryEnv(
+  options: RunReportingCiScenarioSampleOptions,
+): Readonly<Record<string, string | undefined>> {
+  return {
+    ...(options.canary_env ?? process.env),
+    ...(options.target_url ? { PRODUCT_CANARY_URL: options.target_url } : {}),
+  };
+}
+
 function commandEnvironment(
   command: ProductHarnessCommandName,
   targetUrl: string | undefined,
+  validatedLabel: string | undefined,
 ): ScenarioEnvironment {
   if (command !== "product:canary") return { label: "local-reporting-ci" };
-  const label = targetUrl ? `canary:${safeUrlHost(targetUrl)}` : "canary:dry-run";
-  return { label };
-}
-
-function safeUrlHost(value: string): string {
-  try {
-    return new URL(value).hostname || "unknown-target";
-  } catch {
-    return "invalid-target";
-  }
+  return {
+    label: validatedLabel ?? (targetUrl ? productCanaryTargetLabel(targetUrl) : "canary:dry-run"),
+  };
 }
 
 function envCommand(): ProductHarnessCommandName | undefined {
