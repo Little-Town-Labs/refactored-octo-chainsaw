@@ -25,7 +25,8 @@
     "run:seed-factory-sample": "node -e \"import('./dist/samples/seed-factory-scenario.js').then(async (m) => console.log(await m.runSeedFactoryScenario()))\"",
     "run:alpha-gate-sample": "node -e \"import('./dist/samples/alpha-gate-scenarios.js').then(async (m) => console.log(await m.runAlphaGateScenarioSample()))\"",
     "run:browser-gate-sample": "node -e \"import('./dist/samples/browser-gate-scenario.js').then(async (m) => console.log(await m.runBrowserGateScenarioSample()))\"",
-    "run:api-webhook-gates": "node -e \"import('./dist/samples/api-webhook-gates.js').then(async (m) => console.log(await m.runApiWebhookGateScenarioSample()))\""
+    "run:api-webhook-gates": "node -e \"import('./dist/samples/api-webhook-gates.js').then(async (m) => console.log(await m.runApiWebhookGateScenarioSample()))\"",
+    "run:observability-gates": "node -e \"import('./dist/samples/observability-gates.js').then(async (m) => console.log(await m.runObservabilityGateScenarioSample()))\""
   },
   "dependencies": {
     "@spyglass/test-harness": "workspace:*"

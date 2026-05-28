@@ -22,6 +22,8 @@ export type {
   AssertionStatus,
   CleanupStatus,
   LifecyclePhaseStatus,
+  ProductAuditOutcome,
+  ProductAuditSignal,
   ProductCleanupResult,
   ProductAgentInvocationRecord,
   ProductBrowserArtifactRecord,
@@ -30,8 +32,23 @@ export type {
   ProductDatabaseLifecycleConfig,
   ProductDatabaseLifecycleMetadata,
   ProductEvidenceStatus,
+  ProductIncidentEvidenceSignal,
+  ProductIncidentResponseStatus,
+  ProductIncidentSeverity,
+  ProductLogSafetyReason,
+  ProductLogSafetyResult,
+  ProductLogSignal,
+  ProductMonitoringComparison,
+  ProductMonitoringSignal,
+  ProductMonitoringUnit,
   ProductMigrationExecution,
   ProductObservabilityAssertionRecord,
+  ProductObservabilityEvaluation,
+  ProductObservabilityEvaluationReason,
+  ProductObservabilitySignal,
+  ProductObservabilitySignalSeverity,
+  ProductObservabilitySignalStatus,
+  ProductObservabilitySignalType,
   ProductResultRunSummary,
   ProductResultStore,
   ProductResultStoreFilters,
@@ -56,6 +73,7 @@ export type {
   ProductSeedRecord,
   ProductSeedRelationship,
   ProductSeedRelationshipType,
+  ProductSentryConfigSignal,
   ProductWebhookCaptureRecord,
   RunArtifact,
   RunScenarioOptions,
@@ -79,6 +97,12 @@ export type {
   WebhookSignatureVerification,
 } from "./contracts.js";
 export type { ApiWebhookGateConfig, ApiWebhookGateId } from "./api-webhooks/gates.js";
+export type { ObservabilityGateConfig, ObservabilityGateId } from "./observability/gates.js";
+export type {
+  ObservabilityGateRun,
+  ObservabilityGateSuiteResult,
+  RunObservabilityGateOptions,
+} from "./observability/runner.js";
 export type {
   ApiWebhookGateRun,
   ApiWebhookGateSuiteResult,
@@ -179,6 +203,23 @@ export {
   missingScopeCredential,
 } from "./api-webhooks/credentials.js";
 export {
+  DEFAULT_OBSERVABILITY_GATES,
+  OBSERVABILITY_GATE_IDS,
+  PTH08_BASE_TIME,
+  PTH08_SCENARIO_VERSION,
+  toObservabilityProductScenario,
+} from "./observability/gates.js";
+export { evaluateIncidentEvidence, evaluateSentryConfig } from "./observability/incidents.js";
+export { assertLogSafety, assertSafeMetadata } from "./observability/log-safety.js";
+export { evaluateMonitoringSignal } from "./observability/monitoring.js";
+export { runDefaultObservabilityGateSuite, runObservabilityGate } from "./observability/runner.js";
+export {
+  createObservabilityEvaluation,
+  evaluateAuditCoverage,
+  sanitizeMetadata,
+  signalBase,
+} from "./observability/signals.js";
+export {
   API_WEBHOOK_GATE_IDS,
   DEFAULT_API_WEBHOOK_GATES,
   PTH07_SCENARIO_VERSION,
@@ -226,3 +267,4 @@ export { seedFactoryScenario, runSeedFactoryScenario } from "./samples/seed-fact
 export { runAlphaGateScenarioSample } from "./samples/alpha-gate-scenarios.js";
 export { runBrowserGateScenarioSample } from "./samples/browser-gate-scenario.js";
 export { runApiWebhookGateScenarioSample } from "./samples/api-webhook-gates.js";
+export { runObservabilityGateScenarioSample } from "./samples/observability-gates.js";

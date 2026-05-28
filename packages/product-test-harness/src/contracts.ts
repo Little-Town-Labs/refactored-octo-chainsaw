@@ -285,6 +285,101 @@ export interface ProductObservabilityAssertionRecord {
   readonly metadata?: SafeMetadata;
 }
 
+export type ProductObservabilitySignalType = ProductObservabilityAssertionRecord["signal_type"];
+export type ProductObservabilitySignalStatus = AssertionStatus;
+export type ProductObservabilitySignalSeverity = AssertionSeverity;
+
+export interface ProductObservabilitySignal {
+  readonly signal_id: string;
+  readonly signal_type: ProductObservabilitySignalType;
+  readonly status: ProductObservabilitySignalStatus;
+  readonly severity: ProductObservabilitySignalSeverity;
+  readonly observed_at: string;
+  readonly evidence_refs: readonly string[];
+  readonly metadata?: SafeMetadata;
+}
+
+export type ProductAuditOutcome = "allowed" | "denied" | "emitted" | "suppressed" | "failed";
+
+export interface ProductAuditSignal extends ProductObservabilitySignal {
+  readonly signal_type: "audit";
+  readonly action: string;
+  readonly actor_ref: string;
+  readonly subject_ref: string;
+  readonly outcome: ProductAuditOutcome;
+}
+
+export type ProductMonitoringUnit = "ms" | "usd" | "count" | "ratio";
+export type ProductMonitoringComparison = "max" | "min";
+
+export interface ProductMonitoringSignal extends ProductObservabilitySignal {
+  readonly signal_type: "monitoring";
+  readonly metric_name: string;
+  readonly value: number;
+  readonly unit: ProductMonitoringUnit;
+  readonly budget: number;
+  readonly comparison: ProductMonitoringComparison;
+}
+
+export interface ProductSentryConfigSignal extends ProductObservabilitySignal {
+  readonly signal_type: "sentry";
+  readonly release: string;
+  readonly environment: string;
+  readonly dsn_ref: string;
+  readonly traces_sample_rate: number;
+  readonly enabled: boolean;
+}
+
+export type ProductIncidentSeverity = "sev1" | "sev2" | "sev3" | "sev4";
+export type ProductIncidentResponseStatus = "opened" | "acknowledged" | "mitigated" | "closed";
+
+export interface ProductIncidentEvidenceSignal extends ProductObservabilitySignal {
+  readonly signal_type: "incident";
+  readonly incident_ref: string;
+  readonly incident_severity: ProductIncidentSeverity;
+  readonly owner_ref: string;
+  readonly trigger_refs: readonly string[];
+  readonly response_status: ProductIncidentResponseStatus;
+}
+
+export interface ProductLogSignal extends ProductObservabilitySignal {
+  readonly signal_type: "log";
+  readonly message: string;
+}
+
+export type ProductLogSafetyReason =
+  | "safe"
+  | "unsafe_key"
+  | "credential_assignment"
+  | "database_url"
+  | "private_payload";
+
+export interface ProductLogSafetyResult {
+  readonly valid: boolean;
+  readonly reason_code: ProductLogSafetyReason;
+  readonly forbidden_paths: readonly string[];
+}
+
+export type ProductObservabilityEvaluationReason =
+  | "passed"
+  | "missing_signal"
+  | "missing_required_field"
+  | "budget_exceeded"
+  | "invalid_sentry_config"
+  | "unsafe_key"
+  | "credential_assignment"
+  | "database_url"
+  | "private_payload";
+
+export interface ProductObservabilityEvaluation {
+  readonly assertion_id: string;
+  readonly signal_type: ProductObservabilitySignalType;
+  readonly status: AssertionStatus;
+  readonly reason_code: ProductObservabilityEvaluationReason;
+  readonly evidence_refs: readonly string[];
+  readonly metadata?: SafeMetadata;
+}
+
 export interface ProductResultStoreSnapshot {
   readonly schema_version: ProductResultStoreSchemaVersion;
   readonly run: ScenarioRunResult;
