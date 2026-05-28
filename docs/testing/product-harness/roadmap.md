@@ -39,7 +39,7 @@ This roadmap converts the Product Readiness Harness PRD into feature-sized Spec 
 | PTH07 Employer API + webhook receiver scenarios | Complete | Merged to `main` in PR #76; product harness now defines deterministic employer API/webhook gate scenarios, scoped synthetic credential validation, signed webhook delivery, receiver capture, idempotency, failure evidence, payload-boundary assertions, result-store snapshot persistence, public exports, and sample evidence. |
 | PTH08 Observability and incident assertions | Complete | Merged to `main` in PR #77; product harness now defines deterministic observability gates for audit coverage, monitoring latency/cost bounds, Sentry-style config readiness, incident evidence, unsafe-log rejection, result-store snapshot persistence, public exports, and sample evidence. |
 | PTH09 Pi persona eval adapter | Complete | Merged to `main` in PR #78; product harness now defines deterministic Pi-compatible persona eval encounters, seeker/employer personas, synthetic driver execution, prompt-injection and privacy-boundary refusal evidence, transcript/tool/model/usage metadata, result-store agent invocation persistence, public exports, and sample evidence. |
-| PTH10 Reports, dashboard, and CI/canary workflows | Not started | Next queued slice is PTH10 reporting/dashboard and CI/canary workflows. |
+| PTH10 Reports, dashboard, and CI/canary workflows | Implemented on branch `035-product-harness-reporting-ci` | Aggregate JSON/Markdown suite reports, command/workflow metadata, root commands, sample output, and GitHub Actions workflows are ready for review. |
 
 ---
 
@@ -129,7 +129,7 @@ Complexity:
 
 | Feature | Exit Criteria |
 |---------|---------------|
-| PTH10 | Commands and workflows exist for `product:gate`, `product:eval`, and `product:canary`; reports are readable and machine-queryable; Vercel preview/prod canaries can run manually or on schedule. |
+| PTH10 | Commands and workflows exist for `product:gate`, `product:eval`, and `product:canary`; reports are readable and machine-queryable; Vercel preview/prod canaries can run manually or on schedule. Implemented on branch `035-product-harness-reporting-ci`. |
 
 ---
 

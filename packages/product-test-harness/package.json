@@ -27,7 +27,8 @@
     "run:browser-gate-sample": "node -e \"import('./dist/samples/browser-gate-scenario.js').then(async (m) => console.log(await m.runBrowserGateScenarioSample()))\"",
     "run:api-webhook-gates": "node -e \"import('./dist/samples/api-webhook-gates.js').then(async (m) => console.log(await m.runApiWebhookGateScenarioSample()))\"",
     "run:observability-gates": "node -e \"import('./dist/samples/observability-gates.js').then(async (m) => console.log(await m.runObservabilityGateScenarioSample()))\"",
-    "run:pi-persona-evals": "node -e \"import('./dist/samples/pi-persona-evals.js').then(async (m) => console.log(await m.runPiPersonaEvalScenarioSample()))\""
+    "run:pi-persona-evals": "node -e \"import('./dist/samples/pi-persona-evals.js').then(async (m) => console.log(await m.runPiPersonaEvalScenarioSample()))\"",
+    "run:reporting-ci": "node -e \"import('./dist/samples/reporting-ci.js').then(async (m) => console.log(await m.runReportingCiScenarioSample()))\""
   },
   "dependencies": {
     "@spyglass/test-harness": "workspace:*"

@@ -1,0 +1,56 @@
+name: alpha-canary
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: Preview or production Alpha URL to canary
+        required: false
+        type: string
+  schedule:
+    - cron: "43 * * * *"
+  deployment_status:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: alpha-canary-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  alpha-canary:
+    if: >-
+      github.event_name != 'deployment_status' ||
+      github.event.deployment_status.state == 'success'
+    name: alpha canary report
+    runs-on: [self-hosted, linux, x64, spyglass-ci]
+    environment: production
+    timeout-minutes: 20
+    env:
+      PRODUCT_CANARY_URL: ${{ github.event.inputs.target_url || github.event.deployment_status.target_url }}
+      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+      NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+      PRODUCT_HARNESS_COMMAND: product:canary
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+
+      - name: build workspace
+        run: pnpm -r run build
+
+      - name: generate alpha canary reports
+        run: |
+          pnpm --silent product:canary > product-harness-sample.json
+          node -e "import('node:fs/promises').then(async fs => { const sample = JSON.parse(await fs.readFile('product-harness-sample.json', 'utf8')); await fs.writeFile('product-harness-report.json', JSON.stringify(sample.report_json, null, 2) + '\n'); await fs.writeFile('product-harness-report.md', sample.report_markdown); })"
+
+      - name: upload alpha canary report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: product-harness-canary-report-${{ github.sha }}
+          path: |
+            product-harness-report.json
+            product-harness-report.md
+            product-harness-sample.json
+          retention-days: 90

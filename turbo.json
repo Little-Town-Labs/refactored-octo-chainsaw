@@ -15,6 +15,7 @@
     },
     "test": {
       "dependsOn": ["^build"],
+      "env": ["SPYGLASS_SKIP_PERF_BENCHMARKS"],
       "outputs": ["coverage/**"]
     },
     "test:integration": {

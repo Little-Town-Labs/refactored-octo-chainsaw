@@ -32,6 +32,16 @@ export type {
   ProductDatabaseLifecycleConfig,
   ProductDatabaseLifecycleMetadata,
   ProductEvidenceStatus,
+  ProductHarnessCommandMode,
+  ProductHarnessCommandName,
+  ProductHarnessCommandPlan,
+  ProductHarnessReportSchemaVersion,
+  ProductHarnessReportSummary,
+  ProductHarnessScenarioCoverage,
+  ProductHarnessSuiteReport,
+  ProductHarnessTrendPoint,
+  ProductHarnessWorkflowPlan,
+  ProductHarnessWorkflowTrigger,
   ProductIncidentEvidenceSignal,
   ProductIncidentResponseStatus,
   ProductIncidentSeverity,
@@ -148,6 +158,7 @@ export type {
 } from "./browser/runner.js";
 
 export {
+  PRODUCT_HARNESS_REPORT_SCHEMA_VERSION,
   PRODUCT_RESULT_STORE_SCHEMA_VERSION,
   PRODUCT_SEED_BUNDLE_SCHEMA_VERSION,
 } from "./contracts.js";
@@ -250,6 +261,17 @@ export { DEFAULT_PI_PERSONA_ENCOUNTERS } from "./persona-evals/matrix.js";
 export { DEFAULT_PRODUCT_PERSONAS, getProductPersona } from "./persona-evals/personas.js";
 export { runDefaultPiPersonaEvalSuite, runPiPersonaEncounter } from "./persona-evals/runner.js";
 export {
+  DEFAULT_PRODUCT_HARNESS_COMMANDS,
+  getProductHarnessCommandPlan,
+} from "./reporting/commands.js";
+export {
+  createProductHarnessSuiteReport,
+  renderProductHarnessSuiteJson,
+  renderProductHarnessSuiteMarkdown,
+  summarizeProductHarnessSnapshots,
+} from "./reporting/reports.js";
+export { DEFAULT_PRODUCT_HARNESS_WORKFLOWS } from "./reporting/workflows.js";
+export {
   API_WEBHOOK_GATE_IDS,
   DEFAULT_API_WEBHOOK_GATES,
   PTH07_SCENARIO_VERSION,
@@ -299,3 +321,4 @@ export { runBrowserGateScenarioSample } from "./samples/browser-gate-scenario.js
 export { runApiWebhookGateScenarioSample } from "./samples/api-webhook-gates.js";
 export { runObservabilityGateScenarioSample } from "./samples/observability-gates.js";
 export { runPiPersonaEvalScenarioSample } from "./samples/pi-persona-evals.js";
+export { runReportingCiScenarioSample } from "./samples/reporting-ci.js";
