@@ -37,7 +37,7 @@ This roadmap converts the Product Readiness Harness PRD into feature-sized Spec 
 | PTH05 Deterministic Alpha gate scenarios A1-A5 | Complete | Merged to `main` in PR #74; product harness now defines deterministic A1-A5 gate scenarios, consent-withdrawn and human-review seed fixtures, result-store snapshot persistence, public exports, sample command, and local evidence. |
 | PTH06 Playwright product browser runner | Complete | Merged to `main` in PR #75; product harness now defines default PTH06 browser journeys, Playwright-compatible driver contracts, deterministic synthetic driver, browser artifact capture, result-store snapshot persistence, public exports, and sample evidence. |
 | PTH07 Employer API + webhook receiver scenarios | Complete | Merged to `main` in PR #76; product harness now defines deterministic employer API/webhook gate scenarios, scoped synthetic credential validation, signed webhook delivery, receiver capture, idempotency, failure evidence, payload-boundary assertions, result-store snapshot persistence, public exports, and sample evidence. |
-| PTH08 Observability and incident assertions | Implemented | Branch `033-product-observability-gates`; product harness now defines deterministic observability gates for audit coverage, monitoring latency/cost bounds, Sentry-style config readiness, incident evidence, unsafe-log rejection, result-store snapshot persistence, public exports, and sample evidence. |
+| PTH08 Observability and incident assertions | Complete | Merged to `main` in PR #77; product harness now defines deterministic observability gates for audit coverage, monitoring latency/cost bounds, Sentry-style config readiness, incident evidence, unsafe-log rejection, result-store snapshot persistence, public exports, and sample evidence. |
 | PTH09-PTH10 | Not started | Next queued slice is PTH09 Pi persona eval adapter. |
 
 ---
@@ -112,7 +112,7 @@ Complexity:
 | PTH05 | Core Alpha scenarios A1-A5 run without live models and assert business outcome, privacy, jurisdiction, alpha posture, dossier/evidence, and audit behavior. Complete and merged to `main` in PR #74. |
 | PTH06 | Playwright drives key web journeys against a local or Vercel preview URL and captures screenshots/video/traces on failure. Complete and merged to `main` in PR #75. |
 | PTH07 | Employer API and webhook scenarios verify auth, signing, idempotency, failure evidence, and payload boundaries. Complete and merged to `main` in PR #76. |
-| PTH08 | Observability assertions verify audit events, monitoring signals, incident-ready evidence, Sentry production-like config, latency/cost capture, and no credential leakage. Implemented on branch `033-product-observability-gates`; review/PR is next. |
+| PTH08 | Observability assertions verify audit events, monitoring signals, incident-ready evidence, Sentry production-like config, latency/cost capture, and no credential leakage. Complete and merged to `main` in PR #77. |
 
 ### Phase 4 - Persona Evals
 
