@@ -604,6 +604,41 @@ export interface ProductHarnessTrendPoint {
   readonly artifact_count: number;
 }
 
+export interface ProductEvalTrendPoint {
+  readonly run_id: string;
+  readonly scenario_id: string;
+  readonly created_at: string;
+  readonly status: RunStatus;
+  readonly persona_id: string;
+  readonly provider: string;
+  readonly model: string;
+  readonly model_version?: string;
+  readonly outcome?: string;
+  readonly latency_ms: number;
+  readonly cost_usd: number;
+  readonly total_tokens: number;
+  readonly tool_refusal_count: number;
+  readonly evaluator_score?: number;
+}
+
+export interface ProductEvalTrendSummary {
+  readonly eval_run_count: number;
+  readonly passed_eval_run_count: number;
+  readonly failed_eval_run_count: number;
+  readonly total_cost_usd: number;
+  readonly average_latency_ms: number;
+  readonly total_tokens: number;
+  readonly tool_refusal_count: number;
+  readonly outcomes: Readonly<Record<string, number>>;
+  readonly providers: Readonly<Record<string, number>>;
+  readonly models: Readonly<Record<string, number>>;
+}
+
+export interface ProductEvalTrendReport {
+  readonly summary: ProductEvalTrendSummary;
+  readonly points: readonly ProductEvalTrendPoint[];
+}
+
 export interface ProductHarnessSuiteReport {
   readonly schema_version: ProductHarnessReportSchemaVersion;
   readonly report_id: string;
@@ -614,6 +649,7 @@ export interface ProductHarnessSuiteReport {
   readonly runs: readonly ProductResultRunSummary[];
   readonly scenario_coverage: readonly ProductHarnessScenarioCoverage[];
   readonly trend: readonly ProductHarnessTrendPoint[];
+  readonly eval_trends?: ProductEvalTrendReport;
 }
 
 export const PRODUCT_SEED_BUNDLE_SCHEMA_VERSION = "pth-seed-bundle/v1";

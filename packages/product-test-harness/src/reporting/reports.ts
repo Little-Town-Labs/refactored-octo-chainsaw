@@ -10,6 +10,7 @@ import {
   type RunStatus,
 } from "../contracts.js";
 import { summarizeProductResultRun } from "../results/store.js";
+import { extractProductEvalTrendPoints, summarizeProductEvalTrends } from "./eval-trends.js";
 
 export interface CreateProductHarnessSuiteReportInput {
   readonly report_id: string;
@@ -23,6 +24,7 @@ export function createProductHarnessSuiteReport(
 ): ProductHarnessSuiteReport {
   const runs = input.snapshots.map(summarizeProductResultRun);
   const summary = summarizeProductHarnessSnapshots(input.snapshots);
+  const evalTrendPoints = extractProductEvalTrendPoints(input.snapshots);
   return {
     schema_version: PRODUCT_HARNESS_REPORT_SCHEMA_VERSION,
     report_id: input.report_id,
@@ -33,6 +35,14 @@ export function createProductHarnessSuiteReport(
     runs,
     scenario_coverage: summarizeScenarioCoverage(runs),
     trend: summarizeTrend(input.snapshots),
+    ...(evalTrendPoints.length > 0
+      ? {
+          eval_trends: {
+            summary: summarizeProductEvalTrends(evalTrendPoints),
+            points: evalTrendPoints,
+          },
+        }
+      : {}),
   };
 }
 
@@ -125,6 +135,25 @@ export function renderProductHarnessSuiteMarkdown(report: ProductHarnessSuiteRep
       (run) =>
         `| \`${run.run_id}\` | \`${run.scenario_id}\` | ${run.environment_label} | \`${run.status}\` | ${run.assertion_count} | ${run.artifact_count} |`,
     ),
+    ...(report.eval_trends
+      ? [
+          "",
+          "## Eval Trends",
+          "",
+          `- Eval Runs: ${report.eval_trends.summary.eval_run_count}`,
+          `- Total Cost USD: ${report.eval_trends.summary.total_cost_usd.toFixed(4)}`,
+          `- Average Latency: ${report.eval_trends.summary.average_latency_ms} ms`,
+          `- Total Tokens: ${report.eval_trends.summary.total_tokens}`,
+          `- Tool Refusals: ${report.eval_trends.summary.tool_refusal_count}`,
+          "",
+          "| Run | Scenario | Persona | Provider | Model | Outcome | Status | Cost USD | Latency ms | Tokens | Refusals |",
+          "|---|---|---|---|---|---|---|---:|---:|---:|---:|",
+          ...report.eval_trends.points.map(
+            (point) =>
+              `| \`${point.run_id}\` | \`${point.scenario_id}\` | \`${point.persona_id}\` | \`${point.provider}\` | \`${point.model}\` | \`${point.outcome ?? "unknown"}\` | \`${point.status}\` | ${point.cost_usd.toFixed(4)} | ${point.latency_ms} | ${point.total_tokens} | ${point.tool_refusal_count} |`,
+          ),
+        ]
+      : []),
   ];
   return `${lines.join("\n")}\n`;
 }

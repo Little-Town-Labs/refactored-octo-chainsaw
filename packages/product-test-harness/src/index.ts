@@ -32,6 +32,9 @@ export type {
   ProductDatabaseLifecycleConfig,
   ProductDatabaseLifecycleMetadata,
   ProductEvidenceStatus,
+  ProductEvalTrendPoint,
+  ProductEvalTrendReport,
+  ProductEvalTrendSummary,
   ProductHarnessCommandMode,
   ProductHarnessCommandName,
   ProductHarnessCommandPlan,
@@ -306,6 +309,10 @@ export {
   renderProductHarnessSuiteMarkdown,
   summarizeProductHarnessSnapshots,
 } from "./reporting/reports.js";
+export {
+  extractProductEvalTrendPoints,
+  summarizeProductEvalTrends,
+} from "./reporting/eval-trends.js";
 export { DEFAULT_PRODUCT_HARNESS_WORKFLOWS } from "./reporting/workflows.js";
 export {
   API_WEBHOOK_GATE_IDS,
