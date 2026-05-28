@@ -6,8 +6,12 @@ import {
   createProductResultStoreSnapshot,
   HarnessValidationError,
   LocalFileProductResultStore,
+  NeonProductResultStore,
+  productResultStoreSchemaSql,
   type ProductResultStoreSnapshot,
+  type ProductResultStoreSqlClient,
   type ScenarioRunResult,
+  validateProductResultStoreSchemaName,
 } from "../index.js";
 
 describe("product result store", () => {
@@ -223,12 +227,255 @@ describe("product result store", () => {
     await expect(readdir(directory)).resolves.toEqual([]);
   });
 
+  it("initializes Neon result storage in the isolated test_harness schema", async () => {
+    const client = new FakeProductResultStoreSqlClient();
+    const store = new NeonProductResultStore({ client });
+
+    await store.ensureSchema();
+
+    expect(client.queries[0]).toContain('CREATE SCHEMA IF NOT EXISTS "test_harness"');
+    expect(client.queries.join("\n")).toContain('"test_harness"."product_result_runs"');
+    expect(productResultStoreSchemaSql()).toContain('CREATE TABLE IF NOT EXISTS "test_harness"');
+  });
+
+  it("rejects production-like Neon result store schemas", () => {
+    expect(() => validateProductResultStoreSchemaName("public")).toThrow("isolated");
+    expect(
+      () =>
+        new NeonProductResultStore({
+          client: new FakeProductResultStoreSqlClient(),
+          schema: "prod",
+        }),
+    ).toThrow("isolated");
+    expect(
+      () =>
+        new NeonProductResultStore({
+          client: new FakeProductResultStoreSqlClient(),
+          schema: "test_harness;drop",
+        }),
+    ).toThrow("Unsafe");
+  });
+
+  it("saves, loads, filters, and limits Neon-backed result snapshots", async () => {
+    const client = new FakeProductResultStoreSqlClient();
+    const store = new NeonProductResultStore({ client });
+    await store.saveRun(
+      snapshotFor("run-old-failed", {
+        status: "failed",
+        mode: "gate",
+        scenario_id: "scenario.alpha",
+        environment_label: "preview",
+        git_ref: "feature/a",
+        started_at: "2026-05-27T12:00:00.000Z",
+      }),
+    );
+    const newest = snapshotFor("run-new-failed", {
+      status: "failed",
+      mode: "gate",
+      scenario_id: "scenario.alpha",
+      environment_label: "preview",
+      git_ref: "feature/a",
+      started_at: "2026-05-27T12:05:00.000Z",
+    });
+    await store.saveRun(newest);
+    await store.saveRun(
+      snapshotFor("run-eval", {
+        status: "failed",
+        mode: "eval",
+        scenario_id: "scenario.alpha",
+        environment_label: "preview",
+        git_ref: "feature/a",
+        started_at: "2026-05-27T12:10:00.000Z",
+      }),
+    );
+
+    await expect(store.getRun("run-new-failed")).resolves.toEqual(newest);
+    await expect(
+      store.listRuns({
+        mode: "gate",
+        status: "failed",
+        scenario_id: "scenario.alpha",
+        environment_label: "preview",
+        git_ref: "feature/a",
+        started_after: "2026-05-27T11:59:59.000Z",
+        started_before: "2026-05-27T12:06:00.000Z",
+        limit: 1,
+      }),
+    ).resolves.toMatchObject([
+      {
+        run_id: "run-new-failed",
+        scenario_id: "scenario.alpha",
+        mode: "gate",
+        status: "failed",
+        environment_label: "preview",
+        git_ref: "feature/a",
+        artifact_count: 1,
+        assertion_count: 1,
+        step_count: 1,
+      },
+    ]);
+  });
+
+  it("accepts identical Neon duplicate writes and rejects conflicting duplicates", async () => {
+    const store = new NeonProductResultStore({ client: new FakeProductResultStoreSqlClient() });
+    const snapshot = snapshotFor("run-neon-duplicate", { status: "passed" });
+
+    await expect(store.saveRun(snapshot)).resolves.toMatchObject({ created: true });
+    await expect(store.saveRun(snapshot)).resolves.toEqual({
+      run_id: "run-neon-duplicate",
+      created: false,
+      idempotent: true,
+    });
+    await expect(
+      store.saveRun(snapshotFor("run-neon-duplicate", { status: "failed" })),
+    ).rejects.toMatchObject({ code: "duplicate_conflict" });
+  });
+
+  it("rejects invalid Neon snapshots before opening SQL writes", async () => {
+    const client = new FakeProductResultStoreSqlClient();
+    const store = new NeonProductResultStore({ client });
+    const base = snapshotFor("run-neon-invalid", { status: "passed" });
+    const snapshot = {
+      ...base,
+      run: {
+        ...base.run,
+        metadata: { unsafe: "postgres://user:pass@example.test/db" },
+      },
+    } as ProductResultStoreSnapshot;
+
+    await expect(store.saveRun(snapshot)).rejects.toThrow(HarnessValidationError);
+    expect(client.queries).toEqual([]);
+  });
+
   async function tempDirectory(): Promise<string> {
     const directory = await mkdtemp(path.join(os.tmpdir(), "product-result-store-test-"));
     directories.push(directory);
     return directory;
   }
 });
+
+class FakeProductResultStoreSqlClient implements ProductResultStoreSqlClient {
+  readonly queries: string[] = [];
+  private readonly rows = new Map<string, FakeProductResultStoreRow>();
+
+  async query<T = Record<string, unknown>>(
+    text: string,
+    values: readonly unknown[] = [],
+  ): Promise<{ rows: readonly T[] }> {
+    this.queries.push(text);
+    const normalized = text.replace(/\s+/g, " ").trim();
+
+    if (normalized.startsWith("CREATE ")) return { rows: [] };
+
+    if (normalized.startsWith("SELECT snapshot_hash")) {
+      const row = this.rows.get(String(values[0]));
+      return { rows: (row ? [{ snapshot_hash: row.snapshot_hash }] : []) as T[] };
+    }
+
+    if (normalized.startsWith("INSERT INTO")) {
+      const runId = String(values[0]);
+      if (this.rows.has(runId)) return { rows: [] };
+      this.rows.set(runId, {
+        run_id: runId,
+        schema_version: String(values[1]),
+        scenario_id: String(values[2]),
+        scenario_version: String(values[3]),
+        mode: String(values[4]) as ScenarioRunResult["scenario"]["mode"],
+        status: String(values[5]) as ScenarioRunResult["status"],
+        environment_label: String(values[6]),
+        git_ref: values[7] ? String(values[7]) : null,
+        git_sha: values[8] ? String(values[8]) : null,
+        started_at: String(values[9]),
+        ended_at: String(values[10]),
+        created_at: String(values[11]),
+        summary: String(values[12]),
+        artifact_count: Number(values[13]),
+        assertion_count: Number(values[14]),
+        step_count: Number(values[15]),
+        snapshot_hash: String(values[16]),
+        snapshot: JSON.parse(String(values[17])) as ProductResultStoreSnapshot,
+      });
+      return { rows: [{ run_id: runId }] as T[] };
+    }
+
+    if (normalized.startsWith("SELECT snapshot FROM")) {
+      const row = this.rows.get(String(values[0]));
+      return { rows: (row ? [{ snapshot: row.snapshot }] : []) as T[] };
+    }
+
+    if (normalized.startsWith("SELECT run_id,")) {
+      return {
+        rows: this.filterRows(normalized, values).map(
+          ({ snapshot: _snapshot, ...row }) => row,
+        ) as T[],
+      };
+    }
+
+    throw new Error(`Unexpected SQL: ${normalized}`);
+  }
+
+  private filterRows(sql: string, values: readonly unknown[]): FakeProductResultStoreRow[] {
+    let rows = Array.from(this.rows.values());
+    let index = 0;
+    if (sql.includes("mode = $")) {
+      rows = rows.filter((row) => row.mode === values[index]);
+      index += 1;
+    }
+    if (sql.includes("status = $")) {
+      rows = rows.filter((row) => row.status === values[index]);
+      index += 1;
+    }
+    if (sql.includes("scenario_id = $")) {
+      rows = rows.filter((row) => row.scenario_id === values[index]);
+      index += 1;
+    }
+    if (sql.includes("environment_label = $")) {
+      rows = rows.filter((row) => row.environment_label === values[index]);
+      index += 1;
+    }
+    if (sql.includes("git_ref = $")) {
+      rows = rows.filter((row) => row.git_ref === values[index]);
+      index += 1;
+    }
+    if (sql.includes("started_at >= $")) {
+      rows = rows.filter((row) => row.started_at >= String(values[index]));
+      index += 1;
+    }
+    if (sql.includes("started_at <= $")) {
+      rows = rows.filter((row) => row.started_at <= String(values[index]));
+      index += 1;
+    }
+    rows.sort(
+      (left, right) =>
+        right.started_at.localeCompare(left.started_at) ||
+        right.created_at.localeCompare(left.created_at) ||
+        right.run_id.localeCompare(left.run_id),
+    );
+    if (sql.includes(" LIMIT $")) rows = rows.slice(0, Number(values[index]));
+    return rows;
+  }
+}
+
+interface FakeProductResultStoreRow {
+  readonly run_id: string;
+  readonly schema_version: string;
+  readonly scenario_id: string;
+  readonly scenario_version: string;
+  readonly mode: ScenarioRunResult["scenario"]["mode"];
+  readonly status: ScenarioRunResult["status"];
+  readonly environment_label: string;
+  readonly git_ref: string | null;
+  readonly git_sha: string | null;
+  readonly started_at: string;
+  readonly ended_at: string;
+  readonly created_at: string;
+  readonly summary: string;
+  readonly artifact_count: number;
+  readonly assertion_count: number;
+  readonly step_count: number;
+  readonly snapshot_hash: string;
+  readonly snapshot: ProductResultStoreSnapshot;
+}
 
 function snapshotFor(
   runId: string,
