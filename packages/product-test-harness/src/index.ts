@@ -319,6 +319,20 @@ export {
 } from "./api-webhooks/signing.js";
 export { createBrowserArtifactRecords, shouldCaptureArtifact } from "./browser/artifacts.js";
 export {
+  assertValidBrowserbaseDriverConfig,
+  BrowserbaseBrowserJourneyDriver,
+  BrowserbaseDriverConfigError,
+  browserbaseDriverConfigFromEnv,
+  type BrowserbaseBrowserJourneyDriverOptions,
+  type BrowserbaseCreateSessionInput,
+  type BrowserbaseDriverConfig,
+  type BrowserbasePlaywrightConnector,
+  type BrowserbasePlaywrightVisitInput,
+  type BrowserbasePlaywrightVisitResult,
+  type BrowserbaseSession,
+  type BrowserbaseSessionClient,
+} from "./browser/browserbase-driver.js";
+export {
   browserJourneyWithAppUrl,
   DEFAULT_BROWSER_APP_URL,
   DEFAULT_BROWSER_ARTIFACT_POLICY,
