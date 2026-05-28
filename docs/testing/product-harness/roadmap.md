@@ -38,7 +38,7 @@ This roadmap converts the Product Readiness Harness PRD into feature-sized Spec 
 | PTH06 Playwright product browser runner | Complete | Merged to `main` in PR #75; product harness now defines default PTH06 browser journeys, Playwright-compatible driver contracts, deterministic synthetic driver, browser artifact capture, result-store snapshot persistence, public exports, and sample evidence. |
 | PTH07 Employer API + webhook receiver scenarios | Complete | Merged to `main` in PR #76; product harness now defines deterministic employer API/webhook gate scenarios, scoped synthetic credential validation, signed webhook delivery, receiver capture, idempotency, failure evidence, payload-boundary assertions, result-store snapshot persistence, public exports, and sample evidence. |
 | PTH08 Observability and incident assertions | Complete | Merged to `main` in PR #77; product harness now defines deterministic observability gates for audit coverage, monitoring latency/cost bounds, Sentry-style config readiness, incident evidence, unsafe-log rejection, result-store snapshot persistence, public exports, and sample evidence. |
-| PTH09 Pi persona eval adapter | Implemented | Branch `034-pi-persona-eval-runner`; product harness now defines deterministic Pi-compatible persona eval encounters, seeker/employer personas, synthetic driver execution, prompt-injection and privacy-boundary refusal evidence, transcript/tool/model/usage metadata, result-store agent invocation persistence, public exports, and sample evidence. |
+| PTH09 Pi persona eval adapter | Complete | Merged to `main` in PR #78; product harness now defines deterministic Pi-compatible persona eval encounters, seeker/employer personas, synthetic driver execution, prompt-injection and privacy-boundary refusal evidence, transcript/tool/model/usage metadata, result-store agent invocation persistence, public exports, and sample evidence. |
 | PTH10 Reports, dashboard, and CI/canary workflows | Not started | Next queued slice is PTH10 reporting/dashboard and CI/canary workflows. |
 
 ---
@@ -121,7 +121,7 @@ Complexity:
 
 | Feature | Exit Criteria |
 |---------|---------------|
-| PTH09 | `PiAgentDriver` can run at least one seeker/employer encounter matrix and persist persona ids, prompts, transcripts, tool calls, model/provider metadata, cost, latency, outcome, and evaluator summary. Implemented on branch `034-pi-persona-eval-runner`; review/PR is next. |
+| PTH09 | `PiAgentDriver` can run at least one seeker/employer encounter matrix and persist persona ids, prompts, transcripts, tool calls, model/provider metadata, cost, latency, outcome, and evaluator summary. Complete and merged to `main` in PR #78. |
 
 ### Phase 5 - Operations and Reporting
 
