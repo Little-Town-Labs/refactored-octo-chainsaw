@@ -16,11 +16,11 @@
 | **Primary outcome** | Before inviting Alpha users, run deterministic product gates that prove core workflows, evidence, privacy, jurisdiction, alpha posture, API/webhook, and observability behavior. |
 | **Secondary outcome** | Run broader Pi-backed seeker/employer persona evals to measure behavior, drift, failure modes, and encounter quality over time. |
 | **Target platform** | Existing Spyglass pnpm/Turborepo monorepo, Vercel preview/prod URLs, Neon branch isolation, `test_harness` schema persistence, Browserbase-backed headless replay/canaries, optional Camofox research spike. |
-| **Completed build features** | 10 |
+| **Completed build features** | 15 |
 | **Operationalization features** | 6 planned, plus 1 optional Camofox evaluation spike |
 | **Implementation phases** | 6 |
-| **Completed critical path** | PTH01 -> PTH02 -> PTH03 -> PTH04 -> PTH05 -> PTH06 -> PTH08 -> PTH10 |
-| **Operationalization critical path** | PTH11 -> PTH12 -> PTH13 -> PTH14 -> PTH15 -> PTH16 |
+| **Completed critical path** | PTH01 -> PTH02 -> PTH03 -> PTH04 -> PTH05 -> PTH06 -> PTH07 -> PTH08 -> PTH09 -> PTH10 -> PTH11 -> PTH12 -> PTH13 -> PTH14 -> PTH15 |
+| **Operationalization critical path** | PTH11 -> PTH12 -> PTH13 -> PTH14 -> PTH15 complete; PTH16 remains |
 | **Parallelizable** | PTH12 durable artifact storage can progress with PTH13 Browserbase work after PTH11 contracts settle; PTH17 Camofox evaluation remains optional and non-blocking. |
 
 This roadmap converts the Product Readiness Harness PRD into feature-sized Spec Kit work. Each feature should be delivered through the normal Spec Kit sequence and should produce durable artifacts under `.specify/specs/` before implementation.
@@ -46,7 +46,7 @@ This roadmap converts the Product Readiness Harness PRD into feature-sized Spec 
 | PTH12 Durable artifact storage | Complete | Merged to `main` in PR #81; product harness now exposes provider-neutral artifact storage contracts, a deterministic local-file durable store, SHA-256 checksums, retention class and provider metadata, idempotent writes, conflict rejection, redaction and safe-metadata validation, and `RunArtifact` conversion for Neon result-store snapshots. |
 | PTH13 Browserbase preview/prod replay driver | Complete | Merged to `main` in PR #82; product harness now exposes a Browserbase-backed browser journey driver with injectable session and Playwright connector dependencies, safe env/config validation, secret-safe evidence refs, per-visit session cleanup, failure mapping, public exports, and deterministic fake Browserbase coverage. |
 | PTH14 Canary workflow hardening | Complete | Merged to `main` in PR #83; alpha canaries now fail fast on missing preview/prod config, support explicit dry-run mode, validate canary URL, Browserbase, Neon result-store, and durable artifact storage env, and preserve safe target labels without secret values. |
-| PTH15 Eval trend and cost monitoring | In progress | Active Spec Kit slice: persist persona eval cost, latency, outcome, and drift trends while keeping evals informational. |
+| PTH15 Eval trend and cost monitoring | Complete | Merged to `main` in PR #84; product harness reports now include informational eval trend points and summaries for cost, latency, outcome, tool refusals, model/provider version, and evaluator scores. |
 | PTH16 Alpha harness operations runbook | Not started | Document Neon schema setup, Browserbase, canary URLs, artifact retention, report interpretation, and operational response. |
 | PTH17 Camofox browser evaluation spike | Optional | Evaluate Camofox/Camoufox as a fallback adapter for first-party preview/prod testing only; not part of the release-blocking critical path. |
 
@@ -153,11 +153,11 @@ Complexity:
 
 | Feature | Exit Criteria |
 |---------|---------------|
-| PTH11 | `ProductResultStore` has a Neon-backed implementation that creates/uses an isolated `test_harness` schema, persists all PTH03-PTH10 snapshot categories, supports idempotent writes, and keeps production schemas untouched. |
-| PTH12 | Large report, browser, trace, video, and transcript artifacts can be written to durable storage; result-store rows contain safe metadata refs, checksums, redaction status, and retention class. |
+| PTH11 | `ProductResultStore` has a Neon-backed implementation that creates/uses an isolated `test_harness` schema, persists all PTH03-PTH10 snapshot categories, supports idempotent writes, and keeps production schemas untouched. Complete and merged to `main` in PR #80. |
+| PTH12 | Large report, browser, trace, video, and transcript artifacts can be written to durable storage; result-store rows contain safe metadata refs, checksums, redaction status, and retention class. Complete and merged to `main` in PR #81. |
 | PTH13 | Browser journeys can run through Browserbase-backed headless Playwright for preview/prod replay and canaries, with screenshots/traces/session refs captured as artifacts. Complete and merged to `main` in PR #82. |
 | PTH14 | `alpha-canary.yml` fails fast when preview/prod canary requirements are missing, uses Browserbase and Neon persistence when configured, and keeps dry-run behavior explicit for local/manual non-prod use. Complete and merged to `main` in PR #83. |
-| PTH15 | Persona eval reports persist trend points for cost, latency, outcome, tool refusals, model/provider version, and evaluator scores; evals remain informational until stability and cost thresholds are approved. |
+| PTH15 | Persona eval reports persist trend points for cost, latency, outcome, tool refusals, model/provider version, and evaluator scores; evals remain informational until stability and cost thresholds are approved. Complete and merged to `main` in PR #84. |
 | PTH16 | Operators can follow one runbook to provision `test_harness`, configure Browserbase and artifact storage, run canaries, read reports, and respond to failures. |
 | PTH17 | Optional: Camofox/Camoufox is evaluated against the same `BrowserJourneyDriver` contract and compared to Browserbase for setup cost, pass rate, artifacts, security posture, and maintenance risk. |
 
@@ -275,13 +275,8 @@ Required secrets are expected to include:
 
 ## Next Build Sequence
 
-1. **PTH11 Neon `test_harness` schema persistence**: establish the durable metadata store first so later Browserbase, artifact, canary, and eval-trend work has a stable persistence target.
-2. **PTH12 Durable artifact storage**: add blob/object storage refs and retention classes before preview/prod canaries start producing large browser artifacts.
-3. **PTH13 Browserbase preview/prod replay driver**: add the managed headless driver for canary-grade browser execution.
-4. **PTH14 Canary workflow hardening**: make preview/prod canaries fail fast on missing config and use Neon, Browserbase, and artifact storage when configured.
-5. **PTH15 Eval trend and cost monitoring**: persist informational eval trends so the team can later decide whether any eval becomes release-blocking.
-6. **PTH16 Alpha harness operations runbook**: close the operational loop with provisioning, secret, retention, report-interpretation, and incident-response guidance.
-7. **PTH17 Camofox browser evaluation spike**: optional after PTH13, only if Browserbase or stock Playwright exposes bot-detection friction on first-party Spyglass preview/prod surfaces.
+1. **PTH16 Alpha harness operations runbook**: close the operational loop with provisioning, secret, retention, report-interpretation, and incident-response guidance.
+2. **PTH17 Camofox browser evaluation spike**: optional follow-up only if Browserbase or stock Playwright exposes bot-detection friction on first-party Spyglass preview/prod surfaces.
 
 ---
 
