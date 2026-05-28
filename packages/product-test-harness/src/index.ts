@@ -291,6 +291,16 @@ export {
   getProductHarnessCommandPlan,
 } from "./reporting/commands.js";
 export {
+  assertValidProductCanaryEnvironment,
+  PRODUCT_CANARY_DRY_RUN_REQUIRED_ENV,
+  PRODUCT_CANARY_PREVIEW_PROD_REQUIRED_ENV,
+  ProductCanaryEnvironmentError,
+  productCanaryTargetLabel,
+  validateProductCanaryEnvironment,
+  type ProductCanaryEnvironmentMode,
+  type ProductCanaryEnvironmentValidation,
+} from "./reporting/canary-env.js";
+export {
   createProductHarnessSuiteReport,
   renderProductHarnessSuiteJson,
   renderProductHarnessSuiteMarkdown,

@@ -5,6 +5,7 @@ import {
   DEFAULT_PRODUCT_HARNESS_COMMANDS,
   DEFAULT_PRODUCT_HARNESS_WORKFLOWS,
   PRODUCT_HARNESS_REPORT_SCHEMA_VERSION,
+  ProductCanaryEnvironmentError,
   createProductHarnessSuiteReport,
   getProductHarnessCommandPlan,
   renderProductHarnessSuiteJson,
@@ -12,6 +13,7 @@ import {
   runDefaultObservabilityGateSuite,
   runDefaultPiPersonaEvalSuite,
   summarizeProductHarnessSnapshots,
+  validateProductCanaryEnvironment,
 } from "../index.js";
 import { runReportingCiScenarioSample } from "../samples/reporting-ci.js";
 
@@ -82,6 +84,20 @@ describe("PTH10 reporting, dashboard, and CI workflows", () => {
       mode: "ci",
       scenario_refs: expect.arrayContaining(["PTH09 persona eval encounter matrix"]),
     });
+    expect(getProductHarnessCommandPlan("product:canary")).toMatchObject({
+      mode: "canary",
+      scenario_refs: expect.arrayContaining(["PTH13 Browserbase replay driver"]),
+      required_env: expect.arrayContaining([
+        "PRODUCT_CANARY_URL",
+        "BROWSERBASE_PROJECT_ID",
+        "BROWSERBASE_API_KEY",
+        "PRODUCT_HARNESS_DATABASE_URL",
+        "PRODUCT_ARTIFACT_STORE_PROVIDER",
+        "PRODUCT_ARTIFACT_STORE_BUCKET",
+        "PRODUCT_ARTIFACT_STORE_PREFIX",
+        "PRODUCT_ARTIFACT_STORE_CREDENTIAL_REF",
+      ]),
+    });
     expect(DEFAULT_PRODUCT_HARNESS_WORKFLOWS.map((workflow) => workflow.workflow_file)).toEqual([
       ".github/workflows/product-gate.yml",
       ".github/workflows/persona-eval.yml",
@@ -128,6 +144,92 @@ describe("PTH10 reporting, dashboard, and CI workflows", () => {
     expect(sample.report_markdown).not.toContain("token=unsafe");
   });
 
+  it("validates preview/prod canary configuration without exposing values", () => {
+    const validation = validateProductCanaryEnvironment(validCanaryEnv());
+
+    expect(validation).toMatchObject({
+      mode: "preview-prod",
+      target_url_label: "canary:alpha-preview.example.test",
+      missing_env: [],
+      issues: [],
+      required_env: expect.arrayContaining(["BLOB_READ_WRITE_TOKEN"]),
+    });
+    expect(JSON.stringify(validation)).not.toContain("unsafe");
+    expect(JSON.stringify(validation)).not.toContain("secret");
+    expect(JSON.stringify(validation)).not.toContain("postgresql://");
+  });
+
+  it("fails canary validation fast with redacted missing-config errors", async () => {
+    await expect(
+      runReportingCiScenarioSample({
+        command: "product:canary",
+        target_url: "https://alpha-preview.example.test/path?token=unsafe",
+        validate_canary_env: true,
+        canary_env: {},
+      }),
+    ).rejects.toThrow(ProductCanaryEnvironmentError);
+
+    await expect(
+      runReportingCiScenarioSample({
+        command: "product:canary",
+        target_url: "https://alpha-preview.example.test/path?token=unsafe",
+        validate_canary_env: true,
+        canary_env: {},
+      }),
+    ).rejects.toThrow("BROWSERBASE_PROJECT_ID");
+  });
+
+  it("allows explicit dry-run canary validation while keeping the mode visible", async () => {
+    const sample = JSON.parse(
+      await runReportingCiScenarioSample({
+        command: "product:canary",
+        validate_canary_env: true,
+        canary_env: { PRODUCT_CANARY_DRY_RUN: "true" },
+      }),
+    ) as {
+      canary_environment: { mode: string; target_url_label: string; missing_env: string[] };
+      target_url_label: string;
+    };
+
+    expect(sample.target_url_label).toBe("canary:dry-run");
+    expect(sample.canary_environment).toEqual({
+      mode: "dry-run",
+      target_url_label: "canary:dry-run",
+      required_env: ["PRODUCT_CANARY_DRY_RUN"],
+      missing_env: [],
+      issues: [],
+    });
+  });
+
+  it("records canary validation metadata for configured preview/prod samples", async () => {
+    const sample = JSON.parse(
+      await runReportingCiScenarioSample({
+        command: "product:canary",
+        validate_canary_env: true,
+        canary_env: validCanaryEnv(),
+      }),
+    ) as {
+      canary_environment: {
+        mode: string;
+        target_url_label: string;
+        missing_env: string[];
+        required_env: string[];
+      };
+      report_markdown: string;
+      target_url_label: string;
+    };
+
+    expect(sample.target_url_label).toBe("canary:alpha-preview.example.test");
+    expect(sample.canary_environment).toMatchObject({
+      mode: "preview-prod",
+      target_url_label: "canary:alpha-preview.example.test",
+      missing_env: [],
+      required_env: expect.arrayContaining(["BLOB_READ_WRITE_TOKEN"]),
+    });
+    expect(sample.report_markdown).not.toContain("secret");
+    expect(sample.report_markdown).not.toContain("token=unsafe");
+  });
+
   it("declares runnable GitHub workflows for product harness reports", async () => {
     const root = process.cwd().endsWith("packages/product-test-harness")
       ? path.resolve(process.cwd(), "../..")
@@ -154,3 +256,17 @@ describe("PTH10 reporting, dashboard, and CI workflows", () => {
     });
   });
 });
+
+function validCanaryEnv(): Record<string, string> {
+  return {
+    PRODUCT_CANARY_URL: "https://alpha-preview.example.test/path?token=unsafe",
+    BROWSERBASE_PROJECT_ID: "browserbase-project",
+    BROWSERBASE_API_KEY: "fixture-browserbase-key",
+    PRODUCT_HARNESS_DATABASE_URL: "postgresql://user:fixture_pw@db.example.test/test_harness",
+    PRODUCT_ARTIFACT_STORE_PROVIDER: "vercel-blob",
+    PRODUCT_ARTIFACT_STORE_BUCKET: "spyglass-product-harness",
+    PRODUCT_ARTIFACT_STORE_PREFIX: "alpha-canary",
+    PRODUCT_ARTIFACT_STORE_CREDENTIAL_REF: "env:BLOB_READ_WRITE_TOKEN",
+    BLOB_READ_WRITE_TOKEN: "fixture-blob-token",
+  };
+}

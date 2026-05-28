@@ -7,6 +7,11 @@ on:
         description: Preview or production Alpha URL to canary
         required: false
         type: string
+      dry_run:
+        description: Run deterministic non-deployed canary sample without preview/prod secrets
+        required: false
+        default: false
+        type: boolean
   schedule:
     - cron: "43 * * * *"
   deployment_status:
@@ -28,13 +33,25 @@ jobs:
     environment: production
     timeout-minutes: 20
     env:
-      PRODUCT_CANARY_URL: ${{ github.event.inputs.target_url || github.event.deployment_status.target_url }}
-      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
-      NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+      PRODUCT_CANARY_URL: ${{ github.event.inputs.target_url || github.event.deployment_status.target_url || vars.PRODUCT_CANARY_URL }}
+      PRODUCT_CANARY_DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && 'true' || 'false' }}
+      PRODUCT_CANARY_VALIDATE_ENV: "true"
+      BROWSERBASE_PROJECT_ID: ${{ vars.BROWSERBASE_PROJECT_ID || secrets.BROWSERBASE_PROJECT_ID }}
+      BROWSERBASE_API_KEY: ${{ secrets.BROWSERBASE_API_KEY }}
+      PRODUCT_HARNESS_DATABASE_URL: ${{ secrets.PRODUCT_HARNESS_DATABASE_URL }}
+      PRODUCT_ARTIFACT_STORE_PROVIDER: ${{ vars.PRODUCT_ARTIFACT_STORE_PROVIDER }}
+      PRODUCT_ARTIFACT_STORE_BUCKET: ${{ vars.PRODUCT_ARTIFACT_STORE_BUCKET }}
+      PRODUCT_ARTIFACT_STORE_PREFIX: ${{ vars.PRODUCT_ARTIFACT_STORE_PREFIX || 'alpha-canary' }}
+      PRODUCT_ARTIFACT_STORE_CREDENTIAL_REF: ${{ vars.PRODUCT_ARTIFACT_STORE_CREDENTIAL_REF || 'env:BLOB_READ_WRITE_TOKEN' }}
+      BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
       PRODUCT_HARNESS_COMMAND: product:canary
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
+
+      - name: validate canary configuration
+        run: |
+          pnpm exec tsx -e "import { assertValidProductCanaryEnvironment } from './packages/product-test-harness/src/reporting/canary-env.ts'; const validation = assertValidProductCanaryEnvironment(process.env); console.log(JSON.stringify({ mode: validation.mode, target_url_label: validation.target_url_label, required_env: validation.required_env }, null, 2));"
 
       - name: build workspace
         run: pnpm -r run build
