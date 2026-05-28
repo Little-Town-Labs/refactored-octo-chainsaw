@@ -186,6 +186,16 @@ export {
 export { containsDatabaseUrl, redactDatabaseUrl, redactDatabaseUrls } from "./db/redaction.js";
 export { LocalFileProductResultStore } from "./results/local-file-store.js";
 export {
+  DEFAULT_PRODUCT_RESULT_STORE_SCHEMA,
+  NeonProductResultStore,
+  PRODUCT_RESULT_RUNS_TABLE,
+  productResultStoreSchemaSql,
+  validateProductResultStoreSchemaName,
+  type NeonProductResultStoreOptions,
+  type ProductResultStoreSqlClient,
+  type ProductResultStoreSqlResult,
+} from "./results/neon-store.js";
+export {
   assertValidProductResultStoreSnapshot,
   createProductResultStoreSnapshot,
   ProductResultStoreError,
