@@ -47,7 +47,7 @@ This roadmap converts the Product Readiness Harness PRD into feature-sized Spec 
 | PTH13 Browserbase preview/prod replay driver | Complete | Merged to `main` in PR #82; product harness now exposes a Browserbase-backed browser journey driver with injectable session and Playwright connector dependencies, safe env/config validation, secret-safe evidence refs, per-visit session cleanup, failure mapping, public exports, and deterministic fake Browserbase coverage. |
 | PTH14 Canary workflow hardening | Complete | Merged to `main` in PR #83; alpha canaries now fail fast on missing preview/prod config, support explicit dry-run mode, validate canary URL, Browserbase, Neon result-store, and durable artifact storage env, and preserve safe target labels without secret values. |
 | PTH15 Eval trend and cost monitoring | Complete | Merged to `main` in PR #84; product harness reports now include informational eval trend points and summaries for cost, latency, outcome, tool refusals, model/provider version, and evaluator scores. |
-| PTH16 Alpha harness operations runbook | Not started | Document Neon schema setup, Browserbase, canary URLs, artifact retention, report interpretation, and operational response. |
+| PTH16 Alpha harness operations runbook | In progress | Active Spec Kit slice: document Neon schema setup, Browserbase, canary URLs, artifact retention, report interpretation, and operational response. |
 | PTH17 Camofox browser evaluation spike | Optional | Evaluate Camofox/Camoufox as a fallback adapter for first-party preview/prod testing only; not part of the release-blocking critical path. |
 
 ---
