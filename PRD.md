@@ -690,6 +690,9 @@ This PRD synthesizes:
 - `JobBobber_Ticket_Lifecycle.pptx` — the ticket-lifecycle deck (six slides).
 - `docs/COMPLIANCE_ARCHITECTURE.md` — the compliance posture, harness
   primitives, and phased rollout model. Authored under the JobBobber name.
+- `docs/testing/product-harness/roadmap.md` — the completed Product Readiness
+  Harness roadmap for Alpha gate, persona eval, reporting, and canary
+  validation.
 - The Parley specification at `/mnt/f/parley/SPEC.md` (referenced; not yet
   fully read into this PRD).
 

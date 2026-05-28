@@ -229,16 +229,16 @@ Required secrets are expected to include:
 
 ---
 
-## Open Decisions
+## Operational Decisions
 
-| Decision | Options | Default Recommendation |
-|----------|---------|------------------------|
-| Persistent result storage | Separate Neon project vs non-prod schema | Separate Neon project if operationally simple; otherwise isolated `test_harness` schema outside production. |
-| Browser execution | Local Playwright vs Browserbase-backed Playwright | Local Playwright for gate development; Browserbase for preview/prod replay and canaries. |
-| Pi integration depth | `pi-ai`, `pi-agent-core`, CLI/session adapter | Start with a thin `PiAgentDriver` spike behind our `AgentDriver` interface. |
-| LLM eval gating | Blocking vs informational | Informational until stability and cost are measured. |
-| Artifact retention | GitHub artifacts, object storage, DB refs | Store metadata in DB, large artifacts in durable object storage. |
-| Main roadmap integration | Separate harness roadmap vs merge into Spyglass roadmap | Keep separate until PTH01 is planned; then add a main-roadmap pointer. |
+| Decision | Resolution | Notes |
+|----------|------------|-------|
+| Persistent result storage | Use an isolated `test_harness` schema outside production. | Keep harness metadata and run summaries queryable without sharing production application schemas. |
+| Browser execution | Use headless execution, with Browserbase planned for preview/prod replay and canaries. | Local Playwright remains acceptable for development, but preview/prod canaries should target Browserbase-backed execution. |
+| Pi integration depth | Start with the thin `PiAgentDriver` adapter behind the stable agent-driver interface. | Keep provider/session details behind the adapter boundary so Pi integration can deepen without changing report/result contracts. |
+| LLM eval gating | Keep evals informational until stability and cost are measured. | Persona/LLM evals inform readiness and drift, but do not block Alpha promotion until the signal is proven stable. |
+| Artifact retention | Store metadata in the DB and large artifacts in durable object storage. | Use Neon for metadata; use Vercel/available durable storage for large report, browser, trace, video, and transcript artifacts. |
+| Main roadmap integration | Add and maintain a main-product roadmap pointer to this completed harness roadmap. | The harness roadmap remains separate, with the root PRD pointing to it as the Alpha-readiness validation roadmap. |
 
 ---
 
