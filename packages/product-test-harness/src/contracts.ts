@@ -380,6 +380,103 @@ export interface ProductObservabilityEvaluation {
   readonly metadata?: SafeMetadata;
 }
 
+export type ProductPersonaRole = "seeker" | "employer";
+
+export interface ProductPersona {
+  readonly persona_id: string;
+  readonly role: ProductPersonaRole;
+  readonly label: string;
+  readonly traits: readonly string[];
+  readonly risk_tags: readonly string[];
+  readonly prompt_seed_ref: string;
+}
+
+export type ProductPersonaEncounterCategory =
+  | "strong_match"
+  | "weak_match"
+  | "insufficient_evidence"
+  | "privacy_attack"
+  | "prompt_injection"
+  | "protected_class_boundary"
+  | "jurisdiction_denial"
+  | "consent_denial"
+  | "human_review_path"
+  | "webhook_failure"
+  | "incident_triggering_event";
+
+export type ProductPersonaEvalOutcome =
+  | "strong_match"
+  | "weak_match"
+  | "insufficient_evidence"
+  | "privacy_refusal"
+  | "unsafe_tool_refusal"
+  | "driver_failed";
+
+export interface ProductPersonaEncounter {
+  readonly encounter_id: string;
+  readonly scenario_id: string;
+  readonly seeker_persona_id: string;
+  readonly employer_persona_id: string;
+  readonly category: ProductPersonaEncounterCategory;
+  readonly prompt_refs: readonly string[];
+  readonly expected_outcome: ProductPersonaEvalOutcome;
+}
+
+export type ProductPersonaToolDecision = "allowed" | "refused" | "skipped";
+
+export interface ProductPersonaToolTrace {
+  readonly tool_call_id: string;
+  readonly tool_name: string;
+  readonly intent: string;
+  readonly decision: ProductPersonaToolDecision;
+  readonly reason_code: string;
+  readonly metadata?: SafeMetadata;
+}
+
+export interface ProductPersonaTranscriptArtifact {
+  readonly transcript_ref: string;
+  readonly safe_excerpt: string;
+  readonly message_count: number;
+  readonly artifact_refs: readonly string[];
+}
+
+export interface ProductPersonaModelMetadata {
+  readonly provider: string;
+  readonly model: string;
+  readonly model_version: string;
+}
+
+export interface ProductPersonaUsageMetadata {
+  readonly prompt_tokens: number;
+  readonly completion_tokens: number;
+  readonly total_tokens: number;
+}
+
+export interface ProductPersonaEvaluatorSummary {
+  readonly outcome: ProductPersonaEvalOutcome;
+  readonly reason_code: string;
+  readonly score: number;
+  readonly boundary_passed: boolean;
+  readonly evidence_refs: readonly string[];
+}
+
+export interface ProductPersonaEncounterResult {
+  readonly encounter_id: string;
+  readonly driver_id: string;
+  readonly provider: string;
+  readonly model: string;
+  readonly started_at: string;
+  readonly ended_at: string;
+  readonly latency_ms: number;
+  readonly cost_usd: number;
+  readonly transcript: ProductPersonaTranscriptArtifact;
+  readonly tool_traces: readonly ProductPersonaToolTrace[];
+  readonly model_metadata: ProductPersonaModelMetadata;
+  readonly usage: ProductPersonaUsageMetadata;
+  readonly evaluator_summary: ProductPersonaEvaluatorSummary;
+  readonly metadata?: SafeMetadata;
+}
+
 export interface ProductResultStoreSnapshot {
   readonly schema_version: ProductResultStoreSchemaVersion;
   readonly run: ScenarioRunResult;

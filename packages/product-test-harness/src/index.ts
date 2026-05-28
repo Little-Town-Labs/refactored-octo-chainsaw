@@ -49,6 +49,18 @@ export type {
   ProductObservabilitySignalSeverity,
   ProductObservabilitySignalStatus,
   ProductObservabilitySignalType,
+  ProductPersona,
+  ProductPersonaEncounter,
+  ProductPersonaEncounterCategory,
+  ProductPersonaEncounterResult,
+  ProductPersonaEvalOutcome,
+  ProductPersonaEvaluatorSummary,
+  ProductPersonaModelMetadata,
+  ProductPersonaRole,
+  ProductPersonaToolDecision,
+  ProductPersonaToolTrace,
+  ProductPersonaTranscriptArtifact,
+  ProductPersonaUsageMetadata,
   ProductResultRunSummary,
   ProductResultStore,
   ProductResultStoreFilters,
@@ -103,6 +115,16 @@ export type {
   ObservabilityGateSuiteResult,
   RunObservabilityGateOptions,
 } from "./observability/runner.js";
+export type { PiAgentDriver, PiAgentDriverEncounterInput } from "./persona-evals/driver.js";
+export type {
+  ProductPersonaEvalAssessment,
+  ProductPersonaEvalReason,
+} from "./persona-evals/evaluator.js";
+export type {
+  PiPersonaEvalRun,
+  PiPersonaEvalSuiteResult,
+  RunPiPersonaEvalOptions,
+} from "./persona-evals/runner.js";
 export type {
   ApiWebhookGateRun,
   ApiWebhookGateSuiteResult,
@@ -219,6 +241,14 @@ export {
   sanitizeMetadata,
   signalBase,
 } from "./observability/signals.js";
+export { SyntheticPiAgentDriver } from "./persona-evals/driver.js";
+export {
+  assertPersonaTranscriptSafe,
+  evaluatePersonaEncounterResult,
+} from "./persona-evals/evaluator.js";
+export { DEFAULT_PI_PERSONA_ENCOUNTERS } from "./persona-evals/matrix.js";
+export { DEFAULT_PRODUCT_PERSONAS, getProductPersona } from "./persona-evals/personas.js";
+export { runDefaultPiPersonaEvalSuite, runPiPersonaEncounter } from "./persona-evals/runner.js";
 export {
   API_WEBHOOK_GATE_IDS,
   DEFAULT_API_WEBHOOK_GATES,
@@ -268,3 +298,4 @@ export { runAlphaGateScenarioSample } from "./samples/alpha-gate-scenarios.js";
 export { runBrowserGateScenarioSample } from "./samples/browser-gate-scenario.js";
 export { runApiWebhookGateScenarioSample } from "./samples/api-webhook-gates.js";
 export { runObservabilityGateScenarioSample } from "./samples/observability-gates.js";
+export { runPiPersonaEvalScenarioSample } from "./samples/pi-persona-evals.js";
