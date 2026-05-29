@@ -48,7 +48,7 @@ This roadmap converts the Product Readiness Harness PRD into feature-sized Spec 
 | PTH14 Canary workflow hardening | Complete | Merged to `main` in PR #83; alpha canaries now fail fast on missing preview/prod config, support explicit dry-run mode, validate canary URL, Browserbase, Neon result-store, and durable artifact storage env, and preserve safe target labels without secret values. |
 | PTH15 Eval trend and cost monitoring | Complete | Merged to `main` in PR #84; product harness reports now include informational eval trend points and summaries for cost, latency, outcome, tool refusals, model/provider version, and evaluator scores. |
 | PTH16 Alpha harness operations runbook | Complete | Merged to `main` in PR #85; operators now have one runbook for Neon `test_harness` setup, Browserbase, canary URLs, artifact retention, report interpretation, eval trend handling, and operational response. |
-| PTH17 Camofox browser evaluation spike | Optional | Evaluate Camofox/Camoufox as a fallback adapter for first-party preview/prod testing only; not part of the release-blocking critical path. |
+| PTH17 Camofox browser evaluation spike | In progress | Optional Spec Kit spike: evaluate Camofox/Camoufox as a fallback adapter for first-party preview/prod testing only; not part of the release-blocking critical path. |
 
 ---
 
