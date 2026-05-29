@@ -16,8 +16,8 @@
 | **Primary outcome** | Before inviting Alpha users, run deterministic product gates that prove core workflows, evidence, privacy, jurisdiction, alpha posture, API/webhook, and observability behavior. |
 | **Secondary outcome** | Run broader Pi-backed seeker/employer persona evals to measure behavior, drift, failure modes, and encounter quality over time. |
 | **Target platform** | Existing Spyglass pnpm/Turborepo monorepo, Vercel preview/prod URLs, Neon branch isolation, `test_harness` schema persistence, Browserbase-backed headless replay/canaries, optional Camofox research spike. |
-| **Completed build features** | 16 |
-| **Operationalization features** | 6 planned, plus 1 optional Camofox evaluation spike |
+| **Completed build features** | 17 |
+| **Operationalization features** | 6 complete, plus 1 completed optional Camofox evaluation spike |
 | **Implementation phases** | 6 |
 | **Completed critical path** | PTH01 -> PTH02 -> PTH03 -> PTH04 -> PTH05 -> PTH06 -> PTH07 -> PTH08 -> PTH09 -> PTH10 -> PTH11 -> PTH12 -> PTH13 -> PTH14 -> PTH15 |
 | **Operationalization critical path** | PTH11 -> PTH12 -> PTH13 -> PTH14 -> PTH15 -> PTH16 complete |
@@ -48,7 +48,7 @@ This roadmap converts the Product Readiness Harness PRD into feature-sized Spec 
 | PTH14 Canary workflow hardening | Complete | Merged to `main` in PR #83; alpha canaries now fail fast on missing preview/prod config, support explicit dry-run mode, validate canary URL, Browserbase, Neon result-store, and durable artifact storage env, and preserve safe target labels without secret values. |
 | PTH15 Eval trend and cost monitoring | Complete | Merged to `main` in PR #84; product harness reports now include informational eval trend points and summaries for cost, latency, outcome, tool refusals, model/provider version, and evaluator scores. |
 | PTH16 Alpha harness operations runbook | Complete | Merged to `main` in PR #85; operators now have one runbook for Neon `test_harness` setup, Browserbase, canary URLs, artifact retention, report interpretation, eval trend handling, and operational response. |
-| PTH17 Camofox browser evaluation spike | In progress | Optional Spec Kit spike: evaluate Camofox/Camoufox as a fallback adapter for first-party preview/prod testing only; not part of the release-blocking critical path. |
+| PTH17 Camofox browser evaluation spike | Complete | Merged to `main` in PR #86; evaluation recommends deferring a Camofox/Camoufox adapter unless first-party preview/prod browser friction appears that Browserbase or stock Playwright cannot resolve. |
 
 ---
 
@@ -159,7 +159,7 @@ Complexity:
 | PTH14 | `alpha-canary.yml` fails fast when preview/prod canary requirements are missing, uses Browserbase and Neon persistence when configured, and keeps dry-run behavior explicit for local/manual non-prod use. Complete and merged to `main` in PR #83. |
 | PTH15 | Persona eval reports persist trend points for cost, latency, outcome, tool refusals, model/provider version, and evaluator scores; evals remain informational until stability and cost thresholds are approved. Complete and merged to `main` in PR #84. |
 | PTH16 | Operators can follow one runbook to provision `test_harness`, configure Browserbase and artifact storage, run canaries, read reports, and respond to failures. Complete and merged to `main` in PR #85. |
-| PTH17 | Optional: Camofox/Camoufox is evaluated against the same `BrowserJourneyDriver` contract and compared to Browserbase for setup cost, pass rate, artifacts, security posture, and maintenance risk. |
+| PTH17 | Optional: Camofox/Camoufox is evaluated against the same `BrowserJourneyDriver` contract and compared to Browserbase for setup cost, pass rate, artifacts, security posture, and maintenance risk. Complete and merged to `main` in PR #86. |
 
 ---
 
@@ -275,7 +275,7 @@ Required secrets are expected to include:
 
 ## Next Build Sequence
 
-1. **PTH17 Camofox browser evaluation spike**: optional follow-up only if Browserbase or stock Playwright exposes bot-detection friction on first-party Spyglass preview/prod surfaces.
+The product harness roadmap is complete through the optional PTH17 spike. Future work should start from new roadmap decisions or from the PTH17 trigger conditions if first-party preview/prod browser friction appears.
 
 ---
 
