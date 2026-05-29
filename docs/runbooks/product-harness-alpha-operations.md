@@ -9,8 +9,21 @@ The product harness has two operating classes:
 
 ## Configuration Matrix
 
+Configure GitHub Actions values in the environment that runs the workflow:
+
+- `ci` for `product-gate.yml`
+- `production` for `alpha-canary.yml`
+
+Local exploratory runs may use shell env or `.env.local`, but `.env.local` is
+not loaded by every package command automatically. Export the values in the
+shell when validating setup from a clean terminal.
+
 | Name | Configure as | Required for | Purpose |
 | --- | --- | --- | --- |
+| `NEON_API_KEY` | GitHub Actions secret or local env | `product:gate`, integration harness | Neon REST API token for disposable branch lifecycle. |
+| `NEON_PROJECT_ID` | GitHub Actions secret or local env | `product:gate`, integration harness | Neon project used for disposable test branches. |
+| `NEON_PARENT_BRANCH_ID` | GitHub Actions secret or local env | `product:gate` | Baseline branch for product gate test branches. |
+| `PI_API_KEY` | GitHub Actions secret or local env | `product:eval` live eval mode | Pi/model provider credential for persona eval runs. Use deterministic synthetic evals when live provider access is not configured. |
 | `PRODUCT_CANARY_URL` | GitHub Actions variable or workflow input | Preview/prod canaries | Absolute Vercel preview or production URL under test. |
 | `PRODUCT_CANARY_DRY_RUN` | Workflow input/env | Dry run only | Explicitly marks local/manual dry-run mode. Dry runs do not prove preview/prod readiness. |
 | `BROWSERBASE_PROJECT_ID` | GitHub Actions variable or secret | Preview/prod canaries | Browserbase project used for managed headless Playwright sessions. |
@@ -28,15 +41,36 @@ Do not commit `.env.local` values. Do not paste connection strings, Browserbase 
 
 Use a dedicated testing Neon project or non-production database for harness data. The result store expects an isolated schema named `test_harness` by default and keeps harness rows outside production application schemas.
 
+There are two Neon surfaces:
+
+- Branch lifecycle for gate and integration runs: `NEON_API_KEY`,
+  `NEON_PROJECT_ID`, and `NEON_PARENT_BRANCH_ID`.
+- Persistent product-harness result storage: `PRODUCT_HARNESS_DATABASE_URL`,
+  pointing at a non-production database where `test_harness` can be created or
+  used.
+
 Setup expectations:
 
 1. Create or choose the dedicated testing database.
-2. Store its connection string as `PRODUCT_HARNESS_DATABASE_URL`.
-3. Ensure the user behind that URL can create and use the `test_harness` schema, or pre-create that schema with equivalent privileges.
-4. Keep production application schemas untouched.
-5. Confirm result snapshots are written as harness metadata and JSON snapshots, not copied production user data.
+2. Choose the Neon parent branch that disposable product-gate branches should fork from and store it as `NEON_PARENT_BRANCH_ID`.
+3. Store the Neon REST credentials as `NEON_API_KEY` and `NEON_PROJECT_ID`.
+4. Store the persistent result-store connection string as `PRODUCT_HARNESS_DATABASE_URL`.
+5. Ensure the user behind that URL can create and use the `test_harness` schema, or pre-create that schema with equivalent privileges.
+6. Keep production application schemas untouched.
+7. Confirm result snapshots are written as harness metadata and JSON snapshots, not copied production user data.
 
 The harness initializes the schema/table when configured to do so. If initialization fails, treat it as an environment or privilege issue before treating it as a product regression.
+
+Minimum live database verification before relying on canary persistence:
+
+1. Connect to `PRODUCT_HARNESS_DATABASE_URL`.
+2. Create or verify the `test_harness` schema.
+3. Write one synthetic product result snapshot.
+4. Read the snapshot by `run_id`.
+5. List recent runs by mode, status, scenario id, environment label, and git ref.
+6. Re-write the identical `run_id` and confirm it is idempotent.
+7. Re-write the same `run_id` with different content and confirm it fails.
+8. Confirm no rows are written outside `test_harness.product_result_runs`.
 
 ## Browserbase Setup
 
@@ -94,13 +128,30 @@ Retention policy:
 
 ## Running Commands And Workflows
 
-Local commands:
+Local smoke commands:
+
+```bash
+pnpm --filter @spyglass/product-test-harness test
+pnpm --filter @spyglass/product-test-harness type-check
+pnpm --filter @spyglass/product-test-harness run:reporting-ci
+PRODUCT_CANARY_DRY_RUN=true PRODUCT_CANARY_VALIDATE_ENV=true pnpm product:canary
+```
+
+Configured local commands:
 
 ```bash
 pnpm product:gate
 pnpm product:eval
 pnpm product:canary
 ```
+
+Command setup:
+
+| Command | Required setup | Notes |
+| --- | --- | --- |
+| `pnpm product:gate` | `NEON_API_KEY`, `NEON_PROJECT_ID`, `NEON_PARENT_BRANCH_ID` | Runs deterministic Alpha gate report metadata. Use a dedicated non-production Neon project or branch baseline. |
+| `pnpm product:eval` | `PI_API_KEY` for live provider mode | Eval trends are informational until thresholds are approved. Deterministic package tests do not require provider credentials. |
+| `pnpm product:canary` | Preview/prod canary env from the configuration matrix, or `PRODUCT_CANARY_DRY_RUN=true` for wiring checks | Set `PRODUCT_CANARY_VALIDATE_ENV=true` when you want the command to fail fast on missing preview/prod canary config. |
 
 GitHub Actions workflows:
 
@@ -112,10 +163,30 @@ GitHub Actions workflows:
 
 Recommended operating sequence:
 
-1. Run `product:gate` for deterministic readiness evidence.
-2. Run `product:eval` to inspect persona trend movement.
-3. Run `product:canary` against the Vercel preview URL.
-4. Run production canaries only after preview evidence is clean or explicitly waived.
+1. Run package tests and type checks locally.
+2. Run `PRODUCT_CANARY_DRY_RUN=true PRODUCT_CANARY_VALIDATE_ENV=true pnpm product:canary` to verify command wiring without preview/prod dependencies.
+3. Configure Neon branch lifecycle and result-store persistence.
+4. Run `product:gate` for deterministic readiness evidence.
+5. Run `product:eval` to inspect persona trend movement.
+6. Run `product:canary` against the Vercel preview URL.
+7. Run production canaries only after preview evidence is clean or explicitly waived.
+
+## Live Neon Scenario Gap
+
+Current automated coverage proves the Neon result-store SQL through deterministic fake-SQL tests. Before treating the testing database as operationally ready, add an opt-in live Neon scenario that is skipped unless `PRODUCT_HARNESS_DATABASE_URL` is set.
+
+Recommended scenario coverage:
+
+1. Initialize `test_harness.product_result_runs`.
+2. Persist a synthetic passed gate snapshot and read it back.
+3. Persist failed gate and eval snapshots, then verify filtered list queries.
+4. Verify identical duplicate writes are idempotent.
+5. Verify conflicting duplicate writes fail without changing the existing row.
+6. Verify unsafe schema names and production-like schemas are rejected before SQL writes.
+7. Verify raw connection strings are rejected from snapshot metadata.
+8. Verify teardown or cleanup policy for smoke rows, using a unique run id prefix.
+
+This should live as product-harness work rather than a canary-runbook-only task: the runbook can describe the check, but the package should provide the opt-in command or integration test that operators can run against the dedicated Neon testing database.
 
 ## Reading Reports
 

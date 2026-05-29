@@ -27,6 +27,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@testing-library/dom": "^10",
     "@testing-library/jest-dom": "^6",
     "@testing-library/react": "^16",

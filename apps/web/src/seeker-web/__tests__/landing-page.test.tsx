@@ -9,6 +9,11 @@ describe("F21 landing page", () => {
     const main = screen.getByRole("main");
     expect(within(main).getByRole("heading", { level: 1, name: "Spyglass" })).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "Seeker account actions" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", {
+        name: "A secure conversation workspace with verification, consent, and review indicators.",
+      }),
+    ).toHaveAttribute("src", expect.stringContaining("spyglass-hero.png"));
     expect(screen.getByRole("link", { name: "Start with Spyglass" })).toHaveAttribute(
       "href",
       "/sign-up",
