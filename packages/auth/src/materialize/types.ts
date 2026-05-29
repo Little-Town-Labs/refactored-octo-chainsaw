@@ -85,6 +85,26 @@ export interface PrincipalRepo {
   }): Promise<void>;
 }
 
+export type ClerkInvitationFamily = "application" | "organization";
+export type ClerkInvitationStatus = "pending" | "accepted" | "revoked" | "expired";
+
+export interface ClerkInvitationRecordInput {
+  readonly clerk_invitation_id: string;
+  readonly family: ClerkInvitationFamily;
+  readonly status: ClerkInvitationStatus;
+  readonly email_hash: string | null;
+  readonly org_clerk_id: string | null;
+  readonly role: string | null;
+  readonly last_event_type: string;
+  readonly clerk_created_at: Date | null;
+  readonly clerk_updated_at: Date | null;
+  readonly expires_at: Date | null;
+}
+
+export interface InvitationRepo {
+  upsertInvitation(input: ClerkInvitationRecordInput): Promise<void>;
+}
+
 /**
  * Discriminator union for F02 audit event names. Extended per
  * sub-phase as new event sources land. F05 will replace this with
@@ -95,6 +115,7 @@ export type AuditEventName =
   | "principal.materialized"
   | "principal.disabled"
   | "organization.materialized"
+  | "clerk_invitation.mirrored"
   | "agent_credential.issued"
   | "agent_credential.issue_denied"
   | "agent_credential.issued_by_operator"

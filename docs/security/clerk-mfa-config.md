@@ -102,6 +102,51 @@ operator role.
 
 ---
 
+## Clerk webhook endpoint
+
+Each environment must configure one Clerk webhook endpoint pointing
+at Spyglass:
+
+```text
+https://<deployment-host>/api/webhooks/clerk
+```
+
+Subscribe the endpoint to these events:
+
+```text
+user.created
+user.updated
+user.deleted
+organizationMembership.created
+organizationMembership.updated
+organizationMembership.deleted
+session.removed
+invitation.created
+invitation.updated
+invitation.accepted
+invitation.revoked
+invitation.expired
+organizationInvitation.created
+organizationInvitation.updated
+organizationInvitation.accepted
+organizationInvitation.revoked
+organizationInvitation.expired
+```
+
+Copy the endpoint signing secret from Clerk and set it as:
+
+```bash
+vercel env add CLERK_WEBHOOK_SIGNING_SECRET <env>
+```
+
+Invitation events are mirrored into `clerk_invitations` with a
+normalized email hash, not the raw invitee email address. They do
+not create principals. Principal creation still happens through
+`user.created` for seekers and `organizationMembership.created` for
+employer/operator membership.
+
+---
+
 ## Drift audit (recurring)
 
 Every quarter (or after any Clerk dashboard change):
@@ -113,6 +158,8 @@ Every quarter (or after any Clerk dashboard change):
       `principals.tier='operator'` rows).
 - [ ] `SPYGLASS_OPERATOR_CLERK_ORG_IDS` matches the Clerk org ID for
       each env.
+- [ ] Clerk webhook endpoint is subscribed to the full event list
+      above, and recent deliveries return 204.
 - [ ] Reconciliation Inngest job (T024) has reported `drift = 0` for
       the past 24h. (The drift metric lights up after F08 brings in
       the runtime; until then, manual spot-check.)

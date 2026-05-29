@@ -121,6 +121,47 @@ describe("parseClerkWebhookEvent", () => {
     expect(ev.type).toBe("organizationMembership.created");
   });
 
+  it("parses application invitation lifecycle events", () => {
+    for (const type of [
+      "invitation.created",
+      "invitation.updated",
+      "invitation.accepted",
+      "invitation.revoked",
+      "invitation.expired",
+    ] as const) {
+      const ev = parseClerkWebhookEvent({
+        type,
+        data: {
+          id: `inv_${type.split(".")[1]}`,
+          email_address: "invitee@example.com",
+          status: type.endsWith(".created") || type.endsWith(".updated") ? "pending" : "accepted",
+        },
+      });
+      expect(ev.type).toBe(type);
+    }
+  });
+
+  it("parses organization invitation lifecycle events", () => {
+    for (const type of [
+      "organizationInvitation.created",
+      "organizationInvitation.updated",
+      "organizationInvitation.accepted",
+      "organizationInvitation.revoked",
+      "organizationInvitation.expired",
+    ] as const) {
+      const ev = parseClerkWebhookEvent({
+        type,
+        data: {
+          id: `orginv_${type.split(".")[1]}`,
+          emailAddress: "invitee@example.com",
+          organizationId: "org_acme",
+          role: "org:member",
+        },
+      });
+      expect(ev.type).toBe(type);
+    }
+  });
+
   it("rejects an unsupported event type", () => {
     expect(() => parseClerkWebhookEvent({ type: "totally.unknown", data: {} })).toThrow(
       ClerkWebhookPayloadError,
@@ -246,5 +287,55 @@ describe("eventToSnapshot (FR-9, organization mirroring)", () => {
       data: { id: "sess_x", user_id: "user_x" },
     };
     expect(eventToSnapshot(ev, ctx).kind).toBe("ignore");
+  });
+
+  it("invitation.created → application invitation mirror record", () => {
+    const ev: ClerkWebhookEvent = {
+      type: "invitation.created",
+      data: {
+        id: "inv_app_1",
+        email_address: "Invitee@Example.COM",
+        status: "pending",
+        created_at: 1_700_000_000_000,
+        updated_at: 1_700_000_001_000,
+        expires_at: 1_702_592_000_000,
+      },
+    };
+    const result = eventToSnapshot(ev, ctx);
+    expect(result.kind).toBe("mirror_invitation");
+    if (result.kind === "mirror_invitation") {
+      expect(result.invitation).toMatchObject({
+        clerk_invitation_id: "inv_app_1",
+        family: "application",
+        status: "pending",
+        org_clerk_id: null,
+        last_event_type: "invitation.created",
+      });
+      expect(result.invitation.email_hash).toHaveLength(64);
+      expect(result.invitation.clerk_created_at).toEqual(new Date(1_700_000_000_000));
+    }
+  });
+
+  it("organizationInvitation.revoked → organization invitation mirror record", () => {
+    const ev: ClerkWebhookEvent = {
+      type: "organizationInvitation.revoked",
+      data: {
+        id: "orginv_1",
+        emailAddress: "invitee@example.com",
+        organizationId: "org_acme",
+        role: "org:admin",
+      },
+    };
+    const result = eventToSnapshot(ev, ctx);
+    expect(result.kind).toBe("mirror_invitation");
+    if (result.kind === "mirror_invitation") {
+      expect(result.invitation).toMatchObject({
+        clerk_invitation_id: "orginv_1",
+        family: "organization",
+        status: "revoked",
+        org_clerk_id: "org_acme",
+        role: "org:admin",
+      });
+    }
   });
 });

@@ -12,7 +12,7 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "@clerk/nextjs": "7.4.1",
+    "@clerk/nextjs": "7.4.2",
     "@spyglass/a2a": "workspace:*",
     "@spyglass/audit-log": "workspace:*",
     "@spyglass/auth": "workspace:*",

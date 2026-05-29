@@ -82,8 +82,12 @@ export const DEFAULT_BROWSER_JOURNEYS: readonly BrowserJourney[] = [
     title: "Operator credential and audit views",
     category: "operator_credential_audit",
     routes: [
-      { route_id: "operator-credentials", path: "/console/credentials", expected_status: 200 },
-      { route_id: "operator-audit", path: "/console/audit", expected_status: 200 },
+      {
+        route_id: "operator-credentials",
+        path: "/operator/console/credentials",
+        expected_status: 200,
+      },
+      { route_id: "operator-audit", path: "/operator/console/audit", expected_status: 200 },
     ],
     tags: ["operator", "audit"],
   }),

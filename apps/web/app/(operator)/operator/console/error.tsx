@@ -22,8 +22,8 @@
 
 import { useEffect, useRef } from "react";
 
-import { AuthBanner } from "../../../src/console/auth-banner";
-import { selectBannerKind } from "../../../src/console/select-banner-kind";
+import { AuthBanner } from "../../../../src/console/auth-banner";
+import { selectBannerKind } from "../../../../src/console/select-banner-kind";
 
 interface ErrorPageProps {
   readonly error: Error & { readonly digest?: string };

@@ -63,6 +63,10 @@ export {
 export type {
   AuditEventName,
   AuditEventSink,
+  ClerkInvitationFamily,
+  ClerkInvitationRecordInput,
+  ClerkInvitationStatus,
+  InvitationRepo,
   MaterializationSource,
   OrganizationLookup,
   PrincipalLookup,

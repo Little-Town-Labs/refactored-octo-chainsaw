@@ -5,8 +5,9 @@
 // minimum event set F02 needs:
 //
 //   - user.created / user.updated / user.deleted
-//   - organizationMembership.created / .deleted
+//   - organizationMembership.created / .updated / .deleted
 //   - session.removed (used by FR-34 member-removal flow)
+//   - invitation.* and organizationInvitation.* lifecycle events
 //
 // We deliberately do NOT model fields we don't consume — Clerk adds
 // fields over time and an over-tight schema would break on every
@@ -64,6 +65,57 @@ const sessionPayload = z
   })
   .loose();
 
+const INVITATION_STATUSES = ["pending", "accepted", "revoked", "expired"] as const;
+
+const invitationPayload = z
+  .object({
+    id: z.string().min(1),
+    email_address: z.string().email().nullable().optional(),
+    emailAddress: z.string().email().nullable().optional(),
+    organization_id: clerkOrgId.nullable().optional(),
+    organizationId: clerkOrgId.nullable().optional(),
+    public_organization_data: z
+      .object({
+        id: clerkOrgId,
+        name: z.string().optional(),
+        slug: z.string().nullable().optional(),
+      })
+      .loose()
+      .nullable()
+      .optional(),
+    publicOrganizationData: z
+      .object({
+        id: clerkOrgId,
+        name: z.string().optional(),
+        slug: z.string().nullable().optional(),
+      })
+      .loose()
+      .nullable()
+      .optional(),
+    role: z.string().min(1).nullable().optional(),
+    status: z.enum(INVITATION_STATUSES).nullable().optional(),
+    created_at: z.number().nullable().optional(),
+    createdAt: z.number().nullable().optional(),
+    updated_at: z.number().nullable().optional(),
+    updatedAt: z.number().nullable().optional(),
+    expires_at: z.number().nullable().optional(),
+    expiresAt: z.number().nullable().optional(),
+  })
+  .loose();
+
+export const clerkInvitationEventTypes = [
+  "invitation.created",
+  "invitation.updated",
+  "invitation.accepted",
+  "invitation.revoked",
+  "invitation.expired",
+  "organizationInvitation.created",
+  "organizationInvitation.updated",
+  "organizationInvitation.accepted",
+  "organizationInvitation.revoked",
+  "organizationInvitation.expired",
+] as const;
+
 export const clerkWebhookEventSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("user.created"), data: userPayload }),
   z.object({ type: z.literal("user.updated"), data: userPayload }),
@@ -81,6 +133,7 @@ export const clerkWebhookEventSchema = z.discriminatedUnion("type", [
     data: organizationMembershipPayload,
   }),
   z.object({ type: z.literal("session.removed"), data: sessionPayload }),
+  z.object({ type: z.enum(clerkInvitationEventTypes), data: invitationPayload }),
 ]);
 
 export type ClerkWebhookEvent = z.infer<typeof clerkWebhookEventSchema>;

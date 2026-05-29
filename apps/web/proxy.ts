@@ -12,10 +12,13 @@
 
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 import { decideRouteAccess, parseOperatorClerkOrgIds } from "@spyglass/auth";
 
 const operatorClerkOrgIds = parseOperatorClerkOrgIds(process.env.SPYGLASS_OPERATOR_CLERK_ORG_IDS);
+
+function signInPathForAudience(audience: "seeker" | "employer" | "operator"): string {
+  return audience === "seeker" ? "/sign-in" : `/${audience}/sign-in`;
+}
 
 function responseForDecision(
   decision: ReturnType<typeof decideRouteAccess>,
@@ -31,28 +34,11 @@ function responseForDecision(
     case "redirect_step_up":
       // Clerk's catch-all sign-in surface drives both first-factor
       // sign-in and the AAL2 step-up challenge from the same URL.
-      return NextResponse.redirect(new URL(`/${decision.audience}/sign-in`, req.url));
+      return NextResponse.redirect(new URL(signInPathForAudience(decision.audience), req.url));
   }
 }
 
-function proxyWithoutClerkConfig(req: NextRequest): Response | void {
-  const url = new URL(req.url);
-  return responseForDecision(
-    decideRouteAccess({
-      pathname: url.pathname,
-      session: {
-        userId: null,
-        orgId: null,
-        orgRole: null,
-        operatorClerkOrgIds,
-      },
-      aal: { secondFactorVerificationAge: -1 },
-    }),
-    req,
-  );
-}
-
-const proxyWithClerkConfig = clerkMiddleware(async (auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
   const url = new URL(req.url);
   const session = await auth();
   const fva = session.factorVerificationAge;
@@ -73,11 +59,13 @@ const proxyWithClerkConfig = clerkMiddleware(async (auth, req) => {
   );
 });
 
-export default process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-  ? proxyWithClerkConfig
-  : proxyWithoutClerkConfig;
-
 export const config = {
-  // Match everything except Next.js internals and static assets.
-  matcher: ["/((?!_next/|.*\\..*).*)"],
+  matcher: [
+    // Skip Next.js internals and static files.
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // Always run for API routes.
+    "/(api|trpc)(.*)",
+    // Always run for Clerk's auto-proxy path.
+    "/__clerk/(.*)",
+  ],
 };

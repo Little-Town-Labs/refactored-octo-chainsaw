@@ -19,10 +19,10 @@ import type { JSX } from "react";
 import { RoleRequiredError } from "@spyglass/auth";
 import { getDb } from "@spyglass/db";
 
-import { getPrincipal } from "../../../../../../src/auth/get-principal";
-import { createDrizzlePrincipalKindLookup } from "../../../../../../src/auth/revoke-all-sessions-repos";
-import { signOutAction } from "../../../../../../src/console/sign-out-action";
-import { SignOutConfirmationView } from "../../../../../../src/console/sign-out-confirmation-view";
+import { getPrincipal } from "../../../../../../../src/auth/get-principal";
+import { createDrizzlePrincipalKindLookup } from "../../../../../../../src/auth/revoke-all-sessions-repos";
+import { signOutAction } from "../../../../../../../src/console/sign-out-action";
+import { SignOutConfirmationView } from "../../../../../../../src/console/sign-out-confirmation-view";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

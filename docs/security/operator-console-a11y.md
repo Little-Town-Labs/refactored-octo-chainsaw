@@ -28,14 +28,14 @@ Out of scope: Clerk-hosted sign-in / MFA / profile views (see
 
 | Page | Route | Source |
 |------|-------|--------|
-| Credentials list | `/operator/console/credentials` | `apps/web/app/(operator)/console/credentials/page.tsx` → `src/console/credentials-list-view.tsx` |
-| Issue credential | `/operator/console/credentials/issue` | `apps/web/app/(operator)/console/credentials/issue/page.tsx` → `src/console/issue-credential-form.tsx` |
+| Credentials list | `/operator/console/credentials` | `apps/web/app/(operator)/operator/console/credentials/page.tsx` → `src/console/credentials-list-view.tsx` |
+| Issue credential | `/operator/console/credentials/issue` | `apps/web/app/(operator)/operator/console/credentials/issue/page.tsx` → `src/console/issue-credential-form.tsx` |
 | Revoke credentials | `/operator/console/credentials/[principal_id]/revoke` | `.../revoke/page.tsx` → `src/console/revoke-confirmation-view.tsx` |
 | Sign-out (two-operator) | `/operator/console/credentials/[principal_id]/sign-out` | `.../sign-out/page.tsx` → `src/console/sign-out-confirmation-view.tsx` |
-| Audit events | `/operator/console/audit` | `apps/web/app/(operator)/console/audit/page.tsx` → `src/console/audit-events-list-view.tsx` |
-| Auth-failure banner | (any operator console error path) | `src/console/auth-banner.tsx` rendered by `app/(operator)/console/error.tsx` |
+| Audit events | `/operator/console/audit` | `apps/web/app/(operator)/operator/console/audit/page.tsx` → `src/console/audit-events-list-view.tsx` |
+| Auth-failure banner | (any operator console error path) | `src/console/auth-banner.tsx` rendered by `app/(operator)/operator/console/error.tsx` |
 
-Shared scaffolding lives in `app/(operator)/console/layout.tsx`:
+Shared scaffolding lives in `app/(operator)/operator/console/layout.tsx`:
 skip-link to `#main`, `<nav aria-label="Operator console">`, and a
 `<main id="main">` landmark.
 
@@ -222,7 +222,7 @@ row's "Evidence" column gives the concrete check.
    axe DevTools inspection.
 
 2. **Per-page `metadata.title`.** Each `page.tsx` under
-   `(operator)/console/*` exports `export const metadata = { title: … }`.
+   `(operator)/operator/console/*` exports `export const metadata = { title: … }`.
    Closes SC 2.4.2.
 
 3. **Design-token landing.** B6 ships without a styling system;

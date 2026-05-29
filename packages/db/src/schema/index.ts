@@ -24,6 +24,15 @@ export {
   type NewAuditEventsBufferRow,
 } from "./audit-events-buffer.js";
 export {
+  clerkInvitations,
+  CLERK_INVITATION_FAMILIES,
+  CLERK_INVITATION_STATUSES,
+  type ClerkInvitationFamily,
+  type ClerkInvitationRow,
+  type ClerkInvitationStatus,
+  type NewClerkInvitationRow,
+} from "./clerk-invitations.js";
+export {
   revokeAllSessionsApprovals,
   type RevokeAllSessionsApprovalRow,
   type NewRevokeAllSessionsApprovalRow,

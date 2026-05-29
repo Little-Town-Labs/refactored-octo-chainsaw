@@ -128,7 +128,7 @@ accessibility posture and in this section for completeness:
 |---|---|---|
 | `/operator/sign-in/*` | Operator first-factor + step-up | None (Clerk owns); proxy redirects unauth + step-up here |
 | `/employer/sign-in/*` | Employer first-factor + step-up | None (Clerk owns); proxy redirects unauth + step-up here |
-| `/seeker/sign-in/*` | Seeker first-factor | None (Clerk owns); proxy redirects unauth here |
+| `/sign-in/*` | Seeker first-factor | None (Clerk owns); proxy redirects unauth here |
 | `clerk.example.com/...` (Clerk-hosted) | Profile / MFA management | None (Clerk owns) |
 
 Spyglass never mints, rotates, or revokes a Clerk session

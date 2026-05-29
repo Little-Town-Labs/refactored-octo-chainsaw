@@ -21,13 +21,13 @@ import { requireRole } from "@spyglass/auth";
 import { getDb } from "@spyglass/db";
 import type { JSX } from "react";
 
-import { getPrincipal } from "../../../../src/auth/get-principal";
+import { getPrincipal } from "../../../../../src/auth/get-principal";
 import {
   createDrizzleAuditEventsListRepo,
   type AuditEventsListRow,
-} from "../../../../src/auth/audit-events-list-repo";
-import { AuditEventsListView } from "../../../../src/console/audit-events-list-view";
-import { parseAuditParams } from "../../../../src/console/parse-audit-search-params";
+} from "../../../../../src/auth/audit-events-list-repo";
+import { AuditEventsListView } from "../../../../../src/console/audit-events-list-view";
+import { parseAuditParams } from "../../../../../src/console/parse-audit-search-params";
 
 const PAGE_SIZE = 50;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

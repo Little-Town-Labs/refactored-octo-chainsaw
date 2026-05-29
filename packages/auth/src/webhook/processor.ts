@@ -5,6 +5,7 @@
 // directive:
 //
 //   - "materialize" → call `materializePrincipal` (eager path, FR-2).
+//   - "mirror_invitation" → store redacted invitation lifecycle state.
 //   - "disable"     → revoke Clerk sessions + `disablePrincipal`
 //                     within the FR-34 ≤60s SLA.
 //   - "ignore"      → no-op (e.g., session.removed events).
@@ -15,7 +16,7 @@
 // touching Clerk or Postgres.
 
 import { materializePrincipal } from "../materialize/materialize.js";
-import type { AuditEventSink, PrincipalRepo } from "../materialize/types.js";
+import type { AuditEventSink, InvitationRepo, PrincipalRepo } from "../materialize/types.js";
 import type { SnapshotResult } from "./snapshot.js";
 
 /**
@@ -30,6 +31,7 @@ export interface ClerkSessionRevoker {
 
 export interface ProcessDirectiveDeps {
   readonly repo: PrincipalRepo;
+  readonly invitationRepo: InvitationRepo;
   readonly sink: AuditEventSink;
   readonly sessionRevoker: ClerkSessionRevoker;
   readonly now: () => number;
@@ -50,6 +52,25 @@ export async function processClerkDirective(
       source: "eager",
       correlation_id: deps.correlationId(),
       now: deps.now,
+    });
+    return;
+  }
+
+  if (directive.kind === "mirror_invitation") {
+    const correlation_id = deps.correlationId();
+    await deps.invitationRepo.upsertInvitation(directive.invitation);
+    await deps.sink.emit({
+      name: "clerk_invitation.mirrored",
+      correlation_id,
+      payload: {
+        clerk_invitation_id: directive.invitation.clerk_invitation_id,
+        family: directive.invitation.family,
+        status: directive.invitation.status,
+        org_clerk_id: directive.invitation.org_clerk_id,
+        role: directive.invitation.role,
+        last_event_type: directive.invitation.last_event_type,
+        email_hash: directive.invitation.email_hash,
+      },
     });
     return;
   }

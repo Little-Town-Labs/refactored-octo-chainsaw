@@ -4,6 +4,8 @@ import { processClerkDirective, type ClerkSessionRevoker } from "../webhook/proc
 import { eventToSnapshot, type SnapshotContext } from "../webhook/snapshot.js";
 import type {
   AuditEventSink,
+  ClerkInvitationRecordInput,
+  InvitationRepo,
   OrganizationLookup,
   PrincipalLookup,
   PrincipalRepo,
@@ -41,10 +43,11 @@ interface State {
   orgs: OrganizationLookup[];
   principals: PrincipalLookup[];
   disabled: Array<{ external_id: string; org_id: string | null; reason: string }>;
+  invitations: ClerkInvitationRecordInput[];
 }
 
 function makeRepo(): { repo: PrincipalRepo; state: State } {
-  const state: State = { orgs: [], principals: [], disabled: [] };
+  const state: State = { orgs: [], principals: [], disabled: [], invitations: [] };
   const repo: PrincipalRepo = {
     async findOrganizationByClerkId(clerkOrgId) {
       return state.orgs.find((o) => o.clerk_org_id === clerkOrgId) ?? null;
@@ -83,12 +86,34 @@ function makeRepo(): { repo: PrincipalRepo; state: State } {
   return { repo, state };
 }
 
+function makeInvitationRepo(state: State): InvitationRepo {
+  return {
+    async upsertInvitation(input) {
+      const index = state.invitations.findIndex(
+        (row) => row.clerk_invitation_id === input.clerk_invitation_id,
+      );
+      if (index === -1) {
+        state.invitations.push(input);
+        return;
+      }
+      state.invitations[index] = input;
+    },
+  };
+}
+
 const baseDeps = (overrides: {
   repo: PrincipalRepo;
   sink: AuditEventSink;
   revoker: ClerkSessionRevoker;
+  invitationRepo?: InvitationRepo;
+  state?: State;
 }) => ({
   repo: overrides.repo,
+  invitationRepo:
+    overrides.invitationRepo ??
+    makeInvitationRepo(
+      overrides.state ?? { orgs: [], principals: [], disabled: [], invitations: [] },
+    ),
   sink: overrides.sink,
   sessionRevoker: overrides.revoker,
   now: () => 1_700_000_000,
@@ -134,6 +159,85 @@ describe("processClerkDirective — materialize (eager path)", () => {
     expect(state.principals).toHaveLength(0);
     expect(sink.events).toHaveLength(0);
     expect(revoker.calls).toHaveLength(0);
+  });
+
+  it("mirrors application invitation events without creating principals", async () => {
+    const { repo, state } = makeRepo();
+    const sink = makeSink();
+    const revoker = makeRevoker();
+
+    const directive = eventToSnapshot(
+      {
+        type: "invitation.created",
+        data: {
+          id: "inv_1",
+          email_address: "Invitee@Example.COM",
+          status: "pending",
+          created_at: 1_700_000_000_000,
+          updated_at: 1_700_000_000_000,
+        },
+      } as never,
+      ctx,
+    );
+    await processClerkDirective(
+      directive,
+      baseDeps({ repo, sink, revoker, state, invitationRepo: makeInvitationRepo(state) }),
+    );
+
+    expect(state.principals).toHaveLength(0);
+    expect(state.invitations).toHaveLength(1);
+    expect(state.invitations[0]).toMatchObject({
+      clerk_invitation_id: "inv_1",
+      family: "application",
+      status: "pending",
+      org_clerk_id: null,
+      last_event_type: "invitation.created",
+    });
+    expect(state.invitations[0]?.email_hash).toHaveLength(64);
+    expect(sink.events.at(-1)).toMatchObject({
+      name: "clerk_invitation.mirrored",
+      payload: {
+        clerk_invitation_id: "inv_1",
+        family: "application",
+        status: "pending",
+      },
+    });
+  });
+
+  it("mirrors all organization invitation terminal states", async () => {
+    const { repo, state } = makeRepo();
+    const sink = makeSink();
+    const revoker = makeRevoker();
+    const invitationRepo = makeInvitationRepo(state);
+
+    for (const [type, status] of [
+      ["organizationInvitation.accepted", "accepted"],
+      ["organizationInvitation.revoked", "revoked"],
+      ["organizationInvitation.expired", "expired"],
+    ] as const) {
+      const directive = eventToSnapshot(
+        {
+          type,
+          data: {
+            id: `orginv_${status}`,
+            emailAddress: `${status}@example.com`,
+            organizationId: "org_acme",
+            role: "org:member",
+            status,
+          },
+        } as never,
+        ctx,
+      );
+      await processClerkDirective(
+        directive,
+        baseDeps({ repo, sink, revoker, state, invitationRepo }),
+      );
+    }
+
+    expect(state.principals).toHaveLength(0);
+    expect(state.invitations.map((row) => row.status)).toEqual(["accepted", "revoked", "expired"]);
+    expect(state.invitations.every((row) => row.family === "organization")).toBe(true);
+    expect(state.invitations.every((row) => row.org_clerk_id === "org_acme")).toBe(true);
   });
 });
 
@@ -233,6 +337,12 @@ describe("processClerkDirective — disable (FR-34 member removal)", () => {
     );
     await processClerkDirective(directive, {
       repo: orderingRepo,
+      invitationRepo: makeInvitationRepo({
+        orgs: [],
+        principals: [],
+        disabled: [],
+        invitations: [],
+      }),
       sink,
       sessionRevoker: orderingRevoker,
       now: () => 0,

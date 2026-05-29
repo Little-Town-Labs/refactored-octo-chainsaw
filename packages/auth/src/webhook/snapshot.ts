@@ -15,9 +15,20 @@
 // not self-asserted by Clerk, only by the Spyglass-side configuration
 // (FR-9: operator role membership is managed by Spyglass-side
 // configuration, not by self-service in Clerk).
+//
+// `invitation.*` / `organizationInvitation.*` events mirror invitation
+// lifecycle evidence only. They do not materialize principals; the
+// accepted-user authority still arrives through Clerk membership
+// events.
+
+import { createHash } from "node:crypto";
 
 import type { HumanTier } from "../principal.js";
-import type { PrincipalSnapshot } from "../materialize/types.js";
+import type {
+  ClerkInvitationRecordInput,
+  ClerkInvitationStatus,
+  PrincipalSnapshot,
+} from "../materialize/types.js";
 import type { ClerkWebhookEvent } from "./clerk-events.js";
 
 export interface SnapshotContext {
@@ -38,6 +49,7 @@ export interface TerminationDirective {
 export type SnapshotResult =
   | { readonly kind: "materialize"; readonly snapshot: PrincipalSnapshot }
   | TerminationDirective
+  | { readonly kind: "mirror_invitation"; readonly invitation: ClerkInvitationRecordInput }
   | { readonly kind: "ignore" };
 
 function clerkRoleToTier(role: string): "employer_admin" | "employer_member" {
@@ -49,6 +61,63 @@ function clerkRoleToTier(role: string): "employer_admin" | "employer_member" {
 function displayNameOf(first?: string | null, last?: string | null): string | undefined {
   const composed = [first, last].filter(Boolean).join(" ").trim();
   return composed.length > 0 ? composed : undefined;
+}
+
+function optionalString(value: unknown): string | null {
+  return typeof value === "string" && value.trim().length > 0 ? value : null;
+}
+
+function optionalTimestamp(value: unknown): Date | null {
+  return typeof value === "number" && Number.isFinite(value) ? new Date(value) : null;
+}
+
+function isInvitationStatus(value: unknown): value is ClerkInvitationStatus {
+  return value === "pending" || value === "accepted" || value === "revoked" || value === "expired";
+}
+
+function statusFromInvitationEvent(event: ClerkWebhookEvent): ClerkInvitationStatus {
+  if (event.type.endsWith(".accepted")) return "accepted";
+  if (event.type.endsWith(".revoked")) return "revoked";
+  if (event.type.endsWith(".expired")) return "expired";
+  if ("status" in event.data && isInvitationStatus(event.data.status)) return event.data.status;
+  return "pending";
+}
+
+function emailHash(email: string | null): string | null {
+  if (email === null) return null;
+  return createHash("sha256").update(email.trim().toLowerCase()).digest("hex");
+}
+
+function organizationIdFromInvitationData(data: Record<string, unknown>): string | null {
+  const direct = optionalString(data.organization_id) ?? optionalString(data.organizationId);
+  if (direct) return direct;
+  const snake = data.public_organization_data;
+  if (snake && typeof snake === "object") {
+    const value = optionalString((snake as { id?: unknown }).id);
+    if (value) return value;
+  }
+  const camel = data.publicOrganizationData;
+  if (camel && typeof camel === "object") {
+    return optionalString((camel as { id?: unknown }).id);
+  }
+  return null;
+}
+
+function invitationToRecord(event: ClerkWebhookEvent): ClerkInvitationRecordInput {
+  const data = event.data as Record<string, unknown>;
+  const email = optionalString(data.email_address) ?? optionalString(data.emailAddress);
+  return {
+    clerk_invitation_id: String(data.id),
+    family: event.type.startsWith("organizationInvitation.") ? "organization" : "application",
+    status: statusFromInvitationEvent(event),
+    email_hash: emailHash(email),
+    org_clerk_id: organizationIdFromInvitationData(data),
+    role: optionalString(data.role),
+    last_event_type: event.type,
+    clerk_created_at: optionalTimestamp(data.created_at ?? data.createdAt),
+    clerk_updated_at: optionalTimestamp(data.updated_at ?? data.updatedAt),
+    expires_at: optionalTimestamp(data.expires_at ?? data.expiresAt),
+  };
 }
 
 export function eventToSnapshot(event: ClerkWebhookEvent, ctx: SnapshotContext): SnapshotResult {
@@ -109,6 +178,19 @@ export function eventToSnapshot(event: ClerkWebhookEvent, ctx: SnapshotContext):
       // pipeline see it. The webhook handler emits its own audit
       // event; here we just signal "no materialization needed."
       return { kind: "ignore" };
+    }
+
+    case "invitation.created":
+    case "invitation.updated":
+    case "invitation.accepted":
+    case "invitation.revoked":
+    case "invitation.expired":
+    case "organizationInvitation.created":
+    case "organizationInvitation.updated":
+    case "organizationInvitation.accepted":
+    case "organizationInvitation.revoked":
+    case "organizationInvitation.expired": {
+      return { kind: "mirror_invitation", invitation: invitationToRecord(event) };
     }
   }
 }

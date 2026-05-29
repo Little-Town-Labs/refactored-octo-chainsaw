@@ -30,6 +30,7 @@ import {
   type AuditEventSink,
   type ClerkSessionRevoker,
   type ClerkWebhookHeaders,
+  type InvitationRepo,
   type PrincipalRepo,
   type SnapshotContext,
 } from "@spyglass/auth";
@@ -37,6 +38,7 @@ import { getDb } from "@spyglass/db";
 
 import { createConsoleAuditSink } from "../../../../src/auth/audit-sink";
 import { createClerkSessionRevoker } from "../../../../src/auth/clerk-session-revoker";
+import { createDrizzleInvitationRepo } from "../../../../src/auth/invitation-repo";
 import { createDrizzlePrincipalRepo } from "../../../../src/auth/principal-repo";
 import { withAnonymous } from "../../../../src/auth/with-anonymous";
 
@@ -66,6 +68,7 @@ interface HandleArgs {
   readonly signingSecret: string;
   readonly snapshotContext: SnapshotContext;
   readonly repo: PrincipalRepo;
+  readonly invitationRepo: InvitationRepo;
   readonly sink: AuditEventSink;
   readonly sessionRevoker: ClerkSessionRevoker;
 }
@@ -114,6 +117,7 @@ export async function handleClerkWebhook(args: HandleArgs): Promise<Response> {
   try {
     await processClerkDirective(directive, {
       repo: args.repo,
+      invitationRepo: args.invitationRepo,
       sink: args.sink,
       sessionRevoker: args.sessionRevoker,
       now: () => Math.floor(Date.now() / 1000),
@@ -158,6 +162,7 @@ async function postHandler(req: Request): Promise<Response> {
     signingSecret,
     snapshotContext,
     repo: createDrizzlePrincipalRepo(getDb()),
+    invitationRepo: createDrizzleInvitationRepo(getDb()),
     sink: createConsoleAuditSink(),
     sessionRevoker: createClerkSessionRevoker(),
   });

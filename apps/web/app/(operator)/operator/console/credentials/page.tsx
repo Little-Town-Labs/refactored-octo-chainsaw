@@ -22,10 +22,10 @@ import { listAgentCredentialsForOperator, InvalidCursorError } from "@spyglass/a
 import { getDb } from "@spyglass/db";
 import type { JSX } from "react";
 
-import { getPrincipal } from "../../../../src/auth/get-principal";
-import { createDrizzleAgentCredentialListRepo } from "../../../../src/auth/agent-credential-list-repo";
-import { CredentialsListView } from "../../../../src/console/credentials-list-view";
-import { parseListParams } from "../../../../src/console/parse-search-params";
+import { getPrincipal } from "../../../../../src/auth/get-principal";
+import { createDrizzleAgentCredentialListRepo } from "../../../../../src/auth/agent-credential-list-repo";
+import { CredentialsListView } from "../../../../../src/console/credentials-list-view";
+import { parseListParams } from "../../../../../src/console/parse-search-params";
 
 interface PageProps {
   readonly searchParams: Promise<Record<string, string | string[] | undefined>>;

@@ -46,6 +46,38 @@ a:focus-visible {
   outline-offset: 4px;
 }
 
+.app-auth-header {
+  display: flex;
+  min-height: 4rem;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 0.75rem 0 0;
+}
+
+.app-auth-header button {
+  min-height: 2.5rem;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  padding: 0.55rem 0.85rem;
+  color: var(--color-ink);
+  background: var(--color-panel);
+  font: inherit;
+  font-weight: 720;
+  cursor: pointer;
+}
+
+.app-auth-header button:hover {
+  border-color: rgba(17, 97, 73, 0.55);
+}
+
+.app-auth-header button:focus-visible {
+  outline: 3px solid rgba(178, 76, 47, 0.78);
+  outline-offset: 4px;
+}
+
 .landing-page {
   min-height: 100svh;
   overflow-x: clip;
