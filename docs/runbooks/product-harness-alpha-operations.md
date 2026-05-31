@@ -94,6 +94,11 @@ Operational rules:
 - Use preview URLs for PR/deployment validation.
 - Use production URL only for scheduled or manually approved production canaries.
 - Use `PRODUCT_CANARY_DRY_RUN=true` only when intentionally exercising command wiring without preview/prod dependencies.
+- Automated `alpha-canary.yml` runs from schedules and deployment status events
+  fall back to explicit dry-run mode until `PRODUCT_CANARY_URL` is configured in
+  the GitHub Actions `production` environment. This keeps wiring evidence
+  visible without pretending Browserbase, Neon persistence, and artifact storage
+  are live.
 - Treat missing or malformed `PRODUCT_CANARY_URL` as a configuration failure.
 
 The canary report uses a safe target label derived from the URL host. It must not expose query strings or credentials.

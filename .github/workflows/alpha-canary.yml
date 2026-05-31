@@ -34,7 +34,9 @@ jobs:
     timeout-minutes: 20
     env:
       PRODUCT_CANARY_URL: ${{ github.event.inputs.target_url || github.event.deployment_status.target_url || vars.PRODUCT_CANARY_URL }}
-      PRODUCT_CANARY_DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && 'true' || 'false' }}
+      # Automated runs stay as wiring checks until the production canary target
+      # is explicitly configured. Manual canaries remain strict by default.
+      PRODUCT_CANARY_DRY_RUN: ${{ (github.event.inputs.dry_run == 'true' || ((github.event_name == 'schedule' || github.event_name == 'deployment_status') && vars.PRODUCT_CANARY_URL == '')) && 'true' || 'false' }}
       PRODUCT_CANARY_VALIDATE_ENV: "true"
       BROWSERBASE_PROJECT_ID: ${{ vars.BROWSERBASE_PROJECT_ID || secrets.BROWSERBASE_PROJECT_ID }}
       BROWSERBASE_API_KEY: ${{ secrets.BROWSERBASE_API_KEY }}

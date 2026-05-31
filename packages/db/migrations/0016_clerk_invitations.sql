@@ -16,7 +16,8 @@ CREATE TABLE "clerk_invitations" (
   CONSTRAINT "clerk_invitations_family_check" CHECK ("clerk_invitations"."family" IN ('application','organization')),
   CONSTRAINT "clerk_invitations_status_check" CHECK ("clerk_invitations"."status" IN ('pending','accepted','revoked','expired')),
   CONSTRAINT "clerk_invitations_clerk_id_check" CHECK ("clerk_invitations"."clerk_invitation_id" <> ''),
-  CONSTRAINT "clerk_invitations_event_type_check" CHECK ("clerk_invitations"."last_event_type" <> '')
+  CONSTRAINT "clerk_invitations_event_type_check" CHECK ("clerk_invitations"."last_event_type" <> ''),
+  CONSTRAINT "clerk_invitations_role_check" CHECK ("clerk_invitations"."role" IS NULL OR "clerk_invitations"."role" <> '')
 );
 --> statement-breakpoint
 ALTER TABLE "clerk_invitations" ADD CONSTRAINT "clerk_invitations_org_id_organizations_org_id_fk" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("org_id") ON DELETE no action ON UPDATE no action;
