@@ -50,6 +50,7 @@ export const clerkInvitations = pgTable(
     ),
     check("clerk_invitations_clerk_id_check", sql`${t.clerk_invitation_id} <> ''`),
     check("clerk_invitations_event_type_check", sql`${t.last_event_type} <> ''`),
+    check("clerk_invitations_role_check", sql`${t.role} IS NULL OR ${t.role} <> ''`),
     uniqueIndex("clerk_invitations_clerk_id_idx").on(t.clerk_invitation_id),
     index("clerk_invitations_family_status_idx").on(t.family, t.status, t.updated_at.desc()),
     index("clerk_invitations_org_idx")
