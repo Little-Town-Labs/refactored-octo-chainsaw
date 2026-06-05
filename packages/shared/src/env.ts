@@ -50,8 +50,13 @@ export const envSchema = z.object({
   // Issuer URL emitted in agent JWTs (claim `iss`). Defaults per env.
   SPYGLASS_AGENT_JWT_ISSUER: z.string().url().optional(),
 
-  // F12 — AI infrastructure (Vercel AI Gateway)
+  // F12 — AI infrastructure (legacy Vercel AI Gateway)
   AI_GATEWAY_API_KEY: z.string().min(1).optional(),
+  // F12 follow-up — OpenRouter provider gateway
+  OPENROUTER_API_KEY: z.string().min(1).optional(),
+  OPENROUTER_BASE_URL: z.string().url().optional(),
+  OPENROUTER_APP_URL: z.string().url().optional(),
+  OPENROUTER_APP_TITLE: z.string().min(1).optional(),
 
   // F24 — Incident response / monitoring
   SENTRY_DSN: z.string().url().optional(),
@@ -86,7 +91,12 @@ export const envDescriptions: Record<keyof Env, string> = {
     "kid for the active EdDSA signing key — must match a row in `signing_keys` with `activated_at IS NOT NULL AND retired_at IS NULL`.",
   SPYGLASS_AGENT_JWT_ISSUER:
     "Issuer URL emitted in agent JWT `iss` claim — defaults to the Spyglass deployment URL per environment.",
-  AI_GATEWAY_API_KEY: "Vercel AI Gateway API key — required from F12",
+  AI_GATEWAY_API_KEY: "Legacy Vercel AI Gateway API key — retained only for older F12 deployments",
+  OPENROUTER_API_KEY: "OpenRouter server-side API key — required for live F12 model invocations",
+  OPENROUTER_BASE_URL:
+    "Optional OpenRouter API base URL override — defaults to https://openrouter.ai/api/v1",
+  OPENROUTER_APP_URL: "Optional OpenRouter HTTP-Referer attribution URL for the Spyglass app",
+  OPENROUTER_APP_TITLE: "Optional OpenRouter app title attribution header, for example Spyglass",
   SENTRY_DSN: "Sentry DSN — required from F24",
   NEON_API_KEY:
     "Neon API key for the integration test harness — required only by `pnpm test:integration`.",

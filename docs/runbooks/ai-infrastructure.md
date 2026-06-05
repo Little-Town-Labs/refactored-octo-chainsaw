@@ -7,6 +7,40 @@ model invocation records, cost controls, and AI supply-chain evidence.
 F13/F14 advocate agents consume these refs; they do not publish or mutate
 AI infrastructure.
 
+## Provider Gateway Setup
+
+Spyglass currently uses OpenRouter for live model calls. Provider access
+still runs through `@spyglass/ai`; advocate and Parley packages must not
+call OpenRouter or any model provider directly.
+
+Required production secret:
+
+```text
+OPENROUTER_API_KEY
+```
+
+Optional provider settings:
+
+```text
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+OPENROUTER_APP_URL=https://spyglass-bay.vercel.app
+OPENROUTER_APP_TITLE=Spyglass
+```
+
+`OPENROUTER_BASE_URL` defaults to `https://openrouter.ai/api/v1`.
+`OPENROUTER_APP_URL` and `OPENROUTER_APP_TITLE` are sent as optional
+OpenRouter attribution headers.
+
+Model profiles that use this live path should set provider `openrouter`
+and use the approved OpenRouter model slug as the model identity. Runtime
+manifests must include `openrouter` in `provider_allowlist`; otherwise
+F12 supply-chain checks refuse the invocation before the gateway adapter
+runs.
+
+`AI_GATEWAY_API_KEY` is legacy Vercel AI Gateway configuration retained
+only for older deployment state. Do not add it for new OpenRouter-backed
+environments.
+
 ## Publish Prompt Version
 
 1. Prepare the prompt content and variable contract.
@@ -51,8 +85,11 @@ through unscoped review reads.
 
 - Invalid manifest signature: revoke the manifest and refuse affected
   invocations until a signed replacement is active.
-- Provider outage: use only manifest-authorized fallback behavior.
+- OpenRouter outage: use only manifest-authorized fallback behavior.
   Otherwise fail closed with `gateway_unavailable`.
+- OpenRouter key exposure: delete the compromised key in OpenRouter,
+  create a replacement key, update deployment secrets, redeploy, and
+  review invocation records for unexpected traffic.
 - Cost spike: inspect invocation records, cost evidence, and caller/run
   refs; block future traffic by retiring the manifest or lowering cost
   ceilings.

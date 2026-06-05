@@ -1,6 +1,22 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["tsconfig.base.json", ".env.example"],
+  "globalEnv": [
+    "CLERK_SECRET_KEY",
+    "CLERK_WEBHOOK_SIGNING_SECRET",
+    "DATABASE_URL",
+    "INNGEST_EVENT_KEY",
+    "INNGEST_SIGNING_KEY",
+    "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
+    "OPENROUTER_API_KEY",
+    "OPENROUTER_APP_TITLE",
+    "OPENROUTER_APP_URL",
+    "OPENROUTER_BASE_URL",
+    "SPYGLASS_AGENT_JWT_ISSUER",
+    "SPYGLASS_AGENT_SIGNING_KEY_PKCS8_B64",
+    "SPYGLASS_AGENT_SIGNING_KID",
+    "SPYGLASS_OPERATOR_CLERK_ORG_IDS"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

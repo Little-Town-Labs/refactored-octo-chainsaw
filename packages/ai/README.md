@@ -15,7 +15,7 @@ F12 exports:
 - Signed AI runtime manifest helpers with no-hot-reload posture.
 - Prompt rendering with variable-contract validation and sentinel
   preservation.
-- A governed invocation surface with fake gateway support for tests.
+- A governed invocation surface with OpenRouter and fake gateway support.
 - Cost-control, provider/model allowlist, usage-metadata, and scoped
   review helpers.
 - Direct-provider import boundary scanning.
@@ -26,26 +26,26 @@ evidence, and audit refs stay reconstructable.
 
 ## Gateway Binding Guidance
 
-Per Vercel platform guidance current as of 2026-02-27:
+Live provider calls currently use `OpenRouterGatewayAdapter`, which sends
+non-streaming chat completions through OpenRouter behind the existing
+F12 gateway contract. Configure it with `OPENROUTER_API_KEY`; optional
+`OPENROUTER_BASE_URL`, `OPENROUTER_APP_URL`, and
+`OPENROUTER_APP_TITLE` values control endpoint override and attribution
+headers.
 
-- Default to AI SDK v6 with AI Gateway model strings; do not wire
-  provider SDKs directly.
-- `@ai-sdk/react` for React hooks where streaming UX is needed.
-  Keep user-facing AI experiences streaming-first.
-- Modern tool definitions with `inputSchema` / `outputSchema`;
-  use `toUIMessageStreamResponse()` and `DefaultChatTransport` over
-  v5-era patterns.
-- AI recommendations are scoped to the current task — no forced
-  migrations across the broader stack.
-
-These guidelines are recorded here in F01 so the F12 spec can pick
-them up rather than re-derive them.
+Model profiles for this path should use provider `openrouter`, and
+runtime manifests must include `openrouter` in `provider_allowlist`.
+Provider and model selection remain release-controlled F12 artifacts.
 
 ## Dependencies
 
-Production gateway binding may add `ai` and related AI Gateway packages
-behind the adapter in this package. Tests use `FakeGatewayAdapter` and
-must not require live credentials.
+Production gateway binding uses Node `fetch` directly and does not add a
+provider SDK dependency. Tests use `FakeGatewayAdapter` and mocked
+OpenRouter responses; they must not require live credentials.
+
+`AI_GATEWAY_API_KEY` is legacy Vercel AI Gateway configuration retained
+for older deployment state. New provider setup should use OpenRouter
+configuration instead.
 
 ## Stability tier
 

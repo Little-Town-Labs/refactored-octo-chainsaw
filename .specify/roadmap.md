@@ -1,6 +1,6 @@
 # Project Spyglass — Implementation Roadmap
 
-**Version:** 1.5.43
+**Version:** 1.5.44
 **Created:** 2026-05-06
 **Last Amended:** 2026-05-26
 **Owner:** Gary
@@ -316,6 +316,14 @@ and tested standalone before F08 integration.
   §I.C.2): every prompt change is a release, signed and SBOM-equivalent.
   No "edit prompt in admin UI" path. Reinforced by Parley's no-hot-reload
   posture.
+- Deferred AI funding-source work should model each invocation's payer
+  separately from provider transport. The default posture remains a
+  Spyglass platform OpenRouter key with internal cost attribution by
+  org/user/run. A later feature may add employer-owned OpenRouter/BYOK
+  credentials scoped to employer organizations, with encrypted storage,
+  rotation, validation, audit, fallback, and per-org budget controls.
+  Seeker-owned provider keys are not planned for normal product flow
+  unless a specific power-user or developer-mode requirement is promoted.
 - F13/F14 are scored against an eval harness (PRD §9 mitigation for
   agent-credibility risk).
 
@@ -489,6 +497,20 @@ Constitution §V.2 in `.specify/memory/counsel-reviews/`.
 - 10-business-day candidate notification flow live and tested
 - Tombstone-redaction procedure counsel-approved
   (Constitution §I.4.3 / §V.4)
+
+### Deferred Roadmap Candidates
+
+These items are intentionally outside Phase 0 and v0 unless promoted
+through the normal Spec Kit workflow.
+
+| Candidate | Scope | Default posture | Promotion trigger |
+|-----------|-------|-----------------|-------------------|
+| AI funding sources + employer BYOK | Model invocation funding-source records, per-org/user cost attribution, optional employer-owned OpenRouter/BYOK credentials, encrypted secret storage, rotation, validation, audit, fallback behavior, and budget controls | Spyglass platform key pays for all model calls; F12 invocation records attribute cost internally by org/user/run | Employer procurement requires direct provider billing/control, or Phase 0 usage proves platform-paid cost controls are insufficient |
+| Deployed Inngest workflow functions | Decide and implement which domain events become deployed Inngest functions, including function ownership, event names, idempotency keys, retry policy, audit evidence, dead-letter behavior, and operator visibility | `/api/inngest` may exist as a stable sync endpoint, but product workflows remain package-local until explicitly promoted | Phase 0 requires durable orchestration beyond synchronous route handlers, or Parley/agent workflows need production retries and event-driven recovery |
+
+**Explicit non-goal:** seeker-owned AI provider keys are not part of the
+normal product flow. Revisit only for a clearly scoped power-user or
+developer-mode use case.
 
 ---
 
@@ -710,6 +732,7 @@ all of them. Skip-list: F01, F19, F21 (web-only surface).
 
 | Version | Date       | Change |
 |---------|------------|--------|
+| 1.5.44  | 2026-05-29 | Added deferred roadmap candidates for AI funding sources / employer BYOK and deployed Inngest workflow functions. Default remains Spyglass platform OpenRouter key with internal cost attribution; employer-owned provider credentials are future scoped work; seeker-owned keys are explicitly not part of normal product flow. Inngest endpoint sync can be established separately from deciding durable production workflow functions. PATCH-style scope note. |
 | 1.5.43  | 2026-05-26 | Status update for F25 merge: Phase 0 alpha posture infrastructure is complete and merged to `main` in PR #69, quickstart evidence is recorded, and Stage 8 implementation work through F25 is complete. PATCH-style status amendment. |
 | 1.5.42  | 2026-05-26 | Status update for F25 implementation: Phase 0 alpha posture infrastructure is active on branch `025-phase-0-alpha-posture`, active Spec Kit pointers target `.specify/specs/025-phase-0-alpha-posture`, package-first consent/posture/gate/counsel primitives are implemented, and quickstart evidence is recorded. PATCH-style status amendment. |
 | 1.5.41  | 2026-05-26 | Status update for F24 merge: Incident response capability + breach notification + monitoring is complete and merged to `main` in PR #68, quickstart evidence is recorded, the IR tabletop gate is checked, and next Stage 8 work is F25 Phase 0 alpha posture infrastructure. PATCH-style status amendment. |
