@@ -47,7 +47,7 @@ jobs:
     name: lint (eslint)
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: pnpm exec eslint .
 
@@ -55,7 +55,7 @@ jobs:
     name: format (prettier --check)
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: pnpm exec prettier --check .
 
@@ -63,7 +63,7 @@ jobs:
     name: type-check
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       # Workspace packages (@spyglass/auth, @spyglass/db, ...) publish
       # via `./dist/*` per package.json `exports`. A fresh CI clone
@@ -78,7 +78,7 @@ jobs:
     name: test (jest, with coverage)
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: pnpm -r run test -- --coverage --ci
       - name: upload coverage
@@ -99,7 +99,7 @@ jobs:
     name: publint
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       # publint validates that each package.json's `exports`, `main`,
       # and `types` resolve to real files. Build first so the dist/
@@ -120,7 +120,7 @@ jobs:
     name: audit (pnpm audit, high+critical fail)
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - name: pnpm audit
         run: pnpm audit --audit-level high --prod
@@ -129,7 +129,7 @@ jobs:
     name: osv-scanner
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: install osv-scanner binary
         run: |
           VERSION=2.3.8
@@ -146,7 +146,7 @@ jobs:
     name: dep-signatures (npm audit signatures + exceptions register)
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - name: verify upstream provenance + check exceptions register
         run: bash scripts/check-dep-signatures.sh
@@ -155,7 +155,7 @@ jobs:
     name: sbom (cdxgen, pnpm-aware)
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       # cdxgen is multi-package-manager and pnpm-native;
       # cyclonedx-npm uses `npm ls` which chokes on pnpm workspaces.
@@ -176,7 +176,7 @@ jobs:
     name: license (allowlist)
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - name: license-checker (production deps)
         # Allowlist mirrors .specify/exceptions/license-allowlist.md.
@@ -197,7 +197,7 @@ jobs:
     name: secret-scan (gitleaks)
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # full history for diff scan
       # gitleaks/gitleaks-action@v2 requires a paid license for
@@ -221,7 +221,7 @@ jobs:
     name: env-drift (.env.example vs schema)
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: pnpm gen:env-example
       - name: detect drift
@@ -236,7 +236,7 @@ jobs:
     name: .nvmrc ↔ engines.node consistency
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: verify versions agree
         run: bash scripts/check-nvmrc-engines.sh
 
@@ -244,7 +244,7 @@ jobs:
     name: guard tracked .env files
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: reject any tracked .env* (other than .env.example)
         run: |
           violations=$(git ls-files | grep -E '^\.env(\..+)?$' | grep -v '^\.env\.example$' || true)
@@ -267,7 +267,7 @@ jobs:
     name: principal-coverage (NFR-11)
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: scan handlers for guard coverage
         run: bash scripts/check-principal-coverage.sh
 
@@ -279,7 +279,7 @@ jobs:
     name: tickets-state-machine (F04 FR-2)
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: tickets state-machine coverage
         run: bash scripts/check-tickets-state-machine.sh
 
@@ -294,7 +294,7 @@ jobs:
     name: schema-conventions (F03 FR-6)
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: lint Drizzle schema + register coverage + migrations
         run: bash scripts/check-schema-conventions.sh
       - name: self-tests for the lint script
@@ -307,7 +307,7 @@ jobs:
     name: no-credentials-in-logs (NFR-6)
     runs-on: [self-hosted, linux, x64, spyglass-ci]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: scan for credential-shaped values in log calls
         run: bash scripts/check-no-credentials-in-logs.sh
 

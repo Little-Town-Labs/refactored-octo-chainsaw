@@ -40,7 +40,7 @@ jobs:
     env:
       SPYGLASS_SKIP_PERF_BENCHMARKS: "1"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       # bootstrap.sh reads .nvmrc and refuses to continue under an older Node.
       # Install Node 24 before pnpm so pnpm/action-setup runs on a supported runtime.
       - uses: actions/setup-node@v5
