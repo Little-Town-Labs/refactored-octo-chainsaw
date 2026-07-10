@@ -51,7 +51,7 @@ export class OpenRouterGatewayAdapter implements GatewayAdapter {
   private readonly fetchImpl: typeof fetch;
 
   constructor(options: OpenRouterGatewayAdapterOptions = {}) {
-    this.apiKey = options.apiKey ?? process.env.OPENROUTER_API_KEY;
+    this.apiKey = normalizeApiKey(options.apiKey ?? process.env.OPENROUTER_API_KEY);
     this.baseUrl = trimTrailingSlash(
       options.baseUrl ?? process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1",
     );
@@ -127,6 +127,10 @@ function trimTrailingSlash(value: string): string {
   return value.replace(/\/+$/, "");
 }
 
+function normalizeApiKey(value: string | undefined): string | undefined {
+  return value?.trim();
+}
+
 async function parseOpenRouterResponse(response: Response): Promise<OpenRouterResponseBody> {
   let body: unknown;
   try {
@@ -173,7 +177,7 @@ function normalizeOpenRouterUsage(usage: OpenRouterUsage | undefined): UsageMeta
 }
 
 function toFiniteNumber(value: unknown): number | undefined {
-  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 ? value : undefined;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

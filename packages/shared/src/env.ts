@@ -53,7 +53,7 @@ export const envSchema = z.object({
   // F12 — AI infrastructure (legacy Vercel AI Gateway)
   AI_GATEWAY_API_KEY: z.string().min(1).optional(),
   // F12 follow-up — OpenRouter provider gateway
-  OPENROUTER_API_KEY: z.string().min(1).optional(),
+  OPENROUTER_API_KEY: z.string().trim().min(1).optional(),
   OPENROUTER_BASE_URL: z.string().url().optional(),
   OPENROUTER_APP_URL: z.string().url().optional(),
   OPENROUTER_APP_TITLE: z.string().min(1).optional(),
@@ -126,10 +126,27 @@ export function loadEnv(env: NodeJS.ProcessEnv = process.env): Env {
 }
 
 export function assertMonitoringEnv(env: Env): void {
-  const productionLike = env.NODE_ENV === "production" || env.VERCEL_ENV === "production";
-  if (productionLike && !env.SENTRY_DSN) {
+  if (!isProductionLike(env)) return;
+  if (!env.SENTRY_DSN) {
     throw new Error("F24 monitoring requires SENTRY_DSN in production-like environments");
   }
+}
+
+/**
+ * Production deployment requirements shared by all server-side entry points.
+ * Spyglass has a single production deployment and its governed AI path always
+ * depends on OpenRouter, while fake gateways keep development and tests keyless.
+ */
+export function assertProductionEnv(env: Env): void {
+  if (!isProductionLike(env)) return;
+  assertMonitoringEnv(env);
+  if (!env.OPENROUTER_API_KEY) {
+    throw new Error("F12 OpenRouter requires OPENROUTER_API_KEY in production-like environments");
+  }
+}
+
+function isProductionLike(env: Env): boolean {
+  return env.NODE_ENV === "production" || env.VERCEL_ENV === "production";
 }
 
 /**
@@ -141,7 +158,10 @@ export function assertMonitoringEnv(env: Env): void {
  * an explicit env record.
  */
 export function getEnv(): Env {
-  if (!cached) cached = loadEnv();
+  if (!cached) {
+    cached = loadEnv();
+    assertProductionEnv(cached);
+  }
   return cached;
 }
 

@@ -70,6 +70,16 @@ describe("gateway adapter", () => {
     ).rejects.toThrow("OPENROUTER_API_KEY");
   });
 
+  test("openrouter adapter fails closed when the api key is whitespace only", async () => {
+    await expect(
+      new OpenRouterGatewayAdapter({ apiKey: "   " }).invoke({
+        rendered_prompt: "hello",
+        provider: "openrouter",
+        model: "openai/gpt-5.2",
+      }),
+    ).rejects.toThrow("OPENROUTER_API_KEY");
+  });
+
   test("openrouter adapter fails closed on provider http errors", async () => {
     const fetchImpl = jest.fn(async () => jsonResponse({ error: "rate limited" }, { status: 429 }));
 
@@ -106,6 +116,39 @@ describe("gateway adapter", () => {
         model: "openai/gpt-5.2",
       }),
     ).rejects.toThrow("invalid JSON");
+  });
+
+  test("treats negative or fractional usage as incomplete", async () => {
+    const fetchImpl = jest.fn(async () =>
+      jsonResponse({
+        choices: [{ message: { content: "answer" } }],
+        usage: { prompt_tokens: -1, completion_tokens: 1.5, total_tokens: 0 },
+      }),
+    );
+
+    const response = await new OpenRouterGatewayAdapter({ apiKey: "sk-or-test", fetchImpl }).invoke(
+      {
+        rendered_prompt: "hello",
+        provider: "openrouter",
+        model: "openai/gpt-5.2",
+      },
+    );
+
+    expect(response.usage_metadata).toBeNull();
+  });
+
+  test("propagates network failures without issuing a completion result", async () => {
+    const fetchImpl = jest.fn(async () => {
+      throw new Error("network unavailable");
+    });
+
+    await expect(
+      new OpenRouterGatewayAdapter({ apiKey: "sk-or-test", fetchImpl }).invoke({
+        rendered_prompt: "hello",
+        provider: "openrouter",
+        model: "openai/gpt-5.2",
+      }),
+    ).rejects.toThrow("network unavailable");
   });
 });
 

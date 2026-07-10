@@ -5,6 +5,7 @@ const FORBIDDEN_IMPORTS = [
   "@ai-sdk/anthropic",
   "@ai-sdk/google",
   "openai",
+  "openrouter",
   "anthropic",
 ];
 

@@ -1,7 +1,12 @@
 import { canonicalHash } from "./hash.js";
 import { evaluatePreflightCost, finalizeCostEvidence } from "./cost-controls.js";
-import type { GatewayAdapter } from "./gateway.js";
-import { manifestAllowsModel, manifestAllowsPrompt, verifyManifest } from "./manifest.js";
+import type { GatewayAdapter, GatewayResponse } from "./gateway.js";
+import {
+  manifestAllowsCallerScope,
+  manifestAllowsModel,
+  manifestAllowsPrompt,
+  verifyManifest,
+} from "./manifest.js";
 import { renderPrompt } from "./prompt-renderer.js";
 import type { AiRepository } from "./repo.js";
 import type {
@@ -81,7 +86,8 @@ export async function invokeModel(
   const preflightRefusal =
     verifyManifest(manifest) ??
     manifestAllowsPrompt(manifest, prompt) ??
-    manifestAllowsModel(manifest, model);
+    manifestAllowsModel(manifest, model) ??
+    manifestAllowsCallerScope(manifest, model, input.caller_scope);
   if (preflightRefusal) return refused(repository, input, preflightRefusal, startedAt);
 
   const rendered = renderPrompt(prompt, input.variables);
@@ -125,11 +131,23 @@ export async function invokeModel(
     audit_event_id: input.audit_event_id ?? null,
   });
 
-  const response = await gateway.invoke({
-    rendered_prompt: rendered.rendered,
-    provider: model.provider,
-    model: model.model,
-  });
+  let response: GatewayResponse;
+  try {
+    response = await gateway.invoke({
+      rendered_prompt: rendered.rendered,
+      provider: model.provider,
+      model: model.model,
+    });
+  } catch (error) {
+    await repository.updateInvocationRecord({
+      ...base,
+      status: "failed",
+      reason_code: "gateway_unavailable",
+      completed_at: new Date(),
+    });
+    throw error;
+  }
+
   const completed = await repository.updateInvocationRecord({
     ...base,
     status: response.usage_metadata ? "completed" : "usage_incomplete",

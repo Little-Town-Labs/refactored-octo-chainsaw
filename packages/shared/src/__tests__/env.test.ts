@@ -1,4 +1,4 @@
-import { __resetEnvCache, assertMonitoringEnv, envSchema, getEnv, loadEnv } from "../env.js";
+import { __resetEnvCache, assertProductionEnv, envSchema, getEnv, loadEnv } from "../env.js";
 
 describe("env schema", () => {
   describe("validation", () => {
@@ -39,6 +39,11 @@ describe("env schema", () => {
       const result = envSchema.safeParse({ CLERK_SECRET_KEY: "" });
       expect(result.success).toBe(false);
     });
+
+    it("rejects a whitespace-only OPENROUTER_API_KEY", () => {
+      const result = envSchema.safeParse({ OPENROUTER_API_KEY: "   " });
+      expect(result.success).toBe(false);
+    });
   });
 
   describe("loadEnv()", () => {
@@ -69,25 +74,32 @@ describe("env schema", () => {
     });
   });
 
-  describe("assertMonitoringEnv()", () => {
-    it("allows test and development without SENTRY_DSN", () => {
-      expect(() => assertMonitoringEnv(loadEnv({ NODE_ENV: "test" }))).not.toThrow();
-      expect(() => assertMonitoringEnv(loadEnv({ NODE_ENV: "development" }))).not.toThrow();
+  describe("assertProductionEnv()", () => {
+    it("allows test and development without production secrets", () => {
+      expect(() => assertProductionEnv(loadEnv({ NODE_ENV: "test" }))).not.toThrow();
+      expect(() => assertProductionEnv(loadEnv({ NODE_ENV: "development" }))).not.toThrow();
     });
 
-    it("rejects production-like env without SENTRY_DSN", () => {
-      expect(() => assertMonitoringEnv(loadEnv({ NODE_ENV: "production" }))).toThrow(/SENTRY_DSN/);
+    it("rejects production-like env without required monitoring or OpenRouter configuration", () => {
+      expect(() => assertProductionEnv(loadEnv({ NODE_ENV: "production" }))).toThrow(/SENTRY_DSN/);
       expect(() =>
-        assertMonitoringEnv(loadEnv({ NODE_ENV: "test", VERCEL_ENV: "production" })),
-      ).toThrow(/SENTRY_DSN/);
+        assertProductionEnv(
+          loadEnv({
+            NODE_ENV: "test",
+            VERCEL_ENV: "production",
+            SENTRY_DSN: "https://public@example.invalid/1",
+          }),
+        ),
+      ).toThrow(/OPENROUTER_API_KEY/);
     });
 
-    it("accepts production-like env with SENTRY_DSN", () => {
+    it("accepts production-like env with monitoring and OpenRouter configuration", () => {
       expect(() =>
-        assertMonitoringEnv(
+        assertProductionEnv(
           loadEnv({
             NODE_ENV: "production",
             SENTRY_DSN: "https://public@example.invalid/1",
+            OPENROUTER_API_KEY: "sk-or-test",
           }),
         ),
       ).not.toThrow();

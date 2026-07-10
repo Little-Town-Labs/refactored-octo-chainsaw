@@ -121,6 +121,20 @@ export function manifestAllowsModel(
   return null;
 }
 
+export function manifestAllowsCallerScope(
+  manifest: AiRuntimeManifest,
+  model: ModelProfileVersion,
+  callerScope: string,
+): AiOperationRefusal | null {
+  if (!manifest.caller_scopes.includes(callerScope)) {
+    return callerScopeRefusal("runtime manifest", callerScope);
+  }
+  if (!model.allowed_scopes.includes(callerScope)) {
+    return callerScopeRefusal("model profile", callerScope);
+  }
+  return null;
+}
+
 export function manifestAllowsPrompt(
   manifest: AiRuntimeManifest,
   prompt: PromptVersion,
@@ -159,5 +173,13 @@ function refusal(
     reason_code,
     message: `AI runtime manifest ${manifest.manifest_id}@${manifest.version} failed ${reason_code}.`,
     refs: { manifest_id: manifest.manifest_id, version: manifest.version },
+  };
+}
+
+function callerScopeRefusal(policy: string, callerScope: string): AiOperationRefusal {
+  return {
+    operation: "invoke_model",
+    reason_code: "unauthorized_caller",
+    message: `Caller scope "${callerScope}" is not allowed by the ${policy}.`,
   };
 }
