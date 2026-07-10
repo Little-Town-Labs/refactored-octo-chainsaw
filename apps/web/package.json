@@ -12,7 +12,7 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "@clerk/nextjs": "7.4.2",
+    "@clerk/nextjs": "7.5.2",
     "@spyglass/a2a": "workspace:*",
     "@spyglass/audit-log": "workspace:*",
     "@spyglass/auth": "workspace:*",
@@ -21,18 +21,18 @@
     "@spyglass/tickets": "workspace:*",
     "drizzle-orm": "^0.45.2",
     "inngest": "^4.5.0",
-    "next": "^16.2.7",
+    "next": "^16.2.9",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "svix": "^1.95.1",
+    "svix": "^1.95.2",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@playwright/test": "^1.60.0",
+    "@playwright/test": "^1.61.0",
     "@testing-library/dom": "^10",
     "@testing-library/jest-dom": "^6",
     "@testing-library/react": "^16",
-    "@types/node": "^24.12.4",
+    "@types/node": "^24.13.2",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.0.0",
     "typescript": "^5.9.0"
