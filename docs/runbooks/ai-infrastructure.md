@@ -19,6 +19,10 @@ Required production secret:
 OPENROUTER_API_KEY
 ```
 
+The shared production environment gate rejects a missing or whitespace-only
+key when server-side bootstrap calls `getEnv()`. Development and test paths
+remain keyless when they use deterministic fake gateways.
+
 Optional provider settings:
 
 ```text
@@ -86,7 +90,9 @@ through unscoped review reads.
 - Invalid manifest signature: revoke the manifest and refuse affected
   invocations until a signed replacement is active.
 - OpenRouter outage: use only manifest-authorized fallback behavior.
-  Otherwise fail closed with `gateway_unavailable`.
+  Otherwise fail closed with `gateway_unavailable`; the invocation record is
+  finalized as `failed` so audit and retry workflows do not retain an
+  indefinite `accepted` record.
 - OpenRouter key exposure: delete the compromised key in OpenRouter,
   create a replacement key, update deployment secrets, redeploy, and
   review invocation records for unexpected traffic.

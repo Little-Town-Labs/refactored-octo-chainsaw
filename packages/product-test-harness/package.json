@@ -34,6 +34,6 @@
     "@spyglass/test-harness": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^24.12.4"
+    "@types/node": "^24.13.2"
   }
 }
