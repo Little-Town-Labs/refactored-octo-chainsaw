@@ -24,6 +24,6 @@
   "dependencies": {
     "@spyglass/channels-core": "workspace:*",
     "@spyglass/shared": "workspace:*",
-    "grammy": "^1.42.0"
+    "grammy": "^1.44.0"
   }
 }
