@@ -46,7 +46,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version-file: ".nvmrc"
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v6.0.9
         with:
           version: 9.15.0
       - name: first run (full setup)
